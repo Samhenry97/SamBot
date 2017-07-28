@@ -1,5 +1,0 @@
-pymysql==0.7.9
-spotipy
-telepot==10.4
-pyowm
-pyttsx3
