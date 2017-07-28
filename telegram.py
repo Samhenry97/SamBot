@@ -3,7 +3,7 @@ import util, reminders, glob
 import telepot, pymysql
 
 from glob import message, m, tryFiller
-from reply import genReply, tests, filler
+from reply import genReply, tests, filler, loadReplies
 from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
 from database import Database
 from emoji import Emoji
@@ -67,7 +67,11 @@ async def onMessage(msg):
 		origText = text
 		text = text.lower()
 
-		if text.startswith('say'):
+		if text == 'update' or text == 'refresh':
+			await m(chatId, 'Refreshing Respons List...')
+			loadReplies()
+			await m(chatId, 'Done!')
+		elif text.startswith('say'):
 			glob.say(text[3:])
 		elif text.startswith('calc'):
 			try:
