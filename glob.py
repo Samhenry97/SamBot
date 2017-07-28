@@ -1,6 +1,6 @@
-import os, sys
+import os, sys, random, asyncio
 import telepot.aio, pyowm, pyttsx3
-import database
+import database, reply
 
 TOKEN = '265155953:AAFp_YxsPmVO8N4k6y6fkPIyXKBcumnif8Y'
 bot = answerer = db = owm = speech = None
@@ -34,6 +34,22 @@ def init():
 	print('Loading Speech Engine...')
 	speech = pyttsx3.init()
 	print('Done!\n')
+
+async def message(chatId, text, userInfo, *args):
+	global bot, speech
+	message = reply.genReply(text, userInfo, *args)
+	await bot.sendMessage(chatId, message)
+	speech.say(message)
+
+async def m(chatId, text):
+	global bot, speech
+	await bot.sendMessage(chatId, text)
+	speech.say(text)
+
+async def tryFiller(chatId, userInfo):
+	if(random.randint(0, 3) == 2):
+		await message(chatId, 'filler', userInfo)
+		await asyncio.sleep(random.randint(1, 4))
 
 def cleanup():
 	global db

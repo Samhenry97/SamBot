@@ -2,6 +2,7 @@ import util, glob
 import re
 from datetime import datetime, timedelta
 from reply import genReply
+from glob import message, m
 
 remindStart = re.compile('((remind( *me)?)|(set a reminder))(?P<command>.+)')
 remindToRegex = [
@@ -26,7 +27,7 @@ alarmAtRegex = [
 	re.compile(' *(at|for) *(((?P<h>[0-9][0-9]?)(:(?P<m>[0-9][0-9]))?(:(?P<s>[0-9][0-9]))? *(?P<ampm>am|pm)?)|(?P<timeofday>noon|afternoon|midnight|sunrise|sunset|dawn|dusk))(?P<offset>chicken)?')
 ]
 
-async def tryParse(text, origText, chatId, userInfo, messageFunc, mFunc):
+async def tryParse(text, origText, chatId, userInfo):
 	bot = glob.bot
 	db = glob.db
 
@@ -36,21 +37,21 @@ async def tryParse(text, origText, chatId, userInfo, messageFunc, mFunc):
 		for regex in remindToRegex:
 			r = regex.match(text)
 			if r:
-				message = r.group('message')
+				msg = r.group('message')
 				date = util.dateFromNow(r.group('amount'), r.group('units'))
-				db.addReminder(userInfo['id'], chatId, message, date)
-				await messageFunc(chatId, 'reminder', userInfo, str(date))
+				db.addReminder(userInfo['id'], chatId, msg, date)
+				await message(chatId, 'reminder', userInfo, str(date))
 				return True
 		for regex in remindAtRegex:
 			r = regex.match(text)
 			if r:
-				message = r.group('message')
+				msg = r.group('message')
 				date = util.dateWithOffset(r.group('h'), r.group('m'), r.group('s'), r.group('ampm'), r.group('timeofday'), r.group('offset'))
-				db.addReminder(userInfo['id'], chatId, message, date)
-				await messageFunc(chatId, 'reminder', userInfo, str(date))
+				db.addReminder(userInfo['id'], chatId, msg, date)
+				await message(chatId, 'reminder', userInfo, str(date))
 				return True
-		await messageFunc(chatId, 'noreminder', userInfo)
-		await messageFunc(chatId, 'reminderhelp', userInfo)
+		await message(chatId, 'noreminder', userInfo)
+		await message(chatId, 'reminderhelp', userInfo)
 		return False
 
 	mat = alarmStart.match(text)
@@ -60,33 +61,33 @@ async def tryParse(text, origText, chatId, userInfo, messageFunc, mFunc):
 		if r:
 			date = util.dateFromNow(r.group('amount'), r.group('units'))
 			db.addAlarm(userInfo['id'], chatId, date)
-			await messageFunc(chatId, 'alarm', userInfo, str(date))
+			await message(chatId, 'alarm', userInfo, str(date))
 			return True
 		for regex in alarmAtRegex:
 			r = regex.match(text)
 			if r:
 				date = util.dateWithOffset(r.group('h'), r.group('m'), r.group('s'), r.group('ampm'), r.group('timeofday'), r.group('offset'))
 				db.addAlarm(userInfo['id'], chatId, date)
-				await messageFunc(chatId, 'alarm', userInfo, str(date))
+				await message(chatId, 'alarm', userInfo, str(date))
 				return True
-		await messageFunc(chatId, 'noreminder', userInfo)
-		await messageFunc(chatId, 'reminderhelp', userInfo)
+		await message(chatId, 'noreminder', userInfo)
+		await message(chatId, 'reminderhelp', userInfo)
 		return False
 
 	if text.startswith('clear alarms') or text.startswith('clearalarms'):
 		if 'all' in text:
 			db.clearAlarms(userInfo['id'])
-			await mFunc(chatId, userInfo['first_name'] + ', all your alarms are cleared.')
+			await m(chatId, userInfo['first_name'] + ', all your alarms are cleared.')
 		else:
 			db.clearAlarms(userInfo['id'], chatId)
-			await mFunc(chatId, userInfo['first_name'] + ', your alarms for this chat are cleared.')
+			await m(chatId, userInfo['first_name'] + ', your alarms for this chat are cleared.')
 	elif text.startswith('clear reminders') or text.startswith('clearreminders'):
 		if 'all' in text:
 			db.clearReminders(userInfo['id'])
-			await mFunc(chatId, userInfo['first_name'] + ', all your reminders are cleared.')
+			await m(chatId, userInfo['first_name'] + ', all your reminders are cleared.')
 		else:
 			db.clearReminders(userInfo['id'], chatId)
-			await mFunc(chatId, userInfo['first_name'] + ', your reminders for this chat are cleared.')
+			await m(chatId, userInfo['first_name'] + ', your reminders for this chat are cleared.')
 	elif text.startswith('list alarms'):
 		ans = []
 		if 'all' in text:
@@ -110,7 +111,7 @@ async def tryParse(text, origText, chatId, userInfo, messageFunc, mFunc):
 		
 		for a in alarms:
 			ans.append('@' + str(a['time']))
-		await mFunc(chatId, '\n'.join(ans))
+		await m(chatId, '\n'.join(ans))
 	elif text.startswith('list reminders'):
 		ans = []
 		if 'all' in text:
@@ -134,7 +135,7 @@ async def tryParse(text, origText, chatId, userInfo, messageFunc, mFunc):
 		
 		for r in reminders:
 			ans.append('@ ' + str(r['time']) + ': ' + r['message'])
-		await mFunc(chatId, '\n'.join(ans))
+		await m(chatId, '\n'.join(ans))
 	else:
 		return False
 	return True

@@ -1,9 +1,8 @@
 import os, sys, time, random, hashlib, asyncio, subprocess, threading, requests, json, re
-import util, processes, reminders, glob
-import telepot.aio, pymysql, pyowm, pyttsx3
+import util, reminders, glob
+import telepot, pymysql
 
-from datetime import datetime, timedelta
-
+from glob import message, m, tryFiller
 from reply import genReply, tests, filler
 from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
 from database import Database
@@ -26,20 +25,6 @@ def addUser(info, chat):
 		print('Adding User: ' + str(info['id']))
 		glob.db.addUser(info['id'], info['username'], info['first_name'], info['last_name'])
 		glob.users[info['id']] = True
-
-async def tryFiller(chatId, userInfo):
-	if(random.randint(0, 3) == 2):
-		await message(chatId, 'filler', userInfo)
-		await asyncio.sleep(random.randint(1, 4))
-
-async def message(chatId, text, userInfo, *args):
-	message = genReply(text, userInfo, *args)
-	await glob.bot.sendMessage(chatId, message)
-	glob.speech.say(message)
-
-async def m(chatId, text):
-	await glob.bot.sendMessage(chatId, text)
-	glob.speech.say(text)
 
 ##################################################################################################
 ##################################################################################################
@@ -238,7 +223,7 @@ async def onMessage(msg):
 					await message(chatId, 'hot', userInfo, status, str(temp), str(clouds), str(humid))
 			except:
 				await m(chatId, 'Couldn\'t get the weather... Try Again?')
-		elif not await reminders.tryParse(text, origText, chatId, userInfo, message, m):
+		elif not await reminders.tryParse(text, origText, chatId, userInfo):
 			for k, v in tests.items():
 				if v != 'manual' and eval(v):
 					if k in filler:

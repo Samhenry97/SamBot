@@ -34,6 +34,7 @@ def techWritingKeepAlive():
 	while True:
 		try:
 			requests.get('http://bootableusb.herokuapp.com')
+			time.sleep(1)
 		except KeyboardInterrupt:
 			print('Tech Writing Keep Alive Shutting Down...')
 			break
