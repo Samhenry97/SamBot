@@ -1,0 +1,18 @@
+calc - Calculate a mathematical expression
+infix - Infix to Postfix
+postfix - Evaluate Postfix
+callme - Set your nickname
+time - Get current date and time
+tim - You'll see!
+hi - Greetings!
+hey - Greetings!
+hello - Greetings!
+marryme - You'll see
+haha - Sassy comments
+emoji - Random emoji
+gravatar - Return gravatar for an email
+rand - Return a random number in a range
+python - Evaluate a python expression
+ilike - What do you like?
+idontlike - What do you not like?
+likes - List your likes

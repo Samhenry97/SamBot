@@ -1,0 +1,87 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+file_extensions: [sbot]
+scope: source
+contexts:
+  main:
+    # Comments begin with a '//' and finish at the end of the line
+    - match: '#'
+      scope: punctuation.definition.comment
+      push: comments
+
+    - match: '^\{start\}$'
+      scope: variable.parameter
+      push: block
+
+    # Variable Insertion using {var}
+    - match: '{'
+      scope: punctuation.definition.string.begin
+      push: brackets
+
+    # Keywords are if, else for and while.
+    # Note that blackslashes don't need to be escaped within single quoted
+    # strings in YAML. When using single quoted strings, only single quotes
+    # need to be escaped: this is done by using two single quotes next to each
+    # other.
+    - match: '^(key)\b'
+      scope: keyword.control
+      push: keyword
+    - match: '^(filler)$'
+      scope: keyword.control
+    - match: '^(test) manual$'
+      scope: keyword.control
+    - match: '^\b(test)\b'
+      scope: keyword.control
+      push: Packages/Python/Python.sublime-syntax
+      with_prototype:
+        - match: $
+          pop: true
+
+    # Numbers
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric
+
+  comments:
+    - meta_scope: comment.line
+    - match: $
+      pop: true
+    - match: \{
+      push: brackets
+
+  keyword:
+    - meta_scope: entity.name.function
+    - match: $
+      pop: true
+
+  block:
+    - meta_scope: string.quoted.double
+    - match: '^\{end\}$'
+      scope: variable.parameter
+      pop: true
+    - match: \{
+      push: brackets
+
+  brackets:
+    - meta_scope: constant.other.placeholder
+    - include: line_comment
+    - match: '([^\}]*)\}(\(?)([0-9]+)(,)([0-9]*)(\)?)'
+      captures:
+        1: storage.type
+        2: keyword.operator
+        3: constant.numeric
+        4: keyword.operator
+        5: constant.numeric
+        6: keyword.operator
+      pop: true
+    - match: '([^\}]*)\}(\(?)([0-9]+)(\)?)'
+      captures:
+        1: storage.type
+        2: keyword.operator
+        3: constant.numeric
+        4: keyword.operator
+      pop: true
+    - match: '([^\}]*)\}'
+      captures:
+        1: storage.type
+      pop: true

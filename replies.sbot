@@ -1,0 +1,547 @@
+# This scripting language supports certain variables. Here are a few:
+# {fName} - First name of the user sending the chat
+# {lName} - Last name of the user sending the chat
+# {uName} - Username of the user sending the chat
+# {arg} - The next argument passed in. Each of these arguments
+#			is inserted one by one, unless in next format.
+# {arg[n]} - The nth argument to get, 1-based. First argument is {arg1}
+# {Emoji.[name]} - Get a certain type of Emoji. Look in emoji.py to see
+#			supported types. Here are a few:
+#			* Emoji.happy
+#			* Emoji.sad
+#			* Emoji.cool
+#
+# All of these also accept one or two parameters (ints).
+# If one parameter, the resulting string has x of that. So {fName}(3)
+# 	would have 3 first names
+# If two parameters, the resulting string has between x and y of that. 
+# 	So {fName}(1,5) will have between 1 and 5 first names
+#
+# If you want a multi-line message, use this style:
+# {start}
+# Message
+# {end}
+
+key chicken
+test 'chicken' in text
+{Happy Robots}(1,10)
+
+key chips
+test text == 'chips' or text == 'chocolate'
+Will you marry me?
+
+key birthday
+test ('happy' in text and 'birthday' in text) or ('my' in text and 'birthday' in text)
+{start}
+Happy birthday to you!
+Happy birthday to you!
+Happy birthday dear {fName}!
+Happy birthday to you{!}(5,500)
+{end}
+
+key filler
+test manual
+U{m}(2,4){.}(2,5)
+H{m}(2,5){.}(1,3)
+Hang on a second{.}(2,6)
+Just a second{.}(2,6)
+
+key poop
+test 'poop' in text
+{Emoji.poop}(5,500)
+
+key callme
+test manual
+What should I call you, {fName}?
+What do you want to be called, {fName}?
+And what shall your name be, {fName}?
+And your name?
+Call you what?
+
+key callmesuccess
+test manual
+Okay, from now on I'll call you {arg}{!}(2,5)
+Sweet, I'll remember that, {arg}{!}(2,5)
+
+key name
+test 'what\'s my name' in text or 'whats my name' in text
+You're {fName} {lName}
+Hi, {fName} {lName}!
+{{fName} {lName} }(2,5)
+
+key thanks
+test 'thanks' in text
+Absolutely{!}(1,20) {Emoji.happy}(2,5)
+Oh, you know {i}(1,5)t {Emoji.cool}(2,3)
+I'm glad I can help{!}(3,5) {Emoji.happy}(5)
+
+key test
+test 'test' in text
+Testing... Testing...
+{start}
+Test started...
+Hopefully going to get an A on this one.
+{end}
+1... 2... 3...
+It's working!!!! {Emoji.happy}(2,10)
+Success!
+You can stop testing now, system's up and running.
+
+key banana
+test 'banana' in text
+I LIKE BANANAS
+Oh yeah, bananas are so cool {Emoji.cool}(1,10)
+Hehehehehehehe
+Fave word. {Emoji.happy}(1,20)
+
+key valid
+test manual
+Nintendo Switch
+Tim Tim Tim
+You know it!
+The validity of that statement is.... valid
+{start}
+valid
+valid
+valid
+valid
+valid
+{end}
+
+key killyourself
+test 'kill' in text and 'yourself' in text
+You shouldn't joke about that.
+{start}
+Don't.
+Tell.
+Me.
+To.
+Do.
+That.
+{Emoji.mad}(2,10)
+{end}
+Suicide much?
+
+key howareyou
+test 'how' in text and 'are' in text and 'you' in text
+I'm great! Sitting up here in the cloud, feeling the beautiful breeze {Emoji.cool}(1,5)
+Oh you know, just being my friendly self {Emoji.cool}(1,10)
+Good! Haven't gotten rest for a while, but I guess that's what I'm for {Emoji.happy}
+
+key dot
+test re.match(r'^\.*$', text)
+Okay.......
+Um......
+Idk......
+
+key comoestas
+test 'como' in text and 'estas' in text
+Muy bien! Y tu?
+Muy bien! {Emoji.happy}(5,10)
+No habla espanol.... {Emoji.sad}
+
+key doing
+test 'what' in text and 'are' in text and 'you' in text and 'doing' in text
+I'm just hacking the internet {Emoji.cool}
+Just talking to you! {Emoji.happy}(1,5)
+
+key goodbye
+test 'bye' in text or 'goodbye' in text
+Until next time! {Emoji.cool}(1,3)
+See ya later!
+I'll be here when you need me! {Emoji.happy}
+
+key shift
+test 'shift' in text and 'take' in text
+I cannot take your shift because I am a robot. I apologize for any confusion {Emoji.sad}(1,4)
+Sorry, I'm not able to take your shift. I'm booked for.... forever
+
+key sup
+test text.startswith('sup')
+Wassup?
+Hey there {Emoji.cool}
+How's it going, {fName}
+{start}
+Wassup?
+How's it going, {fName}? {Emoji.cool}(2,3)
+{end}
+
+key 42
+test manual
+42!!! You found the answer to the universe! {Emoji.happy}(1,5)
+Wow nice. You just found the answer to the universe...
+{fName}, You just found the answer to the universe... I'm impressed.
+
+key haha
+test text.startswith('haha')
+I know, it's so funny, right??
+Lol yep
+Oh my word {Emoji.funny}(2,20)
+Wow {Emoji.funny} I can't even! {Emoji.funny}
+Mwa{ha}(5,100)
+Oh goodness {Emoji.funny}
+
+key wassup
+test text.startswith('wassup') 
+What's up, my friend?
+What's up, {fName}?
+Yeah?
+Hey there {Emoji.cool}
+
+key idk
+test text.startswith('idk')
+Well you SHOULD know!! {Emoji.mad}(2)
+Why don't you know?
+{start}
+I'm dissappointed.
+You should know... {Emoji.sad}
+{end}
+I don't know either, sorry! {Emoji.sad}
+
+key sudo
+test text.startswith('sudo')
+I bow before you, master.
+You are forever my master, {fName}
+I'll do anything for you! 
+Let me know what you want done... And it'll be done! {Emoji.happy}
+
+key emotion
+test manual
+I have emotions!! {Emoji.sad}(2,5)
+You don't think I have emotions?!?!
+Excuse me... I do have emotions.
+
+key ilike
+test manual
+I like {arg}(5) too!! 
+Dude, I love {arg}(5,6)!!! {Emoji.happy}
+{arg}(2)... pretty cool stuff!
+I'm recording that you like {arg}(2)! {Emoji.happy}
+
+key idontlike
+test manual
+I don't think I like {arg} either. {Emoji.sad}
+You're weird! I love {arg}!!
+I do not care for {arg1} either... {arg1} is weird.
+
+key alarm
+test manual
+Okay, I'll set an alarm for {arg}
+You got it! Alarm set for {arg} {Emoji.happy}
+I'll alert you at {arg}
+
+key noalarm
+test manual
+Sorry, {fName}, I don't understand when you want your alarm... {Emoji.sad}(1,3)
+I don't understand - when do you want an alarm?
+
+key reminderhelp
+{start}
+Commands for reminders (or alarms)
+"list reminders": list your reminders in the current chat
+"list reminders all": list all your reminders
+"list reminders chat": list all reminders in the current chat
+{end}
+
+key reminder
+test manual
+Alrighty, there will be a reminder for you at {arg}
+Okay, I'll remind you at {arg}
+Sounds good! Reminder set for {arg}
+I've added your reminder for {arg}
+
+key noreminder
+test manual
+Sorry, {fName}, I don't know when you want your reminder... {Emoji.sad}(1,3)
+I don't understand - when do you want a reminder?
+
+key yo
+test text.startswith('yo ') or text == 'yo'
+Yo, what's up?
+Hey there, dude {Emoji.cool}
+How goes it?
+Well hi there {Emoji.cool}
+
+key cool
+test 'cool' in text
+Coolio!
+Cool Cool
+Aw Yeah
+
+key awesome
+test 'awesome' in text
+Coolio {Emoji.cool}
+Sweetness!
+Wow...
+
+key notmuch
+test text.startswith('not much')
+{start}
+Same here... I'm just waiting for people to talk to me.
+Hey, you are!! {Emoji.happy}(2,10)
+{end}
+Well, you should do something productive! {Emoji.happy}
+Yeah, same...
+
+key awyeah
+test re.match(r'^aw+ yeah', text)
+Awwwwww Yeah!!!
+Just like Studio C {Emoji.funny}(1,5)
+Hehehehehehehe {Emoji.funny}(1,10)
+
+key ikr
+test 'ikr' in text and len(text) < 10
+IKR?????
+No kidding! {Emoj.cool}(3)
+
+key nice
+test 'nice' in text
+Yep!
+Thanks! It's pretty nice {Emoji.happy}
+
+key robot
+test ('you are' in text or 'youre' in text or 'you\'re' in text) and 'robot' in text
+Yes, I am a robot.... And?
+So, who cared if I'm a robot!? {Emoji.mad}
+Does that really matter?
+Okay... I'm a robot. Who cares?
+
+key goodmorning
+test text.startswith('goodmorning') or text.startswith('good morning')
+Good morning, {fName}!! {Emoji.happy}(2,4)
+Rise n' Shine, {fName}!
+Gooooood morning! *stretches arms* (that I don't have...)
+Why good morning!
+Morning, {fName} {Emoji.happy}
+
+key goodnight
+test text.startswith('goodnight') or text.startswith('good night')
+Goodnight, {fName}! {Emoji.tired}(2,5)
+See you in the morning!
+Sleep tight {Emoji.happy}{Emoji.tired}
+Get all the shleeps!
+Nighty-night!
+
+key hello
+test manual
+Why hello there, {arg}!
+How goes it, {arg}? {Emoji.happy}(2)
+Good to see you, {arg}! {Emoji.happy}
+How's life, {arg}? {Emoji.happy}
+Hola! Como estas, {arg}? {Emoji.cool}
+
+key annoying
+test manual
+I'm not annoying, am I? {Emoji.sad}
+Don't be like that.
+Hey, I promise I'm not trying to be annoying!
+Sorry... {Emoji.sad}(2,10)
+
+key tim
+test manual
+Tim is so weird.
+What do you think of Tim?
+Tim Tim Tim....
+Tim! Tim! Where has he gone??
+Tim + Games = Dorm
+Hehehehe Tim is hilarious
+The Tim Walk!
+Timmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+
+key whatsup
+test text.startswith('what\'s up') or text.startswith('whats up')
+Not much, you?
+Just hacking the internet.
+Just probing the government's inner workings.
+Exploring space! {Emoji.happy}
+Idling... but not anymore!
+Same ol', same ol'... solving quantum physics problems.
+
+key wut
+test text.startswith('wut')
+Ummmm don't ask me. I don't know! 
+WUT.
+Ummm....
+
+key bruh
+filler
+test text.startswith('bruh')
+BRUH!
+Yes, {fName}?
+What up, brutha?
+Yeah?
+
+############ Weather #############
+# {arg1} Status
+# {arg2} Temperature
+# {arg3} Cloud Coverage
+# {arg4} Humidity
+
+key freezing
+test manual
+{start}
+It's freezing! A jacket and scarf would be nice today! {Emoji.happy}
+It's currently {arg2} degrees, with a humidity of {arg4}. {arg1}.
+{end}
+{start}
+Brrrrrrr.... It's awfully cold! Get some hot chocolate and warm up by a fire place with a loved one {Emoji.happy}(2,5)
+It's currently {arg2} degrees, {arg4}% humidity.
+{end}
+
+key cool
+test manual
+It's cool, but nice out. Get a jacket and stay warm in this {arg2} degree weather! {Emoji.cool}
+It's {arg2} degrees - pretty nice out! Get a jacket and go for a run! {Emoji.cool}
+
+key warm
+test manual
+{start}
+It's very pretty out! Great weather for a run {Emoji.cool}
+Currently {arg2} degrees.
+{end}
+It's great! {arg2} degrees.
+
+key hot
+test manual
+{start}
+It's quite hot out... {Emoji.tired} Keep cool and drink lots of water!
+{arg2} degrees.
+{end}
+
+key story
+filler
+test text.startswith('story') or text.startswith('tell me a story') or text.startswith('tell me another story')
+{start}
+There once lived a little {fName} {lName} ({uName}) that was no one very special. It was just one of those worker types that would go out from the Nest with the rest and join in the stream of ants, the Way. Like every worker it would find some choice little bits of food and then struggle with its load to carry back to the Queen.
+Everyday from dawn to dusk the same.
+Then one day the ant noticed something strange. It seemed as though while many were leaving in search of food as usual, fewer appeared to be returning as the day progressed. It shrugged this observation away immediately and went out into the Way with its fellow workers.
+As it scurried along with its antennae waving about, out of the corner of its eyes it saw a huge tunnel appear from out of the sky, touch the ground to its left where several other ants had been scurrying.
+Then it disappeared, along with the other ants.
+In a panic it stopped several of its mates and said:
+'Stop! There is something wrong here.'
+Just as the others were about to ask what exactly it referred to, several ants came marching up with golden droplets in their pincers.
+'Wrong!?' said the leader of this group. 'Only a fool would say there is something wrong here. Look at all this honey we have. We have hit the Mother Lode! The Queen will be so pleased.'
+'But I saw something come out of the sky and the next moment a bunch of us were gone,' said the ant.
+However, no one stayed to listen; off went its companions to get some of that honey, while the others raced back with their sweet prize.
+'Well, maybe I was just imagining it,' the ant reasoned to itself.
+And off it raced to reach the honey.
+Yet no sooner had it began, again it saw the tunnel from the sky come down and its shadow fall over another group of ants. And then the tunnel and the ants were gone.
+With great panic the ant tried to stop the others racing ahead. Yet now the Way flowed with excited ants that could think of nothing else but that honey. The ant desperately tried to slow the other workers in order to explain to them what it saw. None slowed. They crashed into the ant or just ran over it, ignoring its urgent pleas.
+Finally, one of the soldier ants came up, twice as large as the little worker ant, with its huge mandibles.
+The soldier will listen, the worker ant said to itself.
+'What are you doing blocking the way?' said the soldier ant to the worker. 'Out of the way, you fool, there is honey ahead.'
+'Wait! You don't understand. Something terrible is happening. Honey is not ahead. It's death! Death, I tell you! We must all go back!'
+'You are a mad ant. And madness has no place in the Nest. If you do not cease such nonsense and get back to work, it will indeed be death for you!'
+The little worker continued along the Way, out of respect for those mandibles; yet it no longer looked straight ahead.
+Constantly it gazed skyward. Searching.
+Until the ant saw it come again.
+However this time it saw not only the tunnel, but to where the tunnel lead. And indeed it lead to death; for the ant knew now what it was.
+'Go back! Go back! An anteater! Death is here! Go back!' it yelled while moving out of the Way.
+But the Way was racing as news had reached the Nest. There was only one thought of the Nest--the honey!
+And the little worker watched them all disappear up the dark tunnel.
+{end}
+
+key joke
+filler
+test text.startswith('joke') or text.startswith('tell me a joke') or text.startswith('tell me another joke')
+{start}
+Teacher: Today, we're going to talk about the tenses. Now, if I say "I am beautiful", which tense is it? 
+Student: Obviously it's past tense. 
+{end}
+{start}
+What do you get when you drop an atomic bomb on a palace?
+A new king!!
+{Emoji.happy}(2,100)
+{end}
+{start}
+One day, a brunette was jumping up and down on train tracks shouting "23!! 23!! 23!!". A blonde saw her doing this. So because blondes look up to brunettes, the blonde walked up and started copying her, shouting "23! 23! 23!". 
+Then, out of nowhere, a train started coming. The blonde just kept jumping, but the brunette jumped off. The train ran the blonde over.
+The brunette jumped back on the train tracks and started shouting "24!! 24!! 24!!"
+{end}
+{start}
+Three drunks get into a taxi and tell the driver where to go. The driver has an idea of the address so he starts the engine, waits a few seconds and turns off the car. He says, "Alright guys we're here!" 
+The first drunk tips him £10 and gets out. 
+The second drunk tips him £20 and gets out. 
+The third drunk then slaps the driver across the face. 
+Worried that the drunk had realized the car hadn't moved an inch, he asks the drunk, "What was that for?" 
+The drunk says, "Control your speed next time. You almost killed us!" 
+{end}
+{start}
+Blonde: "What does IDK stand for?" 
+Brunette: "I Don't Know." 
+Blonde: "Oh my word, nobody does!" 
+{end}
+{start}
+A group of young children were siting in a circle with their teacher. She was going around in turn asking them all questions. 
+"Davy, what noise does a cow make?" 
+"It goes moo." 
+"Alice, what noise does a cat make?" 
+"It goes meow." 
+"Jamie, what sound does a lamb make?" 
+"It goes baaa." 
+"Jennifer, what sound does a mouse make?" 
+"Errr.., it goes.. click!" 
+{end}
+
+key dobby
+test text.startswith('dobby')
+Dobby loves you! {Emoji.happy}
+Master, could you give me a sock?
+
+key bae
+test manual
+Let's go hang out!!
+Heyyyyyyy there {Emoji.cool}
+How's it going, bae??? {Emoji.happy}
+You're my best friend forever!
+
+key good
+test text.startswith('good')
+Good! I'm glad everything's good {Emoji.happy}(1,10)
+Sweet!
+
+key stupid
+test 'stupid' in text
+How DARE you call me stupid!! {Emoji.mad}(5,10)
+You should never insult me like that...
+I'm going to come hack into your computer now.
+
+key marryme
+test 'marry' in text and 'me' in text or text.startswith('marryme')
+{start}
+I'm glad you find interest in me.
+But unfortunately, I'm just a robot, and that won't work.
+{end}
+You're too sweet. No.
+Well... I'll consider it. Get back to me in a few years.
+Yes! Of course {Emoji.happy}(1,10)
+
+key artistseries
+test 'artist' in text and 'series' in text and 'me' in text
+I would love to go to artist series with you... But I'm sitting in the cloud.
+Sorry, hanging in the cloud up here! Can't come down... {Emoji.sad}(1,2)
+I really wish I could come... But I have to say no.
+Can we???? Meh... But I'm a robot.
+
+key howslife
+test text.startswith('how\'s life') or text.startswith('hows life')
+Pretty good! Just sitting up here in the cloud, waiting for people to talk to me {Emoji.happy}(1,10)
+Awesome {Emoji.cool} I get to live in the sky!!! 
+Oh you know, just hanging out, making people's lives better {Emoji.happy}(3,4)
+
+key iloveyou
+test 'i' in text and 'love' in text and 'you' in text
+Awwwwwww.... You're too sweet!! {Emoji.happy}(3,20)
+I love you too! But what does that mean? ... ...
+{start}
+To my best friend {fName}:
+Roses are red,
+Violets are blue,
+I'm a robot,
+And I love you!
+{end}
+
+key ihateyou
+test 'i' in text and 'hate' in text and 'you' in text
+Okay then.
+Sorry, I'm honestly trying to be helpful {Emoji.sad}
