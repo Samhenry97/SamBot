@@ -68,7 +68,7 @@ async def onMessage(msg):
 		text = text.lower()
 
 		if text.startswith('say'):
-			glob.speech.say(text[3:])
+			glob.say(text[3:])
 		elif text.startswith('calc'):
 			try:
 				e = ExpressionSolver(text[4:])

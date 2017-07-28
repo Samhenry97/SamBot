@@ -16,6 +16,7 @@ async def main(executor):
 			'chosen_inline_result': telegram.onInlineResult
 		}))
 	]
+	print('Listening...')
 	await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
 
 

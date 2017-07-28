@@ -1,5 +1,6 @@
 import pymysql, pyttsx3
 import threading, asyncio, requests, time
+import glob
 from util import getDate
 from database import Database
 
@@ -42,7 +43,10 @@ def techWritingKeepAlive():
 def speechEngine(engine):
 	while True:
 		try:
-			engine.runAndWait()
+			if len(glob.speechQueue) > 0:
+				engine.say(glob.speechQueue[0])
+				del glob.speechQueue[0]
+				engine.runAndWait()
 		except KeyboardInterrupt:
 			print('Speech Engine Shutting Down...')
 			break
