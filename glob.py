@@ -10,14 +10,7 @@ speechQueue = []
 def init():
 	global bot, answerer, db, owm, speech, users, chat, chatUsers
 	print('\n' + '-' * 50)
-
-	if len(sys.argv) == 2 and sys.argv[1] == 'DEBUG': # Debug Mode?
-		os.environ['DEBUG'] = 'true'
-		print('Initializing in Debug Mode...')
-	else:
-		os.environ['DEBUG'] = 'false'
-		print('Initializing in Production Mode...')
-
+	print('Initializing in Production Mode...')
 	print('-' * 50 + '\n')
 	print('Loading Bot...')
 	bot = telepot.aio.Bot(TOKEN)

@@ -197,19 +197,10 @@ class Database:
 		self.conn.close()
 
 	def open(self):
-		if os.environ['DEBUG'] == 'true':
-			self.conn = pymysql.connect(
-				host='localhost',
-				user='root',
-				password='password',
-				db='telegram',
-				charset='utf8',
-				cursorclass=pymysql.cursors.DictCursor)
-		else:
-			self.conn = pymysql.connect(
-				host='sql9.freemysqlhosting.net',
-	            user='sql9158159',
-	            password='Xd13vAdJRQ',
-	            db='sql9158159',
-	            charset='utf8',
-	            cursorclass=pymysql.cursors.DictCursor)
+		self.conn = pymysql.connect(
+			host='localhost',
+			user='root',
+			password='password',
+			db='telegram',
+			charset='utf8',
+			cursorclass=pymysql.cursors.DictCursor)
