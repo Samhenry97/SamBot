@@ -42,7 +42,7 @@ def replaceWithVar(reply, name, value):
 		return value * random.randint(x, y)
 	return re.sub('\{' + name + '\}(\(([0-9]+)(,([0-9]+))?\))?', calcValue, reply)
 
-emojiRegex = re.compile('\{Emoji\.(.+)\}(\(([0-9]+)(,([0-9]+))?\))?')
+emojiRegex = re.compile('\{Emoji\.([^{]+)\}(\(([0-9]+)(,([0-9]+))?\))?')
 argRegex = re.compile('\{arg\}(\(([0-9]+)(,([0-9]+))?\))?')
 argNRegex = re.compile('\{arg([0-9]+)\}(\(([0-9]+)(,([0-9]+))?\))?')
 wordRegex = re.compile('\{([^\{]+)\}(\(([0-9]+)(,([0-9]+))?\))?')

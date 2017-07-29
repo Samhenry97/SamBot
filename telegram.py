@@ -72,7 +72,7 @@ async def onMessage(msg):
 			loadReplies()
 			await m(chatId, 'Done!')
 		elif text.startswith('say'):
-			glob.say(text[3:])
+			glob.say(userInfo['first_name'] + ' ' + userInfo['last_name'] + ' says: ' + text[3:])
 		elif text.startswith('calc'):
 			try:
 				e = ExpressionSolver(text[4:])
