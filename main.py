@@ -14,7 +14,8 @@ async def main(executor):
 			'callback_query': telegram.onCallbackQuery,
 			'inline_query': telegram.onInlineQuery,
 			'chosen_inline_result': telegram.onInlineResult
-		}))
+		})),
+		loop.create_task(processes.manual())
 	]
 	print('Listening...')
 	await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)

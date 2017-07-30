@@ -520,3 +520,52 @@ key ihateyou
 test 'i' in text and 'hate' in text and 'you' in text
 Okay then.
 Sorry, I'm honestly trying to be helpful {Emoji.sad}
+
+key llama
+test 'llama' in text
+I LOVE LLAMAS {Emoji.happy}(5,50)
+Llamas are so amazing that I want to spit back at them
+Llama Drama
+Hehehehehe llamas
+{start}
+Llamas
+Llamas
+Mamas
+Llamas
+{end}
+
+key icecream
+test 'ice cream' in text
+{start}
+I scream
+You scream
+We all scream
+FOR ICE CREAM {Emoji.cool}(2,50)
+{end}
+Yummyyyyyyyy
+Oh yeah buddy
+Can I have some please???? {Emoji.sad}(1,2)
+
+key fart
+test 'fart' in text
+Toot
+That really smells
+Could you not...? We're inside bruh.
+MAN. I'm leaving.
+
+key minecraft
+test 'minecraft' in text
+I love minecraft! It's my favorite game {!}(1,10)
+Isn't mineraft the best game {e}(2,5)ve{r}(2,5){?}(2,5)
+
+key doyoulike
+test manual
+Oh my word, I LOVE {arg}!
+Yeah buddy, {arg} are the best thing ever!
+U{m}(1,5), not really dude. {arg} are kinda weird.
+
+key tired
+test 'tired' in text and ('im' in text or "i'm" in text)
+I understand.
+You got this! I'm your biggest cheerleader! 
+Keep it up {Emoji.cool}(1,5)

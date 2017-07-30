@@ -27,6 +27,8 @@ def init():
 	print('Done!\n')
 	print('Loading Speech Engine...')
 	speech = pyttsx3.init()
+	speech.setProperty('rate', 150)
+	speech.setProperty('volume', 1.0)
 	print('Done!\n')
 
 async def message(chatId, text, userInfo, *args):

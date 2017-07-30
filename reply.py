@@ -56,7 +56,7 @@ def genReply(replyType, info, *args):
 	def emoji(m):
 		x = int(m.group(3)) if m.group(3) else 1
 		y = int(m.group(5)) if m.group(5) else x
-		return Emoji.get(m.group(1)) * random.randint(x, y)
+		return Emoji.get(m.group(1), x, y)
 	reply = emojiRegex.sub(emoji, reply)
 
 	argIndex = -1

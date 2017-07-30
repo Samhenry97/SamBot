@@ -22,6 +22,7 @@ while s.lower() != 'quit':
 		if len(u) == 1:
 			chat = db.getPrivateChat(u[0]['id'])
 			bot.sendMessage(chat['id'], msg)
+			print('Sent message.')
 		elif len(u) == 0:
 			print('Could not find user.')
 		else:
@@ -32,6 +33,7 @@ while s.lower() != 'quit':
 			if ans >= 0 and ans < len(u):
 				chat = db.getPrivateChat(u[ans]['id'])
 				bot.sendMessage(chat['id'], msg)
+				print('Sent message.')
 			else:
 				print('Please enter a correct user.')
 	s = input()

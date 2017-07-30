@@ -36,7 +36,7 @@ async def onMessage(msg):
 
 		contentType, chatType, chatId = telepot.glance(msg)
 		userInfo = msg['from']
-		print('Chat:', contentType, chatType, chatId)
+		print('Chat:', contentType, chatType, chatId, '(' + userInfo['first_name'] + ' ' + userInfo['last_name'] + ')')
 
 		addUser(userInfo, chatId)
 
@@ -67,10 +67,13 @@ async def onMessage(msg):
 		origText = text
 		text = text.lower()
 
-		if text == 'update' or text == 'refresh':
-			await m(chatId, 'Refreshing Respons List...')
+		if text == 'update' or text == 'refresh' or text == 'reload':
+			await m(chatId, 'Refreshing Response List...')
 			loadReplies()
 			await m(chatId, 'Done!')
+		elif text.startswith('do you like'):
+			arg = text[11:].strip().replace('?', '')
+			await message(chatId, 'doyoulike', userInfo, arg)
 		elif text.startswith('say'):
 			glob.say(userInfo['first_name'] + ' ' + userInfo['last_name'] + ' says: ' + text[3:])
 		elif text.startswith('calc'):
@@ -212,7 +215,7 @@ async def onMessage(msg):
 				await m(chatId, 'Calculating...')
 				r = requests.get('http://freegeoip.net/json')
 				j = json.loads(r.text)
-				weather = owm.weather_around_coords(j['latitude'], j['longitude'])[0].get_weather()
+				weather = glob.owm.weather_around_coords(j['latitude'], j['longitude'])[0].get_weather()
 				temp = weather.get_temperature('fahrenheit')['temp']
 				clouds = weather.get_clouds()
 				humid = weather.get_humidity()
