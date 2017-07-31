@@ -61,11 +61,15 @@ async def onMessage(msg):
 
 		contentType, chatType, chatId = telepot.glance(msg)
 		userInfo = msg['from']
-		print('Chat:', contentType, chatType, chatId, '(' + userInfo['first_name'] + ' ' + userInfo['last_name'] + ')')
 
 		addUser(userInfo, chatId)
 
-		if contentType != 'text':
+		if contentType == 'text':
+			print('Message from', userInfo['first_name'], userInfo['last_name'])
+			print('\tChat ID:', chatId, '(Private)' if chatId >= 0 else '(Public)')
+			print('\tMessage:', msg['text'], '\n')
+		else:
+			print('Message:', contentType, chatType, chatId, '(' + userInfo['first_name'], userInfo['last_name'] + ')')
 			return
 
 		text = msg['text']

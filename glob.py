@@ -11,7 +11,7 @@ def init():
 	global bot, answerer, db, owm, speech, users, chat, chatUsers
 	print('\n' + '-' * 50)
 	print('Initializing in Production Mode...')
-	print('-' * 50 + '\n')
+	print('-' * 50)
 	print('Loading Bot...')
 	bot = telepot.aio.Bot(TOKEN)
 	answerer = telepot.aio.helper.Answerer(bot)
@@ -29,7 +29,8 @@ def init():
 	speech = pyttsx3.init()
 	speech.setProperty('rate', 150)
 	speech.setProperty('volume', 1.0)
-	print('Done!\n')
+	print('Done!')
+	print('-' * 50 + '\n')
 
 async def message(chatId, text, userInfo, *args):
 	global bot, speech
