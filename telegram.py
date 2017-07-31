@@ -76,7 +76,8 @@ async def onMessage(msg):
 		elif text == 'git pull':
 			await m(chatId, os.popen('git pull origin master').read())
 		elif text == 'git push':
-			await m(chatId, os.popen('git push origin master').read())
+			print(os.popen('git push origin master').read())
+			await m(chatId, 'Done!')
 		elif text.startswith('git commit'):
 			await m(chatId, os.popen(text).read())
 		elif text == 'git status':
