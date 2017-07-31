@@ -48,6 +48,8 @@ def speechEngine(engine):
 				engine.say(glob.speechQueue[0])
 				del glob.speechQueue[0]
 				engine.runAndWait()
+			else:
+				time.sleep(1)
 		except KeyboardInterrupt:
 			print('Speech Engine Shutting Down...')
 			break

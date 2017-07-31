@@ -1,8 +1,11 @@
-import asyncio, threading, concurrent.futures
+import sys, asyncio, threading, concurrent.futures
 import processes, glob, telegram
 
 async def main(executor):
 	glob.init()
+	
+	if len(sys.argv) >= 2:
+		await glob.m(int(sys.argv[1]), 'Back and Running!')
 
 	loop = asyncio.get_event_loop()
 	tasks = [

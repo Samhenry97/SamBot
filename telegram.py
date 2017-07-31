@@ -67,7 +67,13 @@ async def onMessage(msg):
 		origText = text
 		text = text.lower()
 
-		if text == 'update' or text == 'refresh' or text == 'reload':
+		if text == 'reboot':
+			if len(sys.argv) >= 2:
+				sys.argv = sys.argv[:1]
+			else:
+				await m(chatId, 'Rebooting...')
+				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chatId)])
+		elif text == 'update' or text == 'refresh' or text == 'reload':
 			await m(chatId, 'Refreshing Response List...')
 			loadReplies()
 			await m(chatId, 'Done!')
