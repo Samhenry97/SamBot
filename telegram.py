@@ -74,9 +74,9 @@ async def onMessage(msg):
 				await m(chatId, 'Rebooting...')
 				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chatId)])
 		elif text == 'git pull':
-			await m(os.popen('git pull upstream master').read())
+			await m(chatId, os.popen('git pull origin master').read())
 		elif text == 'git push':
-			await m(chatId, os.popen('git push upstream master').read())
+			await m(chatId, os.popen('git push origin master').read())
 		elif text.startswith('git commit'):
 			await m(chatId, os.popen(text).read())
 		elif text == 'git status':
