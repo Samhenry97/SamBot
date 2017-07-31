@@ -25,6 +25,10 @@ def addUser(info, chat):
 		print('Adding User: ' + str(info['id']))
 		glob.db.addUser(info['id'], info['username'], info['first_name'], info['last_name'])
 		glob.users[info['id']] = True
+		
+def processOutput(command):
+	p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+	return p.communicate()[0].decode('utf-8')
 
 ##################################################################################################
 ##################################################################################################
@@ -74,14 +78,13 @@ async def onMessage(msg):
 				await m(chatId, 'Rebooting...')
 				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chatId)])
 		elif text == 'git pull':
-			await m(chatId, os.popen('git pull origin master').read())
+			await m(chatId, processOutput('git pull origin master'))
 		elif text == 'git push':
-			print(os.popen('git push origin master').read())
-			await m(chatId, 'Done!')
+			await m(chatId, processOutput('git push origin master'))
 		elif text.startswith('git commit'):
-			await m(chatId, os.popen(text).read())
+			await m(chatId, processOutput(text))
 		elif text == 'git status':
-			await m(chatId, os.popen(text).read())
+			await m(chatId, processOutput(text))
 		elif text == 'update' or text == 'refresh' or text == 'reload':
 			await m(chatId, 'Refreshing Response List...')
 			loadReplies()
