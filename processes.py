@@ -56,24 +56,25 @@ def speechEngine(engine):
 			
 async def manual():
 	while True:
-		s = await ainput()
-		if s.startswith('message'):
-			u = glob.db.getUsersByName(s.split()[1])
-			msg = bytes(' '.join(s.split()[2:]), "utf-8").decode("unicode_escape")
-			if len(u) == 1:
-				chat = glob.db.getPrivateChat(u[0]['id'])
-				await glob.m(chat['id'], msg)
-				print('Sent Message.')
-			elif len(u) == 0:
-				print('Could not find user.')
-			else:
-				print('Which User? (select number)')
-				for i in range(len(u)):
-					print('(%d) %s %s' % (i, u[i]['firstName'], u[i]['lastName']))
-				ans = int(input())
-				if ans >= 0 and ans < len(u):
-					chat = glob.db.getPrivateChat(u[ans]['id'])
-					await glob.m(chat['id'], msg)
+		try:
+			s = await ainput()
+			if s.startswith('message'):
+				u = glob.db.getUsersByName(s.split()[1])
+				msg = bytes(' '.join(s.split()[2:]), "utf-8").decode("unicode_escape")
+				if len(u) == 1:
+					await glob.m(u[0]['id'], msg)
 					print('Sent Message.')
+				elif len(u) == 0:
+					print('Could not find user.')
 				else:
-					print('Please enter a correct user.')
+					print('Which User? (select number)')
+					for i in range(len(u)):
+						print('(%d) %s %s' % (i, u[i]['firstName'], u[i]['lastName']))
+					ans = int(input())
+					if ans >= 0 and ans < len(u):
+						await glob.m(u[ans][id], msg)
+						print('Sent Message.')
+					else:
+						print('Please enter a correct user.')
+		except Exception as e:
+			print('Could not send message: ' + str(e))
