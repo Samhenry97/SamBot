@@ -28,7 +28,8 @@ def addUser(info, chat):
 		
 def processOutput(command):
 	p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	return p.communicate()[0].decode('utf-8')
+	out, err = p.communicate()
+	return out.decode('utf-8') + err.decode('utf-8')
 
 ##################################################################################################
 ##################################################################################################
@@ -71,25 +72,25 @@ async def onMessage(msg):
 		origText = text
 		text = text.lower()
 
-		if text == 'reboot':
-			if len(sys.argv) >= 2:
-				sys.argv = sys.argv[:1]
-			else:
-				await m(chatId, 'Rebooting...')
-				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chatId)])
-		elif text == 'git pull':
-			await m(chatId, processOutput('git pull origin master'))
-		elif text == 'git push':
-			await m(chatId, processOutput('git push origin master'))
-		elif text.startswith('git commit'):
-			await m(chatId, processOutput(text))
-		elif text == 'git status':
-			await m(chatId, processOutput(text))
-		elif text == 'update' or text == 'refresh' or text == 'reload':
-			await m(chatId, 'Refreshing Response List...')
-			loadReplies()
-			await m(chatId, 'Done!')
-		elif text.startswith('do you like'):
+
+		# Admin Commands
+		if userInfo['id'] == 131453030:
+			if text == 'reboot':
+				if len(sys.argv) >= 2:
+					sys.argv = sys.argv[:1]
+				else:
+					await m(chatId, 'Rebooting...')
+					os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chatId)])
+			elif text.startswith('git '):
+				await m(chatId, processOutput(text))
+			elif text == 'update' or text == 'refresh' or text == 'reload':
+				await m(chatId, 'Refreshing Response List...')
+				loadReplies()
+				await m(chatId, 'Done!')
+
+
+		# All other commands
+		if text.startswith('do you like'):
 			arg = text[11:].strip().replace('?', '')
 			await message(chatId, 'doyoulike', userInfo, arg)
 		elif text.startswith('say'):
