@@ -35,12 +35,10 @@ async def message(chatId, text, userInfo, *args):
 	global bot, speech
 	message = reply.genReply(text, userInfo, *args)
 	await bot.sendMessage(chatId, message)
-	say(message)
 
 async def m(chatId, text):
 	global bot, speech
 	await bot.sendMessage(chatId, text)
-	say(text)
 
 async def tryFiller(chatId, userInfo):
 	if(random.randint(0, 3) == 2):

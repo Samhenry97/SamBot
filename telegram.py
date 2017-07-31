@@ -31,6 +31,26 @@ def processOutput(command):
 	out, err = p.communicate()
 	return out.decode('utf-8') + err.decode('utf-8')
 
+async def processWaitingFor(userInfo, chatId, text):
+	db = glob.db
+	waitingFor = db.getWaitingFor(userInfo['id'])['waitingFor']
+	if waitingFor == 'call':
+		db.setWaitingFor(userInfo['id'], 'nothing')
+		db.setNickname(userInfo['id'], text)
+		await message(chatId, 'callmesuccess', userInfo, text)
+		return True
+	elif waitingFor == 'like':
+		db.setWaitingFor(userInfo['id'], 'nothing')
+		db.addLike(userInfo['id'], text)
+		await message(chatId, 'ilike', userInfo, text)
+		return True
+	elif waitingFor == 'dislike':
+		db.setWaitingFor(userInfo['id'], 'nothing')
+		db.removeLike(userInfo['id'], text)
+		await message(chatId, 'idontlike', userInfo, text)
+		return True
+	return False
+
 ##################################################################################################
 ##################################################################################################
 
@@ -50,21 +70,7 @@ async def onMessage(msg):
 
 		text = msg['text']
 
-		waitingFor = db.getWaitingFor(userInfo['id'])['waitingFor']
-		if waitingFor == 'call':
-			db.setWaitingFor(userInfo['id'], 'nothing')
-			db.setNickname(userInfo['id'], text)
-			await message(chatId, 'callmesuccess', userInfo, text)
-			return
-		elif waitingFor == 'like':
-			db.setWaitingFor(userInfo['id'], 'nothing')
-			db.addLike(userInfo['id'], text)
-			await message(chatId, 'ilike', userInfo, text)
-			return
-		elif waitingFor == 'dislike':
-			db.setWaitingFor(userInfo['id'], 'nothing')
-			db.removeLike(userInfo['id'], text)
-			await message(chatId, 'idontlike', userInfo, text)
+		if await processWaitingFor(userInfo, chatId, text):
 			return
 
 		text = text[1:] if text[0] == '/' else text
@@ -87,6 +93,12 @@ async def onMessage(msg):
 				await m(chatId, 'Refreshing Response List...')
 				loadReplies()
 				await m(chatId, 'Done!')
+			elif text.startswith('python'):
+				cmd = text[6:]
+				try:
+					await m(chatId, eval(cmd))
+				except:
+					await m(chatId, 'Error parsing Python code.')
 
 
 		# All other commands
@@ -188,15 +200,6 @@ async def onMessage(msg):
 					await m(chatId, random.randint(int(data[1]), int(data[2])))
 				except:
 					await m(chatId, 'Please enter a valid number.')
-		elif text.startswith('python'):
-			cmd = text[6:]
-			if 'quit' not in cmd and 'exit' not in cmd and 'sigterm' not in cmd and 'kill' not in cmd:
-				try:
-					await m(chatId, eval(cmd))
-				except:
-					await m(chatId, 'Error parsing Python code.')
-			else:
-				await m(chatId, 'You cannot shut me down.')
 		elif 'emotion' in text:
 			await message(chatId, 'emotion', userInfo)
 		elif text.startswith('i like') or text.startswith('ilike'):
