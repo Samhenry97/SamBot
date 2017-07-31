@@ -27,7 +27,7 @@ def addUser(info, chat):
 		glob.users[info['id']] = True
 		
 def processOutput(command):
-	p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+	p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	return p.communicate()[0].decode('utf-8')
 
 ##################################################################################################
