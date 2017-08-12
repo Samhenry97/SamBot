@@ -1,0 +1,11 @@
+Install MySQL: https://www.stewright.me/2014/06/tutorial-install-mysql-server-on-raspberry-pi/
+Install Dependencies: sudo apt install espeak libportaudio-dev portaudio19-dev
+
+telepot
+pyowm
+pymysql
+pyttsx3
+pyaudio
+aioconsole
+requests
+

@@ -3,12 +3,13 @@ import telepot.aio, pyowm, pyttsx3
 import database, reply
 
 TOKEN = '265155953:AAFp_YxsPmVO8N4k6y6fkPIyXKBcumnif8Y'
+ADMIN_ID = 131453030
 bot = answerer = db = owm = speech = None
 users = chats = chatUsers = {}
 speechQueue = []
 
 def init():
-	global bot, answerer, db, owm, speech, users, chat, chatUsers
+	global bot, answerer, db, owm, users, chat, chatUsers, speech
 	print('\n' + '-' * 50)
 	print('Initializing in Production Mode...')
 	print('-' * 50)
@@ -25,10 +26,9 @@ def init():
 	print('Loading OWM...')
 	owm = pyowm.OWM('b1b2ccf3530eb007cdf6653fb6e71c0e')
 	print('Done!\n')
-	print('Loading Speech Engine...')
+	print('Initializing Speech Engine...')
 	speech = pyttsx3.init()
 	speech.setProperty('rate', 150)
-	speech.setProperty('volume', 1.0)
 	print('Done!')
 	print('-' * 50 + '\n')
 
@@ -40,11 +40,6 @@ async def message(chatId, text, userInfo, *args):
 async def m(chatId, text):
 	global bot, speech
 	await bot.sendMessage(chatId, text)
-
-async def tryFiller(chatId, userInfo):
-	if(random.randint(0, 3) == 2):
-		await message(chatId, 'filler', userInfo)
-		await asyncio.sleep(random.randint(1, 4))
 
 def say(message):
 	global speechQueue

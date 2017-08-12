@@ -39,13 +39,6 @@ Happy birthday dear {fName}!
 Happy birthday to you{!}(5,500)
 {end}
 
-key filler
-test manual
-U{m}(2,4){.}(2,5)
-H{m}(2,5){.}(1,3)
-Hang on a second{.}(2,6)
-Just a second{.}(2,6)
-
 key poop
 test 'poop' in text
 {Emoji.poop}(5,500)
@@ -364,7 +357,6 @@ WUT.
 Ummm....
 
 key bruh
-filler
 test text.startswith('bruh')
 BRUH!
 Yes, {fName}?
@@ -409,7 +401,6 @@ It's quite hot out... {Emoji.tired} Keep cool and drink lots of water!
 {end}
 
 key story
-filler
 test text.startswith('story') or text.startswith('tell me a story') or text.startswith('tell me another story')
 {start}
 Sorry dude...
@@ -417,7 +408,6 @@ I don't have any stories {Emoji.sad}(5,20)
 {end}
 
 key joke
-filler
 test text.startswith('joke') or text.startswith('tell me a joke') or text.startswith('tell me another joke')
 {start}
 Teacher: Today, we're going to talk about the tenses. Now, if I say "I am beautiful", which tense is it? 
