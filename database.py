@@ -28,7 +28,7 @@ class Database:
 	def getUsersByName(self, name):
 		ans = []
 		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM users WHERE firstName = %s'
+			sql = 'SELECT * FROM users WHERE firstName LIKE %%s%'
 			cursor.execute(sql, (name,))
 			for row in cursor:
 				ans.append(row)

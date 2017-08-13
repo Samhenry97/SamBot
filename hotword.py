@@ -4,35 +4,17 @@ import signal, time, subprocess
 import glob, reply
 
 detector = None
-index = device_index=sr.Microphone.list_microphone_names().index('USB PnP Audio Device: Audio (hw:1,0)')
+micIndex = 0
 
 def hotwordDetected():
+    if glob.pause:
+        return
+    
     global detector
     detector.terminate()
     del detector
     
-    while True:
-        try:
-            r = sr.Recognizer()
-            m = sr.Microphone(device_index=index)
-            with m as source: r.adjust_for_ambient_noise(source)
-            subprocess.call(['espeak', 'Yes, Sam?'])
-            with m as source: audio = r.listen(source, timeout=5, phrase_time_limit=10)
-            print('Processing Voice...')
-            del m
-            if audio is None:
-                print('None')
-                raise
-            text = r.recognize_google(audio)
-            break
-        except Exception as e:
-            print('Oops, trying again:', e)
-        finally:
-            try: del m
-            except: pass
-            try: del r
-            except: pass
-    
+    text = voiceRecognition()
     userInfo = { 'id': glob.ADMIN_ID, 'first_name': 'Samuel', 'last_name': 'Henry', 'username': 'SamHenry97', 'language_code': 'en-US' }
     response = reply.getReply(glob.ADMIN_ID, text, userInfo)
     print('\tMessage: ', text)
@@ -42,10 +24,43 @@ def hotwordDetected():
     else:
         glob.say('Sorry, I didn\'t get that.')
     
-    init()
+    hotword()
+    
+def voiceRecognition():
+    tries = 0
+    while tries < 10:
+        try:
+            r = sr.Recognizer()
+            r.dynamic_energy_threshold = False
+            m = sr.Microphone(device_index=micIndex)
+            with m as source: r.adjust_for_ambient_noise(source)
+            subprocess.call(['play', 'res/ready.wav'], stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w'))
+            with m as source: audio = r.listen(source, timeout=20, phrase_time_limit=10)
+            print('Processing Voice...')
+            del m
+            return r.recognize_google(audio)
+        except Exception as e:
+            print('Oops, trying again:', e)
+            tries += 1
+        finally:
+            try: del m
+            except: pass
+            try: del r
+            except: pass
+            try: del audio
+            except: pass
+    return ''
+
+def listen():
+    global detector
+    detector = snowboydecoder.HotwordDetector('snowboy/resources/sambot.pmdl', sensitivity=0.6)
+    detector.start(detected_callback=hotwordDetected, sleep_time=0.03)
 
 def init():
-    global detector
-    print('Hotword Detection Initialized...')
-    detector = snowboydecoder.HotwordDetector('snowboy/resources/sambot.pmdl', sensitivity=0.5)
-    detector.start(detected_callback=hotwordDetected, sleep_time=0.03)
+    global micIndex
+    while True:
+        try:
+            micIndex = sr.Microphone.list_microphone_names().index('USB PnP Audio Device: Audio (hw:1,0)')
+            break
+        except:
+            time.sleep(1)

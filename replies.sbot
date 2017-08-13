@@ -150,7 +150,7 @@ I cannot take your shift because I am a robot. I apologize for any confusion {Em
 Sorry, I'm not able to take your shift. I'm booked for.... forever
 
 key sup
-test text.startswith('sup')
+test text.startswith('sup') or text.startswith("what's up") or text.startswith('whatsup')
 Wassup?
 Hey there {Emoji.cool}
 How's it going, {fName}

@@ -1,4 +1,4 @@
-import re, random, requests, json
+import re, random, requests, json, sys, os, subprocess
 import glob, reminders
 from emoji import Emoji
 from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
@@ -31,6 +31,11 @@ def loadReplies():
 				inline = True
 			else:
 				replies[key].append(line)
+				
+def processOutput(command):
+	p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	out, err = p.communicate()
+	return out.decode('utf-8') + err.decode('utf-8')
 
 def replaceWithVar(reply, name, value):
 	def calcValue(m):
@@ -84,7 +89,7 @@ def genReply(replyType, info, *args):
 	
 def getReply(chatId, origText, userInfo):
 	db = glob.db
-	text = origText.lower()
+	text = origText.lower().strip()
 	
 	
 	waitingFor = db.getWaitingFor(userInfo['id'])['waitingFor']
@@ -100,25 +105,46 @@ def getReply(chatId, origText, userInfo):
 		db.setWaitingFor(userInfo['id'], 'nothing')
 		db.removeLike(userInfo['id'], origText)
 		return genReply('idontlike', userInfo, origText)
+		
+		
+	# Admin Commands
+	if userInfo['id'] == glob.ADMIN_ID:
+		if text == 'reboot':
+			if len(sys.argv) >= 2:
+				sys.argv = sys.argv[:1]
+			else:
+				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chatId)])
+		elif text.startswith('git '):
+			return processOutput(text)
+		elif text == 'update' or text == 'refresh' or text == 'reload':
+			loadReplies()
+			return 'Refreshing Response List Done!'
+		elif text.startswith('python'):
+			cmd = text[6:]
+			try:
+				return str(eval(cmd))
+			except:
+				return 'Error parsing Python code.'
+		
 	
-	
+	if text.startswith('calc') or text.startswith('calculate') or text.startswith('what\'s') or text.startswith('whats'):
+		exp = text.replace('calc', '').replace('calculate', '').replace('what\'s', '').replace('whats', '')
+		try:
+			e = ExpressionSolver(exp)
+			ans = e.solve()
+		except:
+			pass
+		else:
+			if ans == 42:
+				return genReply('42', userInfo)
+			else:
+				return 'Answer: ' + str(ans)
 	if text.startswith('do you like'):
 		arg = text[11:].strip().replace('?', '')
 		return genReply('doyoulike', userInfo, arg)
 	elif text.startswith('say'):
 		glob.say(userInfo['first_name'] + ' ' + userInfo['last_name'] + ' says: ' + text[3:])
 		return 'Delivered ' + Emoji.happy()
-	elif text.startswith('calc'):
-		try:
-			e = ExpressionSolver(text[4:])
-			ans = e.solve()
-		except:
-			return 'Sorry, I can\'t solve that.'
-		else:
-			if ans == 42:
-				return genReply('42', userInfo)
-			else:
-				return 'Answer: ' + str(ans)
 	elif text.startswith('infix'):
 		i = InfixToPostfix(text[5:].strip())
 		try:

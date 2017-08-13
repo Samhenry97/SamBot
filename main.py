@@ -11,7 +11,7 @@ async def main(executor):
 	tasks = [
 		loop.run_in_executor(executor, processes.speechEngine, glob.speech),
 		loop.run_in_executor(executor, processes.techWritingKeepAlive),
-		loop.run_in_executor(executor, hotword.init),
+		loop.run_in_executor(executor, hotword.listen),
 		loop.create_task(processes.alarmCheck(glob.bot)),
 		loop.create_task(glob.bot.message_loop({
 			'chat': telegram.onMessage,

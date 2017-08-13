@@ -45,8 +45,10 @@ def speechEngine(engine):
 	while True:
 		try:
 			if len(glob.speechQueue) > 0:
-				subprocess.call(['espeak', glob.speechQueue[0]])
+				glob.pause = True
+				subprocess.call(glob.ESPEAK_OPTIONS + [glob.speechQueue[0]])
 				del glob.speechQueue[0]
+				glob.pause = False
 			else:
 				time.sleep(1)
 		except KeyboardInterrupt:

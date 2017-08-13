@@ -2,7 +2,7 @@ import os, sys, time, random, hashlib, subprocess, re
 import util, glob
 import telepot, pymysql
 
-from glob import message, m
+from glob import m
 from reply import getReply, tests, loadReplies
 from emoji import Emoji
 
@@ -23,11 +23,6 @@ def addUser(info, chat):
 		print('Adding User: ' + str(info['id']))
 		glob.db.addUser(info['id'], info['username'], info['first_name'], info['last_name'])
 		glob.users[info['id']] = True
-		
-def processOutput(command):
-	p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	out, err = p.communicate()
-	return out.decode('utf-8') + err.decode('utf-8')
 
 ##################################################################################################
 ##################################################################################################
@@ -43,7 +38,7 @@ async def onMessage(msg):
 		addUser(userInfo, chatId)
 		
 		if contentType == 'text':
-			print('Message from', userInfo['first_name'], userInfo['last_name'])
+			print('Telegram message from', userInfo['first_name'], userInfo['last_name'])
 			print('\tChat ID:', chatId, '(Private)' if chatId >= 0 else '(Public)')
 			print('\tMessage:', msg['text'], '\n')
 		else:
@@ -52,28 +47,6 @@ async def onMessage(msg):
 
 		origText = msg['text'].replace('@SamTheNerdBot', '')
 		origText = origText[1:] if origText[0] == '/' else origText
-		text = origText.lower()
-
-		# Admin Commands
-		if userInfo['id'] == glob.ADMIN_ID:
-			if text == 'reboot':
-				if len(sys.argv) >= 2:
-					sys.argv = sys.argv[:1]
-				else:
-					await m(chatId, 'Rebooting...')
-					os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chatId)])
-			elif text.startswith('git '):
-				await m(chatId, processOutput(text))
-			elif text == 'update' or text == 'refresh' or text == 'reload':
-				await m(chatId, 'Refreshing Response List...')
-				loadReplies()
-				await m(chatId, 'Done!')
-			elif text.startswith('python'):
-				cmd = text[6:]
-				try:
-					await m(chatId, eval(cmd))
-				except:
-					await m(chatId, 'Error parsing Python code.')
 		
 		response = getReply(chatId, origText, userInfo)
 		if response.strip():
@@ -107,7 +80,7 @@ async def onInlineQuery(msg):
 ##################################################################################################
 ##################################################################################################
 
-def onInlineResult(msg):
+async def onInlineResult(msg):
 	resultId, fromId, queryString = telepot.glance(msg, flavor='chosen_inline_result')
 
 	if resultId == 'help':
