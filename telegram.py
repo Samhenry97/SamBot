@@ -1,9 +1,10 @@
-import os, sys, time, random, hashlib, asyncio, subprocess, threading, requests, json, re
+import os, sys, time, random, hashlib, subprocess, re
 import util, glob
 import telepot, pymysql
 
 from glob import message, m
 from reply import getReply, tests, loadReplies
+from emoji import Emoji
 
 ##################################################################################################
 ##################################################################################################
@@ -38,10 +39,9 @@ async def onMessage(msg):
 
 		contentType, chatType, chatId = telepot.glance(msg)
 		userInfo = msg['from']
-		print(userInfo)
 
 		addUser(userInfo, chatId)
-
+		
 		if contentType == 'text':
 			print('Message from', userInfo['first_name'], userInfo['last_name'])
 			print('\tChat ID:', chatId, '(Private)' if chatId >= 0 else '(Public)')
@@ -74,8 +74,10 @@ async def onMessage(msg):
 					await m(chatId, eval(cmd))
 				except:
 					await m(chatId, 'Error parsing Python code.')
-
-		await m(chatId, getReply(chatId, origText, userInfo))
+		
+		response = getReply(chatId, origText, userInfo)
+		if response.strip():
+			await m(chatId, response)
 	except ConnectionAbortedError:
 		await m(chatId, 'Connection lost to the database. Connecting...')
 		db.close()
@@ -87,8 +89,8 @@ async def onMessage(msg):
 		db.open()
 		await m(chatId, 'Connected!')
 	except Exception as e:
-		await m(chatId, 'Uncaught Error: ' + str(e))
-
+		print('Uncaught Error:', e)
+		await m(chatId, 'Sorry, something went wrong... ' + Emoji.sad())
 
 ##################################################################################################
 ##################################################################################################

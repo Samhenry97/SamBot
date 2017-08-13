@@ -1,11 +1,13 @@
 import os, sys, random, asyncio
-import telepot.aio, pyowm, pyttsx3
+import telepot.aio, pyowm, pyttsx3, pyaudio
 import database, reply
 
 TOKEN = '265155953:AAFp_YxsPmVO8N4k6y6fkPIyXKBcumnif8Y'
 ADMIN_ID = 131453030
 bot = answerer = db = owm = speech = None
-users = chats = chatUsers = {}
+users = {}
+chats = {}
+chatUsers = {}
 speechQueue = []
 
 def init():

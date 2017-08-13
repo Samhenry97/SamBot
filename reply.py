@@ -1,4 +1,4 @@
-import re, random
+import re, random, requests, json
 import glob, reminders
 from emoji import Emoji
 from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
@@ -215,7 +215,7 @@ def getReply(chatId, origText, userInfo):
 		return 'Feature Disabled'
 	elif '\U0001f602' in text:
 		return '\U0001f602' * random.randint(1, 5)
-	elif text.startswith('weather'):
+	elif 'weather' in text:
 		try:
 			r = requests.get('http://freegeoip.net/json')
 			j = json.loads(r.text)
@@ -232,7 +232,8 @@ def getReply(chatId, origText, userInfo):
 				return genReply('warm', userInfo, status, str(temp), str(clouds), str(humid))
 			else: #Hot
 				return genReply('hot', userInfo, status, str(temp), str(clouds), str(humid))
-		except:
+		except Exception as e:
+			print(e)
 			return 'Couldn\'t get the weather... Try Again?'
 	else:
 		remindText = reminders.tryParse(chatId, text, origText, userInfo, genReply)

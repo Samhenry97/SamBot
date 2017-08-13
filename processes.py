@@ -1,5 +1,5 @@
 import pymysql, pyttsx3
-import threading, asyncio, requests, time
+import threading, asyncio, requests, time, subprocess
 import glob
 from aioconsole import ainput
 from util import getDate
@@ -45,9 +45,8 @@ def speechEngine(engine):
 	while True:
 		try:
 			if len(glob.speechQueue) > 0:
-				engine.say(glob.speechQueue[0])
+				subprocess.call(['espeak', glob.speechQueue[0]])
 				del glob.speechQueue[0]
-				engine.runAndWait()
 			else:
 				time.sleep(1)
 		except KeyboardInterrupt:

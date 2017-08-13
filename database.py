@@ -60,7 +60,7 @@ class Database:
 			for row in cursor:
 				dict[row['id']] = True
 
-	def loadChatUsers(self, dict):	
+	def loadChatUsers(self, dict):
 		with self.conn.cursor() as cursor:
 			sql = 'SELECT userId, chatId FROM chatusers'
 			cursor.execute(sql)
