@@ -4,8 +4,7 @@ Install Dependencies: sudo apt install espeak libportaudio-dev portaudio19-dev
 telepot
 pyowm
 pymysql
-pyttsx3
 pyaudio
 aioconsole
 requests
-
+fbchat

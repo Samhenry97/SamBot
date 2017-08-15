@@ -226,6 +226,6 @@ class Database:
 			host='localhost',
 			user='root',
 			password='password',
-			db='telegram',
+			db='sambot',
 			charset='utf8',
 			cursorclass=pymysql.cursors.DictCursor)
