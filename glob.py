@@ -1,19 +1,22 @@
-import os, sys, random, asyncio
+import os, sys, random, asyncio, logging
 import telepot.aio, pyowm, pyttsx3, pyaudio
-import database, reply, hotword
+import database, reply, hotword, facebook
 
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
 OWM_TOKEN = os.environ['OWM_TOKEN']
-ADMIN_ID = os.environ['ADMIN_ID']
+ADMIN_ID = int(os.environ['ADMIN_ID'])
 ESPEAK_OPTIONS = ['espeak', '-ven-us+f3', '-s170']
 pause = False
 bot = answerer = db = owm = speech = None
 users = {}
 chats = {}
-chatUsers = {}
 speechQueue = []
 
 def init():
+	if len(sys.argv) >= 2 and sys.argv[1] == 'DEBUG':
+		logging.basicConfig(level=logging.ERROR)
+		logging.getLogger().setLevel(logging.ERROR)
+	
 	global bot, answerer, db, owm, users, chat, chatUsers, speech
 	print('\n' + '-' * 50)
 	print('Initializing in Production Mode...')
@@ -22,11 +25,13 @@ def init():
 	bot = telepot.aio.Bot(TELEGRAM_TOKEN)
 	answerer = telepot.aio.helper.Answerer(bot)
 	print('Done!\n')
+	print('Loading Facebook Bot...')
+	facebook.init()
+	print('Done!\n')
 	print('Loading Database...')
 	db = database.Database()
 	db.loadUsers(users)
 	db.loadChats(chats)
-	db.loadChatUsers(chatUsers)
 	print('Done!\n')
 	print('Loading OWM...')
 	owm = pyowm.OWM(OWM_TOKEN)
@@ -40,9 +45,17 @@ def init():
 	print('Done!')
 	print('-' * 50 + '\n')
 
-async def m(chatId, text):
+async def m(chatId, text, type):
 	global bot, speech
-	await bot.sendMessage(chatId, text)
+	if type == 't':
+		await bot.sendMessage(chatId, text)
+	elif type == 'm':
+		facebook.client.sendMessage(text, thread_id=str(chatId))
+		
+def changeNickname(newName, chatId, userInfo, type):
+	if type == 'm':
+		facebook.client.changeNickname(newName, str(userInfo['userId']), str(chatId))
+	db.setNickname(userInfo['id'], newName)
 
 def say(message):
 	global speechQueue

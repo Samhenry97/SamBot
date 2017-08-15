@@ -1,17 +1,21 @@
 import sys, asyncio, threading, concurrent.futures
-import processes, glob, telegram, hotword
+import processes, glob, telegram, hotword, facebook
 
 async def main(executor):
 	glob.init()
 	
 	if len(sys.argv) >= 2:
-		await glob.m(int(sys.argv[1]), 'Back and Running!')
+		try:
+			await glob.m(int(sys.argv[1]), 'Back and Running!')
+		except:
+			pass
 
 	loop = asyncio.get_event_loop()
 	tasks = [
 		loop.run_in_executor(executor, processes.speechEngine, glob.speech),
 		loop.run_in_executor(executor, processes.techWritingKeepAlive),
 		loop.run_in_executor(executor, hotword.listen),
+		loop.run_in_executor(executor, facebook.listen),
 		loop.create_task(processes.alarmCheck(glob.bot)),
 		loop.create_task(glob.bot.message_loop({
 			'chat': telegram.onMessage,
@@ -26,7 +30,7 @@ async def main(executor):
 
 
 if __name__ == '__main__':
-	executor = concurrent.futures.ThreadPoolExecutor(6)
+	executor = concurrent.futures.ThreadPoolExecutor(7)
 	loop = asyncio.get_event_loop()
 
 	try:

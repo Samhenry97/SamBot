@@ -1,28 +1,9 @@
-import os, sys, time, random, hashlib, subprocess, re
 import util, glob
 import telepot, pymysql
 
 from glob import m
-from reply import getReply, tests, loadReplies
+from reply import getReply
 from emoji import Emoji
-
-##################################################################################################
-##################################################################################################
-# Utility Functions
-
-def addUser(info, chat):
-	if (info['id'], chat) not in glob.chatUsers:
-		print('Adding Chat User: ' + str(chat) + ': ' + str(info['id']))
-		glob.db.addChatUser(chat, info['id'])
-		glob.chatUsers[(info['id'], chat)] = True
-	if chat not in glob.chats:
-		print('Adding Chat: ' + str(chat))
-		glob.db.addChat(chat)
-		glob.chats[chat] = True
-	if info['id'] not in glob.users:
-		print('Adding User: ' + str(info['id']))
-		glob.db.addUser(info['id'], info['username'], info['first_name'], info['last_name'])
-		glob.users[info['id']] = True
 
 ##################################################################################################
 ##################################################################################################
@@ -33,24 +14,23 @@ async def onMessage(msg):
 		db.testConnection()
 
 		contentType, chatType, chatId = telepot.glance(msg)
-		userInfo = msg['from']
 
-		addUser(userInfo, chatId)
+		userInfo = util.checkDatabase(msg['from'], chatId, chatId < 0, 't')
 		
 		if contentType == 'text':
-			print('Telegram message from', userInfo['first_name'], userInfo['last_name'])
+			print('Telegram message from', userInfo['firstName'], userInfo['lastName'])
 			print('\tChat ID:', chatId, '(Private)' if chatId >= 0 else '(Public)')
 			print('\tMessage:', msg['text'], '\n')
 		else:
-			print('Message:', contentType, chatType, chatId, '(' + userInfo['first_name'], userInfo['last_name'] + ')')
+			print('Message:', contentType, chatType, chatId, '(' + userInfo['firstName'], userInfo['lastName'] + ')')
 			return
 
 		origText = msg['text'].replace('@SamTheNerdBot', '')
 		origText = origText[1:] if origText[0] == '/' else origText
 		
-		response = getReply(chatId, origText, userInfo)
+		response = getReply(chatId, origText, userInfo, 't')
 		if response.strip():
-			await m(chatId, response)
+			await m(chatId, response, 't')
 	except ConnectionAbortedError:
 		await m(chatId, 'Connection lost to the database. Connecting...')
 		db.close()

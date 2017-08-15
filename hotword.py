@@ -9,14 +9,16 @@ micIndex = 0
 def hotwordDetected():
     if glob.pause:
         return
+    else:
+        glob.pause = True
     
     global detector
     detector.terminate()
     del detector
     
     text = voiceRecognition()
-    userInfo = { 'id': glob.ADMIN_ID, 'first_name': 'Samuel', 'last_name': 'Henry', 'username': 'SamHenry97', 'language_code': 'en-US' }
-    response = reply.getReply(glob.ADMIN_ID, text, userInfo)
+    userInfo = glob.db.getUserById(glob.ADMIN_ID)
+    response = reply.getReply(glob.ADMIN_ID, text, userInfo, 't')
     print('\tMessage: ', text)
     print('\tResponse: ', response)
     if response.strip():
@@ -24,20 +26,21 @@ def hotwordDetected():
     else:
         glob.say('Sorry, I didn\'t get that.')
     
-    hotword()
+    glob.pause = False
+    
+    listen()
     
 def voiceRecognition():
     tries = 0
     while tries < 10:
         try:
             r = sr.Recognizer()
-            r.dynamic_energy_threshold = False
+            #r.dynamic_energy_threshold = False
             m = sr.Microphone(device_index=micIndex)
             with m as source: r.adjust_for_ambient_noise(source)
             subprocess.call(['play', 'res/ready.wav'], stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w'))
             with m as source: audio = r.listen(source, timeout=20, phrase_time_limit=10)
             print('Processing Voice...')
-            del m
             return r.recognize_google(audio)
         except Exception as e:
             print('Oops, trying again:', e)
@@ -53,6 +56,7 @@ def voiceRecognition():
 
 def listen():
     global detector
+    print('Listening for hotword...')
     detector = snowboydecoder.HotwordDetector('snowboy/resources/sambot.pmdl', sensitivity=0.6)
     detector.start(detected_callback=hotwordDetected, sleep_time=0.03)
 

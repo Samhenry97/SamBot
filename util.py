@@ -1,4 +1,5 @@
 import sys
+import glob
 from datetime import datetime, timedelta
 
 words = {}
@@ -63,3 +64,21 @@ def dateWithOffset(h, m, s, ampm, timeOfDay, offset):
 	if offset:
 		date += timedelta(days=dayOffsets[offset])
 	return date
+	
+def checkDatabase(info, chatId, public, type):
+	db = glob.db
+	addChatUser = False
+	if (chatId, type) not in glob.chats:
+		print('Adding Chat: ' + str(chatId))
+		addChatUser = True
+		db.addChat(chatId, type, public)
+		glob.chats[(chatId, type)] = True
+	if (info['id'], type) not in glob.users:
+		print('Adding User: ' + str(info['id']))
+		addChatUser = True
+		db.addUser(info['id'], info['first_name'], info['last_name'], info['username'], type)
+		glob.users[(info['id'], type)] = True
+	if addChatUser:
+		print('Adding Chat User:', chatId, ',', info['id'])
+		db.addChatUser(db.getChat(chatId, type), db.getUser(info['id'], type)['id'])
+	return db.getUser(info['id'], type)

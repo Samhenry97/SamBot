@@ -1,4 +1,4 @@
-import re, random, requests, json, sys, os, subprocess
+import re, random, requests, json, sys, os, subprocess, hashlib, time
 import glob, reminders
 from emoji import Emoji
 from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
@@ -52,9 +52,10 @@ wordRegex = re.compile('\{([^\{]+)\}(\(([0-9]+)(,([0-9]+))?\))?')
 def genReply(replyType, info, *args):
 	reply = random.choice(replies[replyType])
 
-	reply = replaceWithVar(reply, 'fName', info['first_name'])
-	reply = replaceWithVar(reply, 'lName', info['last_name'])
-	reply = replaceWithVar(reply, 'uName', info['username'])
+	reply = replaceWithVar(reply, 'fName', info['firstName'])
+	reply = replaceWithVar(reply, 'lName', info['lastName'])
+	reply = replaceWithVar(reply, 'uName', info['userName'])
+	reply = replaceWithVar(reply, 'nName', info['nickName'] if info['nickName'].strip() else info['firstName'])
 
 	def emoji(m):
 		x = int(m.group(3)) if m.group(3) else 1
@@ -87,15 +88,15 @@ def genReply(replyType, info, *args):
 	
 	
 	
-def getReply(chatId, origText, userInfo):
+def getReply(chatId, origText, userInfo, type):
 	db = glob.db
 	text = origText.lower().strip()
 	
 	
-	waitingFor = db.getWaitingFor(userInfo['id'])['waitingFor']
+	waitingFor = userInfo['waitingFor']
 	if waitingFor == 'call':
 		db.setWaitingFor(userInfo['id'], 'nothing')
-		db.setNickname(userInfo['id'], origText)
+		glob.changeNickname(origText, chatId, userInfo, type)
 		return genReply('callmesuccess', userInfo, origText)
 	elif waitingFor == 'like':
 		db.setWaitingFor(userInfo['id'], 'nothing')
@@ -125,25 +126,22 @@ def getReply(chatId, origText, userInfo):
 				return str(eval(cmd))
 			except:
 				return 'Error parsing Python code.'
+		elif 'volume' in text:
+			text = text.replace('volume', '').replace('set', '').replace('to', '').replace('percent', '').replace('%', '').strip()
+			try:
+				percent = int(text)
+				processOutput('amixer -D pulse sset Master ' + str(percent) + '%')
+				return 'Successfully set volume to ' + text + ' percent!'
+			except Exception as e:
+				print('Volume Error: ', e)
+				return 'Couldn\'t set the volume... Sorry!'
 		
-	
-	if text.startswith('calc') or text.startswith('calculate') or text.startswith('what\'s') or text.startswith('whats'):
-		exp = text.replace('calc', '').replace('calculate', '').replace('what\'s', '').replace('whats', '')
-		try:
-			e = ExpressionSolver(exp)
-			ans = e.solve()
-		except:
-			pass
-		else:
-			if ans == 42:
-				return genReply('42', userInfo)
-			else:
-				return 'Answer: ' + str(ans)
+		
 	if text.startswith('do you like'):
 		arg = text[11:].strip().replace('?', '')
 		return genReply('doyoulike', userInfo, arg)
 	elif text.startswith('say'):
-		glob.say(userInfo['first_name'] + ' ' + userInfo['last_name'] + ' says: ' + text[3:])
+		glob.say(userInfo['firstName'] + ' ' + userInfo['lastName'] + ' says: ' + text[3:])
 		return 'Delivered ' + Emoji.happy()
 	elif text.startswith('infix'):
 		i = InfixToPostfix(text[5:].strip())
@@ -177,7 +175,7 @@ def getReply(chatId, origText, userInfo):
 	elif text.startswith('call me') or text.startswith('callme'):
 		newName = origText[origText.lower().index('me')+2:].strip()
 		if newName != '':
-			db.setNickname(userInfo['id'], newName)
+			glob.changeNickname(newName, chatId, userInfo, type)
 			return 'Okay, from now on, I\'ll call you ' + newName + '! ' + Emoji.happy()
 		else:
 			db.setWaitingFor(userInfo['id'], 'call')
@@ -189,11 +187,10 @@ def getReply(chatId, origText, userInfo):
 	elif '\U0001f611' in text:
 		return genReply('annoying', userInfo)
 	elif text.startswith('hi') or text.startswith('hey') or text.startswith('hello'):
-		user = db.getUser(userInfo['id'])
-		if user['nickName'].lower() == 'bae':
+		if userInfo['nickName'].lower() == 'bae':
 			return genReply('bae', userInfo)
 		else:
-			return genReply('hello', userInfo, user['nickName'])
+			return genReply('hello', userInfo)
 	elif text.startswith('emoji'):
 		return chr(random.randint(0x1F601, 0x1F650))
 	elif text.startswith('gravatar'):
@@ -216,10 +213,10 @@ def getReply(chatId, origText, userInfo):
 		like = origText[text.index('like')+4:].strip()
 		if like != '':
 			db.addLike(userInfo['id'], like)
-			return genReply('ilike', userInfo)
+			return genReply('ilike', userInfo, like)
 		else:
 			db.setWaitingFor(userInfo['id'], 'like')
-			return 'What do you like, ' + userInfo['first_name'] + '?'
+			return 'What do you like, ' + userInfo['firstName'] + '?'
 	elif text.startswith('i dont like') or text.startswith('idontlike') or text.startswith('i don\'t like'):
 		like = origText[text.index('like')+4:].strip()
 		if like != '':
@@ -227,7 +224,7 @@ def getReply(chatId, origText, userInfo):
 			return genReply('idontlike', userInfo, like)
 		else:
 			db.setWaitingFor(userInfo['id'], 'dislike')
-			return 'What do you not like, ' + userInfo['first_name'] + '?'
+			return 'What do you not like, ' + userInfo['firstName'] + '?'
 	elif text.startswith('likes'):
 		likes = db.getLikes(userInfo['id'])
 		if len(likes) == 0:
@@ -262,13 +259,26 @@ def getReply(chatId, origText, userInfo):
 			print(e)
 			return 'Couldn\'t get the weather... Try Again?'
 	else:
-		remindText = reminders.tryParse(chatId, text, origText, userInfo, genReply)
+		remindText = reminders.tryParse(chatId, text, origText, userInfo, genReply, type)
 		if remindText.strip():
 			return remindText
 		
 		for k, v in tests.items():
 			if v != 'manual' and eval(v):
 				return genReply(k, userInfo)
+	if text.startswith('calc') or text.startswith('calculate') or text.startswith('what\'s') or text.startswith('whats'):
+		exp = text.replace('calculate', '').replace('calc', '').replace('what\'s', '').replace('whats', '').strip()
+		exp = exp.replace('times', '*').replace('minus', '-').replace('to the', '^').replace('power', '').replace('divided by', '/').replace('plus', '+').replace('th', '')
+		try:
+			e = ExpressionSolver(exp)
+			ans = e.solve()
+		except:
+			return 'Sorry, I can\'t solve that!'
+		else:
+			if ans == 42:
+				return genReply('42', userInfo)
+			else:
+				return 'Answer: ' + str(ans)
 	return ''
 	
 

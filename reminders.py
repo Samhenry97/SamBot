@@ -25,8 +25,9 @@ alarmAtRegex = [
 	re.compile(' *(at|for) *(((?P<h>[0-9][0-9]?)(:(?P<m>[0-9][0-9]))?(:(?P<s>[0-9][0-9]))? *(?P<ampm>am|pm)?)|(?P<timeofday>noon|afternoon|midnight|sunrise|sunset|dawn|dusk))(?P<offset>chicken)?')
 ]
 
-def tryParse(chatId, text, origText, userInfo, genReply):
+def tryParse(chatId, text, origText, userInfo, genReply, type):
 	db = glob.db
+	dChatId = db.getChat(chatId, type)
 
 	mat = remindStart.match(text)
 	if mat:
@@ -36,14 +37,14 @@ def tryParse(chatId, text, origText, userInfo, genReply):
 			if r:
 				msg = r.group('message')
 				date = util.dateFromNow(r.group('amount'), r.group('units'))
-				db.addReminder(userInfo['id'], chatId, msg, date)
+				db.addReminder(userInfo['id'], dChatId, msg, date)
 				return genReply('reminder', userInfo, str(date))
 		for regex in remindAtRegex:
 			r = regex.match(text)
 			if r:
 				msg = r.group('message')
 				date = util.dateWithOffset(r.group('h'), r.group('m'), r.group('s'), r.group('ampm'), r.group('timeofday'), r.group('offset'))
-				db.addReminder(userInfo['id'], chatId, msg, date)
+				db.addReminder(userInfo['id'], dChatId, msg, date)
 				return genReply('reminder', userInfo, str(date))
 		return genReply('reminderhelp', userInfo)
 
@@ -53,50 +54,50 @@ def tryParse(chatId, text, origText, userInfo, genReply):
 		r = alarmRegex.match(text)
 		if r:
 			date = util.dateFromNow(r.group('amount'), r.group('units'))
-			db.addAlarm(userInfo['id'], chatId, date)
+			db.addAlarm(userInfo['id'], dChatId, date)
 			return genReply('alarm', userInfo, str(date))
 		for regex in alarmAtRegex:
 			r = regex.match(text)
 			if r:
 				date = util.dateWithOffset(r.group('h'), r.group('m'), r.group('s'), r.group('ampm'), r.group('timeofday'), r.group('offset'))
-				db.addAlarm(userInfo['id'], chatId, date)
+				db.addAlarm(userInfo['id'], dChatId, date)
 				return genReply('alarm', userInfo, str(date))
 		return genReply('reminderhelp', userInfo)
 
 	if text.startswith('clear alarms') or text.startswith('clearalarms'):
 		if 'all' in text:
 			db.clearAlarms(userInfo['id'])
-			return userInfo['first_name'] + ', all your alarms are cleared.'
+			return userInfo['firstName'] + ', all your alarms are cleared.'
 		else:
-			db.clearAlarms(userInfo['id'], chatId)
-			return userInfo['first_name'] + ', your alarms for this chat are cleared.'
+			db.clearAlarms(userInfo['id'], dChatId)
+			return userInfo['firstName'] + ', your alarms for this chat are cleared.'
 	elif text.startswith('clear reminders') or text.startswith('clearreminders'):
 		if 'all' in text:
 			db.clearReminders(userInfo['id'])
-			return userInfo['first_name'] + ', all your reminders are cleared.'
+			return userInfo['firstName'] + ', all your reminders are cleared.'
 		else:
-			db.clearReminders(userInfo['id'], chatId)
-			return userInfo['first_name'] + ', your reminders for this chat are cleared.'
+			db.clearReminders(userInfo['id'], dChatId)
+			return userInfo['firstName'] + ', your reminders for this chat are cleared.'
 	elif text.startswith('list alarms'):
 		ans = []
 		if 'all' in text:
 			alarms = db.getAlarms(userId=userInfo['id'])
 			if len(alarms) == 0:
-				ans.append('No alarms set for ' + userInfo['first_name'] + '.')
+				ans.append('No alarms set for ' + userInfo['firstName'] + '.')
 			else:
-				ans.append('All alarms for ' + userInfo['first_name'] + ':')
+				ans.append('All alarms for ' + userInfo['firstName'] + ':')
 		elif 'chat' in text:
-			alarms = db.getAlarms(chatId=chatId)
+			alarms = db.getAlarms(chatId=dChatId)
 			if len(alarms) == 0:
 				ans.append('No alarms in this chat.')
 			else:
 				ans.append('All alarms in this chat: ')
 		else:
-			alarms = db.getAlarms(userInfo['id'], chatId)
+			alarms = db.getAlarms(userInfo['id'], dChatId)
 			if len(alarms) == 0:
-				ans.append('No alarms in this chat for ' + userInfo['first_name'] + '.')
+				ans.append('No alarms in this chat for ' + userInfo['firstName'] + '.')
 			else:
-				ans.append('Alarms in this chat for ' + userInfo['first_name'] + ':')
+				ans.append('Alarms in this chat for ' + userInfo['firstName'] + ':')
 		
 		for a in alarms:
 			ans.append('@' + str(a['time']))
@@ -106,21 +107,21 @@ def tryParse(chatId, text, origText, userInfo, genReply):
 		if 'all' in text:
 			reminders = db.getReminders(userId=userInfo['id'])
 			if len(reminders) == 0:
-				ans.append('No reminders set for ' + userInfo['first_name'] + '.')
+				ans.append('No reminders set for ' + userInfo['firstName'] + '.')
 			else:
-				ans.append('All reminders for ' + userInfo['first_name'] + ':')
+				ans.append('All reminders for ' + userInfo['firstName'] + ':')
 		elif 'chat' in text:
-			reminders = db.getReminders(chatId=chatId)
+			reminders = db.getReminders(chatId=dChatId)
 			if len(reminders) == 0:
 				ans.append('No reminders in this chat.')
 			else:
 				ans.append('All reminders in this chat: ')
 		else:
-			reminders = db.getReminders(userInfo['id'], chatId)
+			reminders = db.getReminders(userInfo['id'], dChatId)
 			if len(reminders) == 0:
-				ans.append('No reminders in this chat for ' + userInfo['first_name'] + '.')
+				ans.append('No reminders in this chat for ' + userInfo['firstName'] + '.')
 			else:
-				ans.append('Reminders in this chat for ' + userInfo['first_name'] + ':')
+				ans.append('Reminders in this chat for ' + userInfo['firstName'] + ':')
 		
 		for r in reminders:
 			ans.append('@ ' + str(r['time']) + ': ' + r['message'])

@@ -2,6 +2,7 @@
 # {fName} - First name of the user sending the chat
 # {lName} - Last name of the user sending the chat
 # {uName} - Username of the user sending the chat
+# {nName} - Nickname of the user sending the chat
 # {arg} - The next argument passed in. Each of these arguments
 #			is inserted one by one, unless in next format.
 # {arg[n]} - The nth argument to get, 1-based. First argument is {arg1}
@@ -317,11 +318,11 @@ Nighty-night!
 
 key hello
 test manual
-Why hello there, {arg}!
-How goes it, {arg}? {Emoji.happy}(2)
-Good to see you, {arg}! {Emoji.happy}
-How's life, {arg}? {Emoji.happy}
-Hola! Como estas, {arg}? {Emoji.cool}
+Why hello there, {nName}!
+How goes it, {nName}? {Emoji.happy}(2)
+Good to see you, {nName}! {Emoji.happy}
+How's life, {nName}? {Emoji.happy}
+Hola! Como estas, {nName}? {Emoji.cool}
 
 key annoying
 test manual

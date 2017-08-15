@@ -14,46 +14,35 @@ async def alarmCheck(bot):
 			for a in alarms:
 				if a['time'] < getDate():
 					message = 'Alarm'
-					user = alarmDB.getUser(a['userId'])
+					user = alarmDB.getUserById(a['userId'])
 					if a['message'] == None:
 						print('Sending Alarm to ' + user['firstName'] + '.')
-						await glob.m(a['chatId'], 'Alarm for ' + user['nickName'] + '!!')
+						await glob.m(alarmDB.getChatById(a['chatId']), 'Alarm for ' + user['nickName'] + '!', user['type'])
 					else:
 						message = a['message']
 						print('Sending Reminder to ' + user['firstName'] + ': ' + message)
-						await glob.m(a['chatId'], 'Reminder for ' + user['nickName'] + ': ' + message)
+						await glob.m(alarmDB.getChatById(a['chatId']), 'Reminder for ' + user['nickName'] + ': ' + message, user['type'])
 					alarmDB.deleteAlarm(a['id'])
 			alarmDB.close()
 			await asyncio.sleep(1)
-		except KeyboardInterrupt:
-			print('Alarm Check Shutting Down...')
-			break
 		except pymysql.err.OperationalError:
 			alarmDB.close()
 			alarmDB.open()
 
 def techWritingKeepAlive():
 	while True:
-		try:
-			requests.get('http://bootableusb.herokuapp.com')
-			time.sleep(1)
-		except KeyboardInterrupt:
-			print('Tech Writing Keep Alive Shutting Down...')
-			break
+		requests.get('http://bootableusb.herokuapp.com')
+		time.sleep(20)
 
 def speechEngine(engine):
 	while True:
-		try:
-			if len(glob.speechQueue) > 0:
-				glob.pause = True
-				subprocess.call(glob.ESPEAK_OPTIONS + [glob.speechQueue[0]])
-				del glob.speechQueue[0]
-				glob.pause = False
-			else:
-				time.sleep(1)
-		except KeyboardInterrupt:
-			print('Speech Engine Shutting Down...')
-			break
+		if len(glob.speechQueue) > 0:
+			glob.pause = True
+			subprocess.call(glob.ESPEAK_OPTIONS + [glob.speechQueue[0]])
+			del glob.speechQueue[0]
+			glob.pause = False
+		else:
+			time.sleep(1)
 			
 async def manual():
 	while True:
@@ -71,9 +60,9 @@ async def manual():
 					print('Which User? (select number)')
 					for i in range(len(u)):
 						print('(%d) %s %s' % (i, u[i]['firstName'], u[i]['lastName']))
-					ans = int(input())
+					ans = int(await ainput())
 					if ans >= 0 and ans < len(u):
-						await glob.m(u[ans][id], msg)
+						await glob.m(u[ans]['id'], msg)
 						print('Sent Message.')
 					else:
 						print('Please enter a correct user.')
