@@ -25,9 +25,9 @@ alarmAtRegex = [
 	re.compile(' *(at|for) *(((?P<h>[0-9][0-9]?)(:(?P<m>[0-9][0-9]))?(:(?P<s>[0-9][0-9]))? *(?P<ampm>am|pm)?)|(?P<timeofday>noon|afternoon|midnight|sunrise|sunset|dawn|dusk))(?P<offset>chicken)?')
 ]
 
-def tryParse(chatId, text, origText, userInfo, genReply, type):
+def tryParse(chatId, text, origText, userInfo, genReply):
 	db = glob.db
-	dChatId = db.getChat(chatId, type)
+	dChatId = db.getChat(chatId, userInfo['type'])
 
 	mat = remindStart.match(text)
 	if mat:

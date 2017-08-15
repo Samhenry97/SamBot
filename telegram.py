@@ -28,7 +28,7 @@ async def onMessage(msg):
 		origText = msg['text'].replace('@SamTheNerdBot', '')
 		origText = origText[1:] if origText[0] == '/' else origText
 		
-		response = getReply(chatId, origText, userInfo, 't')
+		response = getReply(chatId, origText, userInfo)
 		if response.strip():
 			await m(chatId, response, 't')
 	except ConnectionAbortedError:

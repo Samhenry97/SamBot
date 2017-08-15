@@ -1,5 +1,5 @@
 import os, sys, random, asyncio, logging
-import telepot.aio, pyowm, pyttsx3, pyaudio
+import telepot.aio, pyowm, pyaudio
 import database, reply, hotword, facebook
 
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
@@ -13,7 +13,7 @@ chats = {}
 speechQueue = []
 
 def init():
-	if len(sys.argv) >= 2 and sys.argv[1] == 'DEBUG':
+	if len(sys.argv) < 2 or sys.argv[1] != 'DEBUG':
 		logging.basicConfig(level=logging.ERROR)
 		logging.getLogger().setLevel(logging.ERROR)
 	
@@ -36,10 +36,6 @@ def init():
 	print('Loading OWM...')
 	owm = pyowm.OWM(OWM_TOKEN)
 	print('Done!\n')
-	print('Initializing Speech Engine...')
-	speech = pyttsx3.init()
-	speech.setProperty('rate', 150)
-	print('Done!\n')
 	print('Initializing Microphone...')
 	hotword.init()
 	print('Done!')
@@ -52,8 +48,8 @@ async def m(chatId, text, type):
 	elif type == 'm':
 		facebook.client.sendMessage(text, thread_id=str(chatId))
 		
-def changeNickname(newName, chatId, userInfo, type):
-	if type == 'm':
+def changeNickname(newName, chatId, userInfo):
+	if userInfo['type'] == 'm':
 		facebook.client.changeNickname(newName, str(userInfo['userId']), str(chatId))
 	db.setNickname(userInfo['id'], newName)
 

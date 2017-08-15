@@ -88,7 +88,7 @@ def genReply(replyType, info, *args):
 	
 	
 	
-def getReply(chatId, origText, userInfo, type):
+def getReply(chatId, origText, userInfo):
 	db = glob.db
 	text = origText.lower().strip()
 	
@@ -96,7 +96,7 @@ def getReply(chatId, origText, userInfo, type):
 	waitingFor = userInfo['waitingFor']
 	if waitingFor == 'call':
 		db.setWaitingFor(userInfo['id'], 'nothing')
-		glob.changeNickname(origText, chatId, userInfo, type)
+		glob.changeNickname(origText, chatId, userInfo)
 		return genReply('callmesuccess', userInfo, origText)
 	elif waitingFor == 'like':
 		db.setWaitingFor(userInfo['id'], 'nothing')
@@ -175,7 +175,7 @@ def getReply(chatId, origText, userInfo, type):
 	elif text.startswith('call me') or text.startswith('callme'):
 		newName = origText[origText.lower().index('me')+2:].strip()
 		if newName != '':
-			glob.changeNickname(newName, chatId, userInfo, type)
+			glob.changeNickname(newName, chatId, userInfo)
 			return 'Okay, from now on, I\'ll call you ' + newName + '! ' + Emoji.happy()
 		else:
 			db.setWaitingFor(userInfo['id'], 'call')
@@ -259,7 +259,7 @@ def getReply(chatId, origText, userInfo, type):
 			print(e)
 			return 'Couldn\'t get the weather... Try Again?'
 	else:
-		remindText = reminders.tryParse(chatId, text, origText, userInfo, genReply, type)
+		remindText = reminders.tryParse(chatId, text, origText, userInfo, genReply)
 		if remindText.strip():
 			return remindText
 		

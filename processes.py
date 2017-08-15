@@ -1,4 +1,4 @@
-import pymysql, pyttsx3
+import pymysql
 import threading, asyncio, requests, time, subprocess
 import glob
 from aioconsole import ainput

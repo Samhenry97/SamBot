@@ -34,7 +34,7 @@ class FacebookSamBot(Client):
 		print('\tChat ID:', chatId, '(Public)' if thread_type == ThreadType.GROUP else '(Private)')
 		print('\tMessage:', message, '\n')
 		
-		response = getReply(chatId, message, userInfo, 'm')
+		response = getReply(chatId, message, userInfo)
 		if response.strip():
 			self.sendMessage(response, thread_id=thread_id, thread_type=thread_type)
 

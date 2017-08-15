@@ -18,7 +18,7 @@ def hotwordDetected():
     
     text = voiceRecognition()
     userInfo = glob.db.getUserById(glob.ADMIN_ID)
-    response = reply.getReply(glob.ADMIN_ID, text, userInfo, 't')
+    response = reply.getReply(131453030, text, userInfo)
     print('\tMessage: ', text)
     print('\tResponse: ', response)
     if response.strip():
@@ -38,7 +38,7 @@ def voiceRecognition():
             #r.dynamic_energy_threshold = False
             m = sr.Microphone(device_index=micIndex)
             with m as source: r.adjust_for_ambient_noise(source)
-            subprocess.call(['play', 'res/ready.wav'], stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w'))
+            subprocess.call(glob.ESPEAK_OPTIONS + ['Yes?'])
             with m as source: audio = r.listen(source, timeout=20, phrase_time_limit=10)
             print('Processing Voice...')
             return r.recognize_google(audio)
