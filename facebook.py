@@ -1,4 +1,4 @@
-import os, logging
+import os, logging, random
 import util, glob
 import pymysql
 from reply import getReply
@@ -6,6 +6,9 @@ from fbchat import log, Client
 from fbchat.models import *
 
 client = None
+colors = ['BILOBA_FLOWER', 'BRILLIANT_ROSE', 'CAMEO', 'DEEP_SKY_BLUE', 'FERN', 
+		  'FREE_SPEECH_GREEN', 'GOLDEN_POPPY', 'LIGHT_CORAL', 'MEDIUM_SLATE_BLUE', 
+		  'MESSENGER_BLUE', 'PICTON_BLUE', 'PUMPKIN', 'RADICAL_RED', 'SHOCKING', 'VIKING']
 
 ##################################################################################################
 ##################################################################################################
@@ -36,6 +39,10 @@ class FacebookSamBot(Client):
 			print('Facebook message from', userInfo['firstName'], userInfo['lastName'])
 			print('\tChat ID:', chatId, '(Public)' if thread_type == ThreadType.GROUP else '(Private)')
 			print('\tMessage:', message, '\n')
+			
+			if message.lower().startswith('color'):
+				self.changeThreadColor(eval('ThreadColor.' + random.choice(colors)), thread_id=thread_id)
+				return
 			
 			response = getReply(chatId, message, userInfo)
 			if response.strip():
