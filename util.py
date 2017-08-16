@@ -80,5 +80,5 @@ def checkDatabase(info, chatId, public, type):
 		glob.users[(info['id'], type)] = True
 	if addChatUser:
 		print('Adding Chat User:', chatId, ',', info['id'])
-		db.addChatUser(db.getChat(chatId, type), db.getUser(info['id'], type)['id'])
+		db.addChatUser(db.getChat(chatId, type)['id'], db.getUser(info['id'], type)['id'])
 	return db.getUser(info['id'], type)

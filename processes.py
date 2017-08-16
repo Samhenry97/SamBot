@@ -17,11 +17,11 @@ async def alarmCheck(bot):
 					user = alarmDB.getUserById(a['userId'])
 					if a['message'] == None:
 						print('Sending Alarm to ' + user['firstName'] + '.')
-						await glob.m(alarmDB.getChatById(a['chatId']), 'Alarm for ' + user['nickName'] + '!', user['type'])
+						await glob.m(alarmDB.getChatById(a['chatId']), 'Alarm for ' + user['nickName'] + '!')
 					else:
 						message = a['message']
 						print('Sending Reminder to ' + user['firstName'] + ': ' + message)
-						await glob.m(alarmDB.getChatById(a['chatId']), 'Reminder for ' + user['nickName'] + ': ' + message, user['type'])
+						await glob.m(alarmDB.getChatById(a['chatId']), 'Reminder for ' + user['nickName'] + ': ' + message)
 					alarmDB.deleteAlarm(a['id'])
 			alarmDB.close()
 			await asyncio.sleep(1)
@@ -52,17 +52,17 @@ async def manual():
 				u = glob.db.getUsersByName(s.split()[1])
 				msg = bytes(' '.join(s.split()[2:]), "utf-8").decode("unicode_escape")
 				if len(u) == 1:
-					await glob.m(u[0]['id'], msg)
+					await glob.m(glob.db.getPrivateChatForUser(u[0]['id']), msg)
 					print('Sent Message.')
 				elif len(u) == 0:
 					print('Could not find user.')
 				else:
 					print('Which User? (select number)')
 					for i in range(len(u)):
-						print('(%d) %s %s' % (i, u[i]['firstName'], u[i]['lastName']))
+						print('(%d) %s %s [%s]' % (i, u[i]['firstName'], u[i]['lastName'], glob.PLATFORMS[u[i]['type']]))
 					ans = int(await ainput())
 					if ans >= 0 and ans < len(u):
-						await glob.m(u[ans]['id'], msg)
+						await glob.m(glob.db.getPrivateChatForUser(u[ans]['id']), msg)
 						print('Sent Message.')
 					else:
 						print('Please enter a correct user.')

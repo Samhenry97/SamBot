@@ -90,13 +90,14 @@ def genReply(replyType, info, *args):
 	
 def getReply(chatId, origText, userInfo):
 	db = glob.db
+	chat = db.getChat(chatId, userInfo['type'])
 	text = origText.lower().strip()
 	
 	
 	waitingFor = userInfo['waitingFor']
 	if waitingFor == 'call':
 		db.setWaitingFor(userInfo['id'], 'nothing')
-		glob.changeNickname(origText, chatId, userInfo)
+		glob.changeNickname(origText, chat['chatId'], userInfo)
 		return genReply('callmesuccess', userInfo, origText)
 	elif waitingFor == 'like':
 		db.setWaitingFor(userInfo['id'], 'nothing')
@@ -109,12 +110,13 @@ def getReply(chatId, origText, userInfo):
 		
 		
 	# Admin Commands
-	if userInfo['id'] == glob.ADMIN_ID:
+	if userInfo['id'] in glob.ADMIN_IDS:
 		if text == 'reboot':
 			if len(sys.argv) >= 2:
 				sys.argv = sys.argv[:1]
 			else:
-				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chatId)])
+				glob.bm(chat['id'], 'Rebooting...')
+				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chat['id'])])
 		elif text.startswith('git '):
 			return processOutput(text)
 		elif text == 'update' or text == 'refresh' or text == 'reload':
@@ -175,7 +177,7 @@ def getReply(chatId, origText, userInfo):
 	elif text.startswith('call me') or text.startswith('callme'):
 		newName = origText[origText.lower().index('me')+2:].strip()
 		if newName != '':
-			glob.changeNickname(newName, chatId, userInfo)
+			glob.changeNickname(newName, chat['id'], userInfo)
 			return 'Okay, from now on, I\'ll call you ' + newName + '! ' + Emoji.happy()
 		else:
 			db.setWaitingFor(userInfo['id'], 'call')
@@ -194,11 +196,14 @@ def getReply(chatId, origText, userInfo):
 	elif text.startswith('emoji'):
 		return chr(random.randint(0x1F601, 0x1F650))
 	elif text.startswith('gravatar'):
-		#email = text[8:].strip()
-		#md5 = hashlib.md5()
-		#md5.update(email.encode('utf-8'))
-		#await glob.bot.sendPhoto(chatId, 'https://www.gravatar.com/avatar/' + md5.hexdigest() + '.jpg')
-		return 'Feature Disabled'
+		email = text[8:].strip()
+		md5 = hashlib.md5()
+		md5.update(email.encode('utf-8'))
+		glob.sendPhoto(chat, 'https://www.gravatar.com/avatar/' + md5.hexdigest() + '.jpg', True)
+		return ''
+	elif text.startswith('meme'):
+		glob.sendPhoto(chat, 'res/tim.png', False)
+		return ''
 	elif text.startswith('rand'):
 		data = text.split()
 		if len(data) != 3:
@@ -231,11 +236,6 @@ def getReply(chatId, origText, userInfo):
 			return 'I don\'t know what you like!'
 		else:
 			return 'You like ' + str(', '.join(likes))
-	elif text.startswith('locate'):
-		#r = requests.get('http://freegeoip.net/json')
-		#j = json.loads(r.text)
-		#await glob.bot.sendLocation(chatId, j['latitude'], j['longitude'])
-		return 'Feature Disabled'
 	elif '\U0001f602' in text:
 		return '\U0001f602' * random.randint(1, 5)
 	elif 'weather' in text:
@@ -259,7 +259,7 @@ def getReply(chatId, origText, userInfo):
 			print(e)
 			return 'Couldn\'t get the weather... Try Again?'
 	else:
-		remindText = reminders.tryParse(chatId, text, origText, userInfo, genReply)
+		remindText = reminders.tryParse(chat, text, origText, userInfo, genReply)
 		if remindText.strip():
 			return remindText
 		

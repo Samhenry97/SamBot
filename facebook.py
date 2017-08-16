@@ -24,7 +24,6 @@ class FacebookSamBot(Client):
 		if user:
 			info = { 'id': userId, 'first_name': user['firstName'], 'last_name': user['lastName'], 'username': user['userName'] }
 		else:
-			self.changeThreadColor(ThreadColor.MESSENGER_ORANGE, thread_id=thread_id)
 			user = self.fetchUserInfo(author_id)[author_id]
 			info = { 'id': userId, 'first_name': user.name.split()[0], 'last_name': ' '.join(user.name.split()[1:]), 'username': ''.join(user.name.split()) }
 			

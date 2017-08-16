@@ -33,15 +33,21 @@ class Database:
 		
 	def getChat(self, chatId, type):
 		with self.conn.cursor() as cursor:
-			sql = 'SELECT id FROM chats WHERE chatId = %s AND type = %s'
+			sql = 'SELECT * FROM chats WHERE chatId = %s AND type = %s'
 			cursor.execute(sql, (chatId, type))
-			return cursor.fetchone()['id']
+			return cursor.fetchone()
 			
 	def getChatById(self, chatId):
 		with self.conn.cursor() as cursor:
-			sql = 'SELECT chatId FROM chats WHERE id = %s'
+			sql = 'SELECT * FROM chats WHERE id = %s'
 			cursor.execute(sql, (chatId))
-		return cursor.fetchone()['chatId']
+		return cursor.fetchone()
+		
+	def isPublicChat(self, chatId):
+		with self.conn.cursor() as cursor:
+			sql = 'SELECT public FROM chats WHERE id = %s'
+			cursor.execute(sql, (chatId))
+		return [False, True][cursor.fetchone()['public']]
 
 	def getPrivateChat(self, userId):
 		with self.conn.cursor() as cursor:
@@ -52,6 +58,12 @@ class Database:
 	def getPublicChat(self, userId):
 		with self.conn.cursor() as cursor:
 			sql = 'SELECT chats.id FROM chats INNER JOIN chatusers ON chats.id = chatusers.chatId WHERE userId = %s AND type = 1'
+			cursor.execute(sql, (userId,))
+			return cursor.fetchone()
+			
+	def getPrivateChatForUser(self, userId):
+		with self.conn.cursor() as cursor:
+			sql = 'SELECT * FROM chats INNER JOIN chatusers ON chats.id = chatusers.chatId INNER JOIN users ON users.id = chatusers.userId WHERE users.id = %s'
 			cursor.execute(sql, (userId,))
 			return cursor.fetchone()
 

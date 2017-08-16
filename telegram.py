@@ -1,9 +1,12 @@
+import os
 import util, glob
 import telepot, pymysql
 
-from glob import m
 from reply import getReply
 from emoji import Emoji
+
+bot = None  # asyncio bot
+bbot = None # blocking bot
 
 ##################################################################################################
 ##################################################################################################
@@ -30,20 +33,15 @@ async def onMessage(msg):
 		
 		response = getReply(chatId, origText, userInfo)
 		if response.strip():
-			await m(chatId, response, 't')
-	except ConnectionAbortedError:
-		await m(chatId, 'Connection lost to the database. Connecting...')
+			await bot.sendMessage(chatId, response)
+	except (ConnectionAbortedError, pymysql.err.OperationalError):
+		await bot.sendMessage(chatId, 'Connection lost to the database. Connecting...')
 		db.close()
 		db.open()
-		await m(chatId, 'Connected!')
-	except pymysql.err.OperationalError:
-		await m(chatId, 'Connection lost to the database. Connecting...')
-		db.close()
-		db.open()
-		await m(chatId, 'Connected!')
+		await bot.sendMessage(chatId, 'Connected!')
 	except Exception as e:
 		print('Uncaught Error:', e)
-		await m(chatId, 'Sorry, something went wrong... ' + Emoji.sad())
+		await bot.sendMessage(chatId, 'Sorry, something went wrong... ' + Emoji.sad())
 
 ##################################################################################################
 ##################################################################################################
@@ -65,3 +63,11 @@ async def onInlineResult(msg):
 
 	if resultId == 'help':
 		print('Wanted Help.')
+		
+##################################################################################################
+##################################################################################################
+
+def init():
+	global bot, bbot
+	bot = telepot.aio.Bot(os.environ['TELEGRAM_TOKEN'])
+	bbot = telepot.Bot(os.environ['TELEGRAM_TOKEN'])

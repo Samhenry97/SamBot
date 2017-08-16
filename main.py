@@ -1,12 +1,12 @@
 import sys, asyncio, threading, concurrent.futures
-import processes, glob, telegram, hotword, facebook
+import processes, glob, telegram, hotword, facebook, telegram
 
 async def main(executor):
 	glob.init()
 	
 	if len(sys.argv) >= 2:
 		try:
-			await glob.m(int(sys.argv[1]), 'Back and Running!')
+			await glob.m(glob.db.getChatById(int(sys.argv[1])), 'Back and Running!')
 		except:
 			pass
 
@@ -16,8 +16,8 @@ async def main(executor):
 		loop.run_in_executor(executor, processes.techWritingKeepAlive),
 		loop.run_in_executor(executor, hotword.listen),
 		loop.run_in_executor(executor, facebook.listen),
-		loop.create_task(processes.alarmCheck(glob.bot)),
-		loop.create_task(glob.bot.message_loop({
+		loop.create_task(processes.alarmCheck(telegram.bot)),
+		loop.create_task(telegram.bot.message_loop({
 			'chat': telegram.onMessage,
 			'callback_query': telegram.onCallbackQuery,
 			'inline_query': telegram.onInlineQuery,
