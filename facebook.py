@@ -1,5 +1,6 @@
 import os, logging
 import util, glob
+import pymysql
 from reply import getReply
 from fbchat import log, Client
 from fbchat.models import *
@@ -11,31 +12,42 @@ client = None
 
 class FacebookSamBot(Client):
 	def onMessage(self, author_id, message, thread_id, thread_type, **kwargs):
-		self.markAsDelivered(author_id, thread_id)
-		self.markAsRead(author_id)
-		self.setTypingStatus(TypingStatus.TYPING, thread_id=thread_id)
-		
-		if author_id == self.uid:
-			return
-		
-		userId = int(author_id)
-		chatId = int(thread_id)
-		user = glob.db.getUser(userId, 'm')
-		if user:
-			info = { 'id': userId, 'first_name': user['firstName'], 'last_name': user['lastName'], 'username': user['userName'] }
-		else:
-			user = self.fetchUserInfo(author_id)[author_id]
-			info = { 'id': userId, 'first_name': user.name.split()[0], 'last_name': ' '.join(user.name.split()[1:]), 'username': ''.join(user.name.split()) }
+		try:
+			db = glob.db
 			
-		userInfo = util.checkDatabase(info, chatId, thread_type == ThreadType.GROUP, 'm')
-		
-		print('Facebook message from', userInfo['firstName'], userInfo['lastName'])
-		print('\tChat ID:', chatId, '(Public)' if thread_type == ThreadType.GROUP else '(Private)')
-		print('\tMessage:', message, '\n')
-		
-		response = getReply(chatId, message, userInfo)
-		if response.strip():
-			self.sendMessage(response, thread_id=thread_id, thread_type=thread_type)
+			self.markAsDelivered(author_id, thread_id)
+			self.markAsRead(author_id)
+			self.setTypingStatus(TypingStatus.TYPING, thread_id=thread_id)
+			
+			if author_id == self.uid:
+				return
+			
+			userId = int(author_id)
+			chatId = int(thread_id)
+			user = db.getUser(userId, 'm')
+			if user:
+				info = { 'id': userId, 'first_name': user['firstName'], 'last_name': user['lastName'], 'username': user['userName'] }
+			else:
+				user = self.fetchUserInfo(author_id)[author_id]
+				info = { 'id': userId, 'first_name': user.name.split()[0], 'last_name': ' '.join(user.name.split()[1:]), 'username': ''.join(user.name.split()) }
+				
+			userInfo = util.checkDatabase(info, chatId, thread_type == ThreadType.GROUP, 'm')
+			
+			print('Facebook message from', userInfo['firstName'], userInfo['lastName'])
+			print('\tChat ID:', chatId, '(Public)' if thread_type == ThreadType.GROUP else '(Private)')
+			print('\tMessage:', message, '\n')
+			
+			response = getReply(chatId, message, userInfo)
+			if response.strip():
+				self.sendMessage(response, thread_id=thread_id, thread_type=thread_type)
+		except (ConnectionAbortedError, pymysql.err.OperationalError):
+			self.sendMessage('Connection lost to the database. Connecting...', thread_id=thread_id, thread_type=thread_type)
+			db.close()
+			db.open()
+			self.sendMessage('Connected!', thread_id=thread_id, thread_type=thread_type)
+		except Exception as e:
+			print('Uncaught Error:', e)
+			self.sendMessage('Sorry, something went wrong... ' + Emoji.sad(), thread_id=thread_id, thread_type=thread_type)
 
 def init():
 	global client

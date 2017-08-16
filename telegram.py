@@ -12,9 +12,8 @@ bbot = None # blocking bot
 ##################################################################################################
 
 async def onMessage(msg):
-	db = glob.db
 	try:
-		db.testConnection()
+		db = glob.db
 
 		contentType, chatType, chatId = telepot.glance(msg)
 
