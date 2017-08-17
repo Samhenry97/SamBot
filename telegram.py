@@ -15,7 +15,7 @@ async def onMessage(msg):
 
 		contentType, chatType, chatId = telepot.glance(msg)
 
-		userInfo = util.checkDatabase(msg['from'], chatId, chatId < 0, 't')
+		userInfo, chat = util.checkDatabase(msg['from'], chatId, chatId < 0, 't')
 		
 		if contentType == 'text':
 			print('Telegram message from', userInfo['firstName'], userInfo['lastName'])
@@ -28,7 +28,7 @@ async def onMessage(msg):
 		origText = msg['text'].replace('@SamTheNerdBot', '')
 		origText = origText[1:] if origText[0] == '/' else origText
 		
-		response = getReply(chatId, origText, userInfo)
+		response = getReply(chatId, origText, userInfo, chat)
 		if response.strip():
 			await bot.sendMessage(chatId, response)
 	except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):

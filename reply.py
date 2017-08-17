@@ -88,9 +88,8 @@ def genReply(replyType, info, *args):
 	
 	
 	
-def getReply(chatId, origText, userInfo):
+def getReply(chatId, origText, userInfo, chat):
 	db = glob.db
-	chat = db.getChat(chatId, userInfo['type'])
 	text = origText.lower().strip()
 	
 	

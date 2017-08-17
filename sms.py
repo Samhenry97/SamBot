@@ -8,11 +8,8 @@ from reply import getReply
 
 client = None
 number = os.environ['TWILIO_NUMBER']
- 
-app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
-def sms():
+def onMessage():
     try:
         db = glob.db
         
@@ -24,7 +21,7 @@ def sms():
         chatId = userId
         info = { 'id': userId, 'first_name': '', 'last_name': '', 'username': city }
      
-        userInfo = util.checkDatabase(info, chatId, False, 's')
+        userInfo, chat = util.checkDatabase(info, chatId, False, 's')
      
         print('Twilio text from', number)
         print('\tChat ID:', number, '(Private)')
@@ -42,7 +39,7 @@ def sms():
             db.setWaitingFor(userInfo['id'], 'nothing')
             return sendMessage('Sounds good! I\'ll remember that.')
      
-        response = getReply(chatId, message, userInfo)
+        response = getReply(chatId, message, userInfo, chat)
      
         if response:
             return sendMessage(response)
@@ -67,6 +64,3 @@ def message(recipient, message):
 def init():
 	global client
 	client = Client(os.environ['TWILIO_SID'], os.environ['TWILIO_AUTH_TOKEN'])
-
-def listen():
-	app.run()

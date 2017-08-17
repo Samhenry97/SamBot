@@ -16,7 +16,7 @@ async def main(executor):
 		loop.run_in_executor(executor, processes.techWritingKeepAlive),
 		loop.run_in_executor(executor, hotword.listen),
 		loop.run_in_executor(executor, facebook.listen),
-		loop.run_in_executor(executor, sms.listen),
+		loop.run_in_executor(executor, glob.server.run),
 		loop.create_task(processes.alarmCheck(telegram.bot)),
 		loop.create_task(telegram.bot.message_loop({
 			'chat': telegram.onMessage,

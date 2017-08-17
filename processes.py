@@ -16,12 +16,12 @@ async def alarmCheck(bot):
 					message = 'Alarm'
 					user = alarmDB.getUserById(a['userId'])
 					if a['message'] == None:
-						print('Sending Alarm to ' + user['firstName'] + '.')
-						await glob.m(alarmDB.getChatById(a['chatId']), 'Alarm for ' + user['nickName'] + '!')
+						print('[Sending Alarm to ' + user['firstName'] + '.]\n')
+						await glob.m(alarmDB.getChatById(a['chatId']), 'Alarm for ' + (user['nickName'] or user['firstName']) + '!')
 					else:
 						message = a['message']
-						print('Sending Reminder to ' + user['firstName'] + ': ' + message)
-						await glob.m(alarmDB.getChatById(a['chatId']), 'Reminder for ' + user['nickName'] + ': ' + message)
+						print('[Sending Reminder to ' + user['firstName'] + ': ' + message, ']\n')
+						await glob.m(alarmDB.getChatById(a['chatId']), 'Reminder for ' + (user['nickName'] or user['firstName']) + ': ' + message)
 					alarmDB.deleteAlarm(a['id'])
 			alarmDB.close()
 			await asyncio.sleep(1)

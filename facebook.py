@@ -34,7 +34,7 @@ class FacebookSamBot(Client):
 				user = self.fetchUserInfo(author_id)[author_id]
 				info = { 'id': userId, 'first_name': user.name.split()[0], 'last_name': ' '.join(user.name.split()[1:]), 'username': ''.join(user.name.split()) }
 				
-			userInfo = util.checkDatabase(info, chatId, thread_type == ThreadType.GROUP, 'm')
+			userInfo, chat = util.checkDatabase(info, chatId, thread_type == ThreadType.GROUP, 'm')
 			
 			print('Facebook message from', userInfo['firstName'], userInfo['lastName'])
 			print('\tChat ID:', chatId, '(Public)' if thread_type == ThreadType.GROUP else '(Private)')
@@ -44,7 +44,7 @@ class FacebookSamBot(Client):
 				self.changeThreadColor(eval('ThreadColor.' + random.choice(colors)), thread_id=thread_id)
 				return
 			
-			response = getReply(chatId, message, userInfo)
+			response = getReply(chatId, message, userInfo, chat)
 			if response.strip():
 				self.sendMessage(response, thread_id=thread_id, thread_type=thread_type)
 		except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):

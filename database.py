@@ -48,6 +48,12 @@ class Database:
 			sql = 'SELECT * FROM chats INNER JOIN chatusers ON chats.id = chatusers.chatId INNER JOIN users ON users.id = chatusers.userId WHERE users.id = %s'
 			cursor.execute(sql, (userId,))
 			return cursor.fetchone()
+			
+	def getUserForPrivateChat(self, chatId):
+		with self.conn.cursor() as cursor:
+			sql = 'SELECT * FROM users INNER JOIN chatusers ON users.id = chatusers.userId INNER JOIN chats ON chats.id = chatusers.chatId WHERE chats.id = %s AND chats.public = 0'
+			cursor.execute(sql, (chatId,))
+			return cursor.fetchone()
 
 	def loadUsers(self, dict):
 		with self.conn.cursor() as cursor:
@@ -171,6 +177,12 @@ class Database:
 		with self.conn.cursor() as cursor:
 			sql = 'UPDATE users SET waitingFor = %s WHERE id = %s'
 			cursor.execute(sql, (waitingFor, userId))
+		self.conn.commit()
+		
+	def setChatUUID(self, chatId, uuid):
+		with self.conn.cursor() as cursor:
+			sql = 'UPDATE chats SET uuid = %s WHERE id = %s'
+			cursor.execute(sql, (uuid, chatId))
 		self.conn.commit()
 
 	#######################################################################################################

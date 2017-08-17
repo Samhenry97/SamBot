@@ -85,4 +85,10 @@ def checkDatabase(info, chatId, public, type):
 	if addChatUser:
 		print('Adding Chat User:', chatId, ',', info['id'])
 		db.addChatUser(db.getChat(chatId, type)['id'], db.getUser(info['id'], type)['id'])
-	return db.getUser(info['id'], type)
+	return (db.getUser(info['id'], type), db.getChat(chatId, type))
+	
+def hash(s):
+	ans = 1125899906842597
+	for c in s:
+		ans = ans * 31 + ord(c)
+	return (ans & 0xFFFFFFFFFFFFFFF) ^ ((ans & (0xFFFFFFFFFFFFFFF << 32)) >> 32)
