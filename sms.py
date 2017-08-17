@@ -52,8 +52,9 @@ def sms():
         db.open()
         message(number, 'Connected!')
     except Exception as e:
-        print('Uncaught Error:', e)
+        glob.messageAdmins('Uncaught Error: {}'.format(e))
         message(number, 'Sorry, something went wrong...')
+    return ''
 
 def sendMessage(text):
     response = MessagingResponse()

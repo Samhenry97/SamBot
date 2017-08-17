@@ -6,7 +6,7 @@ from fbchat.models import *
 OWM_TOKEN = os.environ['OWM_TOKEN']
 ADMIN_IDS = [int(x) for x in os.environ['ADMIN_IDS'].split(',')]
 ESPEAK_OPTIONS = ['espeak', '-ven-us+f3', '-s170']
-PLATFORMS = { 'm': 'Messenger', 't': 'Telegram' }
+PLATFORMS = { 'm': 'Messenger', 't': 'Telegram', 's': 'SMS' }
 pause = False
 db = owm = speech = None
 users = {}
@@ -77,6 +77,12 @@ def changeNickname(newName, chat, userInfo):
 	if userInfo['type'] == 'm':
 		facebook.client.changeNickname(newName, str(userInfo['userId']), thread_id=str(chat['chatId']), thread_type=[ThreadType.USER, ThreadType.GROUP][chat['public']])
 	db.setNickname(userInfo['id'], newName)
+	
+def messageAdmins(text):
+	for id in ADMIN_IDS:
+		if db.getUserById(id)['type'] != 's': # Don't send text because charges
+			chat = db.getPrivateChatForUser(id)
+			bm(chat, text)
 
 def say(message):
 	global speechQueue

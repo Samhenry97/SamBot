@@ -37,7 +37,7 @@ async def onMessage(msg):
 		db.open()
 		await bot.sendMessage(chatId, 'Connected!')
 	except Exception as e:
-		print('Uncaught Error:', e)
+		glob.messageAdmins('Uncaught Error: {}'.format(e))
 		await bot.sendMessage(chatId, 'Sorry, something went wrong... ')
 
 ##################################################################################################

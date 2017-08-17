@@ -78,6 +78,7 @@ def checkDatabase(info, chatId, public, type):
 		addChatUser = True
 		db.addUser(info['id'], info['first_name'], info['last_name'], info['username'], type)
 		glob.users[(info['id'], type)] = True
+		glob.messageAdmins('New {} User: {} {}: {} ({})'.format(glob.PLATFORMS[type], info['first_name'], info['last_name'], info['username'], chatId))
 	if addChatUser:
 		print('Adding Chat User:', chatId, ',', info['id'])
 		db.addChatUser(db.getChat(chatId, type)['id'], db.getUser(info['id'], type)['id'])

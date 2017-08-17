@@ -53,7 +53,7 @@ class FacebookSamBot(Client):
 			db.open()
 			self.sendMessage('Connected!', thread_id=thread_id, thread_type=thread_type)
 		except Exception as e:
-			print('Uncaught Error:', e)
+			glob.messageAdmins('Uncaught Error: {}'.format(e))
 			self.sendMessage('Sorry, something went wrong... ', thread_id=thread_id, thread_type=thread_type)
 
 def init():
