@@ -1,5 +1,5 @@
 import re, random, requests, json, sys, os, subprocess, hashlib, time, geopy
-import glob, reminders
+import glob, reminders, util
 from emoji import Emoji
 from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
 
@@ -183,7 +183,7 @@ def getReply(chatId, origText, userInfo):
 			db.setWaitingFor(userInfo['id'], 'call')
 			return genReply('callme', userInfo)
 	elif text.startswith('time'):
-		return str(util.getDate())
+		return str(util.convertDate(util.getDate()))
 	elif text.startswith('tim'):
 		return genReply('tim', userInfo)
 	elif text.startswith('hi') or text.startswith('hey') or text.startswith('hello'):

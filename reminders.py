@@ -37,14 +37,14 @@ def tryParse(chat, text, origText, userInfo, genReply):
 				msg = r.group('message')
 				date = util.dateFromNow(r.group('amount'), r.group('units'))
 				db.addReminder(userInfo['id'], chat['id'], msg, date)
-				return genReply('reminder', userInfo, str(date))
+				return genReply('reminder', userInfo, util.convertDate(date))
 		for regex in remindAtRegex:
 			r = regex.match(text)
 			if r:
 				msg = r.group('message')
 				date = util.dateWithOffset(r.group('h'), r.group('m'), r.group('s'), r.group('ampm'), r.group('timeofday'), r.group('offset'))
 				db.addReminder(userInfo['id'], chat['id'], msg, date)
-				return genReply('reminder', userInfo, str(date))
+				return genReply('reminder', userInfo, util.convertDate(date))
 		return genReply('reminderhelp', userInfo)
 
 	mat = alarmStart.match(text)
@@ -54,13 +54,13 @@ def tryParse(chat, text, origText, userInfo, genReply):
 		if r:
 			date = util.dateFromNow(r.group('amount'), r.group('units'))
 			db.addAlarm(userInfo['id'], chat['id'], date)
-			return genReply('alarm', userInfo, str(date))
+			return genReply('alarm', userInfo, util.convertDate(date))
 		for regex in alarmAtRegex:
 			r = regex.match(text)
 			if r:
 				date = util.dateWithOffset(r.group('h'), r.group('m'), r.group('s'), r.group('ampm'), r.group('timeofday'), r.group('offset'))
 				db.addAlarm(userInfo['id'], chat['id'], date)
-				return genReply('alarm', userInfo, str(date))
+				return genReply('alarm', userInfo, util.convertDate(date))
 		return genReply('reminderhelp', userInfo)
 
 	if text.startswith('clear alarms') or text.startswith('clearalarms'):
@@ -99,7 +99,7 @@ def tryParse(chat, text, origText, userInfo, genReply):
 				ans.append('Alarms in this chat for ' + userInfo['firstName'] + ':')
 		
 		for a in alarms:
-			ans.append('@' + str(a['time']))
+			ans.append(util.convertDate(a['time']))
 		return '\n'.join(ans)
 	elif text.startswith('list reminders'):
 		ans = []
@@ -123,6 +123,6 @@ def tryParse(chat, text, origText, userInfo, genReply):
 				ans.append('Reminders in this chat for ' + userInfo['firstName'] + ':')
 		
 		for r in reminders:
-			ans.append('@ ' + str(r['time']) + ': ' + r['message'])
+			ans.append('@ ' + util.convertDate(r['time']) + ': ' + r['message'])
 		return '\n'.join(ans)
 	return ''

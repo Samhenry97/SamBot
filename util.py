@@ -41,6 +41,9 @@ def getDate(date=None):
 	if date == None:
 		date = datetime.now()
 	return date.replace(microsecond=0)
+	
+def convertDate(date):
+	return date.strftime('%A, %b %d, %Y at %H:%M:%S %p')
 
 def dateFromNow(amount, units):
 	try:
