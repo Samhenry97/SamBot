@@ -1,4 +1,4 @@
-import re, random, requests, json, sys, os, subprocess, hashlib, time
+import re, random, requests, json, sys, os, subprocess, hashlib, time, geopy
 import glob, reminders
 from emoji import Emoji
 from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
@@ -97,7 +97,7 @@ def getReply(chatId, origText, userInfo):
 	waitingFor = userInfo['waitingFor']
 	if waitingFor == 'call':
 		db.setWaitingFor(userInfo['id'], 'nothing')
-		glob.changeNickname(origText, chat['chatId'], userInfo)
+		glob.changeNickname(origText, chat, userInfo)
 		return genReply('callmesuccess', userInfo, origText)
 	elif waitingFor == 'like':
 		db.setWaitingFor(userInfo['id'], 'nothing')
@@ -115,7 +115,7 @@ def getReply(chatId, origText, userInfo):
 			if len(sys.argv) >= 2:
 				sys.argv = sys.argv[:1]
 			else:
-				glob.bm(chat['id'], 'Rebooting...')
+				glob.bm(chat, 'Rebooting...')
 				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chat['id'])])
 		elif text.startswith('git '):
 			return processOutput(text)
@@ -177,7 +177,7 @@ def getReply(chatId, origText, userInfo):
 	elif text.startswith('call me') or text.startswith('callme'):
 		newName = origText[origText.lower().index('me')+2:].strip()
 		if newName != '':
-			glob.changeNickname(newName, chat['id'], userInfo)
+			glob.changeNickname(newName, chat, userInfo)
 			return 'Okay, from now on, I\'ll call you ' + newName + '! ' + Emoji.happy()
 		else:
 			db.setWaitingFor(userInfo['id'], 'call')
@@ -186,8 +186,6 @@ def getReply(chatId, origText, userInfo):
 		return str(util.getDate())
 	elif text.startswith('tim'):
 		return genReply('tim', userInfo)
-	elif '\U0001f611' in text:
-		return genReply('annoying', userInfo)
 	elif text.startswith('hi') or text.startswith('hey') or text.startswith('hello'):
 		if userInfo['nickName'].lower() == 'bae':
 			return genReply('bae', userInfo)
@@ -212,8 +210,17 @@ def getReply(chatId, origText, userInfo):
 			return str(random.randint(int(data[1]), int(data[2])))
 		except:
 			return 'Please enter a valid number.'
-	elif 'emotion' in text:
-		return genReply('emotion', userInfo)
+	elif 'bot' not in text and 'are you a' in text:
+		text = text.replace('are you a', '')
+		if text[0] == 'n':
+			text = text[1:]
+		return genReply('areyoua', userInfo, text.strip())
+	elif re.match('are.+real', text):
+		q = re.match('are(.+)real', text).group(1)
+		return genReply('arereal', userInfo, q.strip())
+	elif re.match('is.+real', text):
+		q = re.match('is(.+)real', text).group(1)
+		return genReply('isreal', userInfo, q.strip())
 	elif text.startswith('i like') or text.startswith('ilike'):
 		like = origText[text.index('like')+4:].strip()
 		if like != '':
@@ -236,27 +243,32 @@ def getReply(chatId, origText, userInfo):
 			return 'I don\'t know what you like!'
 		else:
 			return 'You like ' + str(', '.join(likes))
-	elif '\U0001f602' in text:
-		return '\U0001f602' * random.randint(1, 5)
 	elif 'weather' in text:
 		try:
-			r = requests.get('http://freegeoip.net/json')
-			j = json.loads(r.text)
-			weather = glob.owm.weather_around_coords(j['latitude'], j['longitude'])[0].get_weather()
+			glob.bm(chat, 'Calculating...')
+			if 'in' in text:
+				target = origText[text.rindex('in')+2:].strip()
+			elif 'at' in text:
+				target = origText[text.rindex('at')+2:].strip()
+			else:
+				target = 'McDonough, GA'
+			geolocator = geopy.geocoders.Nominatim()
+			location = geolocator.geocode(target)
+			weather = glob.owm.weather_around_coords(location.latitude, location.longitude)[0].get_weather()
 			temp = weather.get_temperature('fahrenheit')['temp']
 			clouds = weather.get_clouds()
 			humid = weather.get_humidity()
-			status = weather.get_detailed_status()
+			status = weather.get_detailed_status().capitalize()
 			if temp <= 32: # Cold!
-				return genReply('freezing', userInfo, status, str(temp), str(clouds), str(humid))
+				return genReply('freezing', userInfo, status, str(temp), str(clouds), str(humid), target)
 			elif temp <= 60: # Cool and Nice
-				return genReply('cool', userInfo, status, str(temp), str(clouds), str(humid))
+				return genReply('cool', userInfo, status, str(temp), str(clouds), str(humid), target)
 			elif temp <= 85: # Warm and Nice
-				return genReply('warm', userInfo, status, str(temp), str(clouds), str(humid))
+				return genReply('warm', userInfo, status, str(temp), str(clouds), str(humid), target)
 			else: #Hot
-				return genReply('hot', userInfo, status, str(temp), str(clouds), str(humid))
+				return genReply('hot', userInfo, status, str(temp), str(clouds), str(humid), target)
 		except Exception as e:
-			print(e)
+			print('Weather Error: ', e)
 			return 'Couldn\'t get the weather... Try Again?'
 	else:
 		remindText = reminders.tryParse(chat, text, origText, userInfo, genReply)

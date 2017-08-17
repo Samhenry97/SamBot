@@ -8,4 +8,6 @@ pyaudio
 aioconsole
 requests
 fbchat
-yowsup2
+twilio
+flask
+geopy

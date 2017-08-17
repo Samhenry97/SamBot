@@ -33,7 +33,10 @@ class Emoji:
 		return choice(cool, min, max)
 
 	def poop(min=1, max=1):
-		return chr(0x1F4A9) * random.randint(min, max)
+		return chr(0x1f4A9) * random.randint(min, max)
+		
+	def hot(min=1, max=1):
+		return chr(0x1f525) * random.randint(min, max)
 
 	def get(type, min=1, max=1):
 		if min > max:

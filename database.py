@@ -42,25 +42,7 @@ class Database:
 			sql = 'SELECT * FROM chats WHERE id = %s'
 			cursor.execute(sql, (chatId))
 		return cursor.fetchone()
-		
-	def isPublicChat(self, chatId):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT public FROM chats WHERE id = %s'
-			cursor.execute(sql, (chatId))
-		return [False, True][cursor.fetchone()['public']]
 
-	def getPrivateChat(self, userId):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT chats.id FROM chats INNER JOIN chatusers ON chats.id = chatusers.chatId WHERE userId = %s AND type = 0'
-			cursor.execute(sql, (userId,))
-			return cursor.fetchone()
-
-	def getPublicChat(self, userId):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT chats.id FROM chats INNER JOIN chatusers ON chats.id = chatusers.chatId WHERE userId = %s AND type = 1'
-			cursor.execute(sql, (userId,))
-			return cursor.fetchone()
-			
 	def getPrivateChatForUser(self, userId):
 		with self.conn.cursor() as cursor:
 			sql = 'SELECT * FROM chats INNER JOIN chatusers ON chats.id = chatusers.chatId INNER JOIN users ON users.id = chatusers.userId WHERE users.id = %s'
@@ -171,6 +153,18 @@ class Database:
 		with self.conn.cursor() as cursor:
 			sql = 'UPDATE users SET nickName = %s WHERE id = %s'
 			cursor.execute(sql, (nickName, id))
+		self.conn.commit()
+		
+	def setFirstName(self, id, firstName):
+		with self.conn.cursor() as cursor:
+			sql = 'UPDATE users SET firstName = %s WHERE id = %s'
+			cursor.execute(sql, (firstName, id))
+		self.conn.commit()
+		
+	def setLastName(self, id, lastName):
+		with self.conn.cursor() as cursor:
+			sql = 'UPDATE users SET lastName = %s WHERE id = %s'
+			cursor.execute(sql, (lastName, id))
 		self.conn.commit()
 		
 	def setWaitingFor(self, userId, waitingFor):

@@ -32,10 +32,10 @@ def hotwordDetected():
     
 def voiceRecognition():
     tries = 0
-    while tries < 10:
+    while tries < 3:
         try:
             r = sr.Recognizer()
-            #r.dynamic_energy_threshold = False
+            # r.dynamic_energy_threshold = False
             m = sr.Microphone(device_index=micIndex)
             with m as source: r.adjust_for_ambient_noise(source)
             subprocess.call(glob.ESPEAK_OPTIONS + ['Yes?'])

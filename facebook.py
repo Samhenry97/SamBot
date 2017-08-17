@@ -47,14 +47,14 @@ class FacebookSamBot(Client):
 			response = getReply(chatId, message, userInfo)
 			if response.strip():
 				self.sendMessage(response, thread_id=thread_id, thread_type=thread_type)
-		except (ConnectionAbortedError, pymysql.err.OperationalError):
+		except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
 			self.sendMessage('Connection lost to the database. Connecting...', thread_id=thread_id, thread_type=thread_type)
 			db.close()
 			db.open()
 			self.sendMessage('Connected!', thread_id=thread_id, thread_type=thread_type)
 		except Exception as e:
 			print('Uncaught Error:', e)
-			self.sendMessage('Sorry, something went wrong... ' + Emoji.sad(), thread_id=thread_id, thread_type=thread_type)
+			self.sendMessage('Sorry, something went wrong... ', thread_id=thread_id, thread_type=thread_type)
 
 def init():
 	global client

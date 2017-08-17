@@ -1,6 +1,6 @@
 import os, sys, random, asyncio, logging
 import telepot.aio, pyowm, pyaudio
-import database, reply, hotword, facebook, telegram
+import database, reply, hotword, facebook, telegram, sms
 from fbchat.models import *
 
 OWM_TOKEN = os.environ['OWM_TOKEN']
@@ -28,6 +28,9 @@ def init():
 	print('Loading Facebook Bot...')
 	facebook.init()
 	print('Done!\n')
+	print('Loading Twilio...')
+	sms.init()
+	print('Done!\n')
 	print('Loading Database...')
 	db = database.Database()
 	db.loadUsers(users)
@@ -46,12 +49,16 @@ async def m(chat, text):
 		await telegram.bot.sendMessage(chat['chatId'], text)
 	elif chat['type'] == 'm':
 		facebook.client.sendMessage(text, thread_id=str(chat['chatId']), thread_type=[ThreadType.USER, ThreadType.GROUP][chat['public']])
+	elif chat['type'] == 's':
+		sms.message(chat['chatId'], text)
 		
 def bm(chat, text):
 	if chat['type'] == 't':
 		telegram.bbot.sendMessage(chat['chatId'], text)
 	elif chat['type'] == 'm':
 		facebook.client.sendMessage(text, thread_id=str(chat['chatId']), thread_type=[ThreadType.USER, ThreadType.GROUP][chat['public']])
+	elif chat['type'] == 's':
+		sms.message(chat['chatId'], text)
 		
 def sendPhoto(chat, name, web):
 	if web:
@@ -66,9 +73,9 @@ def sendPhoto(chat, name, web):
 			facebook.client.sendLocalImage(name, thread_id=chat['chatId'], thread_type=[ThreadType.USER, ThreadType.GROUP][chat['public']])
 		
 		
-def changeNickname(newName, chatId, userInfo):
+def changeNickname(newName, chat, userInfo):
 	if userInfo['type'] == 'm':
-		facebook.client.changeNickname(newName, str(userInfo['userId']), str(chatId))
+		facebook.client.changeNickname(newName, str(userInfo['userId']), thread_id=str(chat['chatId']), thread_type=[ThreadType.USER, ThreadType.GROUP][chat['public']])
 	db.setNickname(userInfo['id'], newName)
 
 def say(message):

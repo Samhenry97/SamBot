@@ -1,5 +1,5 @@
 import sys, asyncio, threading, concurrent.futures
-import processes, glob, telegram, hotword, facebook, telegram
+import processes, glob, telegram, hotword, facebook, telegram, sms
 
 async def main(executor):
 	glob.init()
@@ -16,6 +16,7 @@ async def main(executor):
 		loop.run_in_executor(executor, processes.techWritingKeepAlive),
 		loop.run_in_executor(executor, hotword.listen),
 		loop.run_in_executor(executor, facebook.listen),
+		loop.run_in_executor(executor, sms.listen),
 		loop.create_task(processes.alarmCheck(telegram.bot)),
 		loop.create_task(telegram.bot.message_loop({
 			'chat': telegram.onMessage,
@@ -30,7 +31,7 @@ async def main(executor):
 
 
 if __name__ == '__main__':
-	executor = concurrent.futures.ThreadPoolExecutor(7)
+	executor = concurrent.futures.ThreadPoolExecutor(8)
 	loop = asyncio.get_event_loop()
 
 	try:

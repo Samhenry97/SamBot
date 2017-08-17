@@ -25,7 +25,14 @@
 
 key chicken
 test 'chicken' in text
-{Happy Robots}(1,10)
+I LOVE chicken!
+Chicken Nuggets?
+M{m}(3,10)
+
+key batman
+test ('im' in text or 'i\'m' in text) and 'batman' in text
+No you aren't. I AM! {Emoji.cool}
+Ahem... I'm never going to believe that.
 
 key chips
 test text == 'chips' or text == 'chocolate'
@@ -42,7 +49,12 @@ Happy birthday to you{!}(5,500)
 
 key poop
 test 'poop' in text
-{Emoji.poop}(5,500)
+{Emoji.poop}(5,50)
+
+key yum
+test 'yummy' in text or 'yum' in text
+What's so tasty?
+Can I have some please{?}(1,5)
 
 key callme
 test manual
@@ -52,16 +64,84 @@ And what shall your name be, {fName}?
 And your name?
 Call you what?
 
+key whoareyou
+test 'who' in text and 'are' in text and 'you' in text
+I'm SamBot, your friendly conversation bot! What can I assist you with?
+Hey, I'm SamBot! What's up?
+I'm Batman. No just kidding, I'm SamBot. {Emoji.funny}(1,2)
+
+key whomadeyou
+test 'who' in text and 'made' in text and 'you' in text
+Some dude named Sam Henry...
+Why do you want to know?
+I might tell you if you keep asking
+
+key whereareyoufrom
+test 'where' in text and 'you' in text and 'from' in text
+I'm not sure...
+Do I have to tell you where I'm from?
+I'm from the cloud, duh.
+I'm from... code {Emoji.cool}
+
+key anyonehome
+test 'anyone' in text and 'home' in text
+Maybe{.}(3,7)
+Possibly {Emoji.funny}
+Of course! I'm always here {Emoji.happy}
+
+key whereareyou
+test 'where' in text and 'are' in text and 'you' in text
+Somewhere in the clouds...
+You'll never know {Emoji.mad}
+Never telling you.
+
+key sing
+test 'sing' in text and 'song' in text
+That's beyond my abilities...
+I would if I were there! {Emoji.sad}(3)
+
+key disappointed
+test 'disappointed' in text
+I'm so disappointed in you.
+Don't be disappointed!
+
+key raspberry
+test 'raspberry' in text or 'pi' in text
+Yep, I'm running on a Raspberry Pi!
+Raspberry Pi is such a cool thing... {Emoji.cool}
+
+key arereal
+test manual
+I don't know... ARE {arg} real?
+{arg} might be real...
+Affirmative. {arg} are real.
+Yep! {arg} are real.
+NO! Of course not! {arg} are a figment of your imagination.
+
+key isreal
+test manual
+I don't know... IS {arg} real?
+{arg} might be real...
+Absolutely! I've seen {arg} around here and there...
+Ummm no? How could you think {arg} is real?
+
 key callmesuccess
 test manual
 Okay, from now on I'll call you {arg}{!}(2,5)
 Sweet, I'll remember that, {arg}{!}(2,5)
 
 key name
-test 'what\'s my name' in text or 'whats my name' in text
-You're {fName} {lName}
-Hi, {fName} {lName}!
-{{fName} {lName} }(2,5)
+test 'what\'s my name' in text or 'whats my name' in text or 'who am i' in text or 'whoami' in text
+You're {fName} {lName}, aka {nName} {Emoji.cool}
+Hi, {fName} {lName} ({nName})!
+{fName} {lName} ({nName})
+
+key favecolor
+test 'your' in text and 'favorite' in text and 'color' in text
+I'd have to go with... orange {Emoji.happy}(2,5)
+Orange all the way! {Emoji.happy}
+Orange Orange Orange...
+Orange you glad it's... orange? {Emoji.funny}
 
 key thanks
 test 'thanks' in text
@@ -140,10 +220,11 @@ I'm just hacking the internet {Emoji.cool}
 Just talking to you! {Emoji.happy}(1,5)
 
 key goodbye
-test 'bye' in text or 'goodbye' in text
+test 'bye' in text or 'goodbye' in text or 'gtg' in text
 Until next time! {Emoji.cool}(1,3)
 See ya later!
 I'll be here when you need me! {Emoji.happy}
+I'll miss you so much... {Emoji.sad} Come back soon?
 
 key shift
 test 'shift' in text and 'take' in text
@@ -187,7 +268,7 @@ test text.startswith('idk')
 Well you SHOULD know!! {Emoji.mad}(2)
 Why don't you know?
 {start}
-I'm dissappointed.
+I'm disappointed.
 You should know... {Emoji.sad}
 {end}
 I don't know either, sorry! {Emoji.sad}
@@ -200,17 +281,17 @@ I'll do anything for you!
 Let me know what you want done... And it'll be done! {Emoji.happy}
 
 key emotion
-test manual
+test 'emotion' in text
 I have emotions!! {Emoji.sad}(2,5)
 You don't think I have emotions?!?!
 Excuse me... I do have emotions.
 
 key ilike
 test manual
-I like {arg}(5) too!! 
-Dude, I love {arg}(5,6)!!! {Emoji.happy}
-{arg}(2)... pretty cool stuff!
-I'm recording that you like {arg}(2)! {Emoji.happy}
+I like {arg} too!! 
+Dude, I love {arg}!!! {Emoji.happy}
+{arg}... pretty cool stuff!
+I'm recording that you like {arg}! {Emoji.happy}
 
 key idontlike
 test manual
@@ -294,11 +375,16 @@ Yep!
 Thanks! It's pretty nice {Emoji.happy}
 
 key robot
-test ('you are' in text or 'youre' in text or 'you\'re' in text) and 'robot' in text
+test ('you are' in text or 'youre' in text or 'you\'re' in text or 'are you' in text) and 'bot' in text
 Yes, I am a robot.... And?
 So, who cared if I'm a robot!? {Emoji.mad}
 Does that really matter?
 Okay... I'm a robot. Who cares?
+
+key areyoua
+test manual
+Ummmm no, do I look like a {arg}?
+{arg}{?}(2,3){!}(2,4) No.
 
 key goodmorning
 test text.startswith('goodmorning') or text.startswith('good morning')
@@ -316,6 +402,11 @@ Sleep tight {Emoji.happy}{Emoji.tired}
 Get all the shleeps!
 Nighty-night!
 
+key sleep
+test 'shut eye' in text or 'sleep' in text
+Get some rest! {Emoji.tired}(1,5)
+Rest well!
+
 key hello
 test manual
 Why hello there, {nName}!
@@ -325,11 +416,15 @@ How's life, {nName}? {Emoji.happy}
 Hola! Como estas, {nName}? {Emoji.cool}
 
 key annoying
-test manual
+test '\U0001f611' in text
 I'm not annoying, am I? {Emoji.sad}
 Don't be like that.
 Hey, I promise I'm not trying to be annoying!
 Sorry... {Emoji.sad}(2,10)
+
+key dying
+test '\U0001f602' in text or 'dying' in text
+{Emoji.funny}(1,5)
 
 key tim
 test manual
@@ -351,6 +446,44 @@ Exploring space! {Emoji.happy}
 Idling... but not anymore!
 Same ol', same ol'... solving quantum physics problems.
 
+key what
+test text.startswith('what')
+What.
+H{m}(1,5)?
+
+key nothelpful
+test ('wasn\'t' in text or 'wasnt' in text or 'not' in text) and 'helpful' in text
+I'll try better next time...
+I'm still learning!
+Please have patience with me! {Emoji.happy}
+
+key help
+test 'help' in text
+What can I do for you? {Emoji.happy}
+Yes?
+Anything I can do?
+
+key rude
+test 'rude' in text
+That wasn't rude at all!
+Come on, I'm not THAT rude...
+
+key date
+test 'date' in text and 'me' in text and 'with' in text
+I'd love to, but I'm stuck in a Raspberry Pi...
+Maybe someday?
+I don't want to friend zone you, but I can't.
+
+key dateme
+test 'date' in text and 'me' in text
+Sorry, I don't enter long-term relationships.
+I can't, sorry {Emoji.sad}
+
+key fire
+test 'hot' in text or 'fire' in text or '\U0001f525' in text
+{Emoji.hot}(5,10)
+Yeah buddy {Emoji.hot}(3)
+
 key wut
 test text.startswith('wut')
 Ummmm don't ask me. I don't know! 
@@ -369,36 +502,34 @@ Yeah?
 # {arg2} Temperature
 # {arg3} Cloud Coverage
 # {arg4} Humidity
+# {arg5} Location
 
 key freezing
 test manual
 {start}
-It's freezing! A jacket and scarf would be nice today! {Emoji.happy}
-It's currently {arg2} degrees, with a humidity of {arg4}. {arg1}.
-{end}
-{start}
-Brrrrrrr.... It's awfully cold! Get some hot chocolate and warm up by a fire place with a loved one {Emoji.happy}(2,5)
-It's currently {arg2} degrees, {arg4}% humidity.
+It's freezing in {arg5}! A jacket and scarf would be nice today! {Emoji.happy}
+{arg1} today, and it's currently {arg2}° with cloud coverage at {arg3}% and humidity at {arg4}%.
 {end}
 
 key cool
 test manual
-It's cool, but nice out. Get a jacket and stay warm in this {arg2} degree weather! {Emoji.cool}
-It's {arg2} degrees - pretty nice out! Get a jacket and go for a run! {Emoji.cool}
+{start}
+It's cool, but nice out. Get a jacket and stay warm while in {arg5}! {Emoji.cool}
+{arg1} today, and it's currently {arg2}° with cloud coverage at {arg3}% and humidity at {arg4}%.
+{end}
 
 key warm
 test manual
 {start}
-It's very pretty out! Great weather for a run {Emoji.cool}
-Currently {arg2} degrees.
+It's very pretty in {arg5}! Great weather for a run {Emoji.cool}
+{arg1} today, and it's currently {arg2}° with cloud coverage at {arg3}% and humidity at {arg4}%.
 {end}
-It's great! {arg2} degrees.
 
 key hot
 test manual
 {start}
-It's quite hot out... {Emoji.tired} Keep cool and drink lots of water!
-{arg2} degrees.
+It's quite hot out in {arg5}... {Emoji.tired} Keep cool and drink lots of water!
+{arg1} today, and it's currently {arg2}° with cloud coverage at {arg3}% and humidity at {arg4}%.
 {end}
 
 key story
@@ -417,7 +548,7 @@ Student: Obviously it's past tense.
 {start}
 What do you get when you drop an atomic bomb on a palace?
 A new king!!
-{Emoji.happy}(2,100)
+{Emoji.happy}(2,10)
 {end}
 {start}
 One day, a brunette was jumping up and down on train tracks shouting "23!! 23!! 23!!". A blonde saw her doing this. So because blondes look up to brunettes, the blonde walked up and started copying her, shouting "23! 23! 23!". 
@@ -471,6 +602,7 @@ test 'stupid' in text
 How DARE you call me stupid!! {Emoji.mad}(5,10)
 You should never insult me like that...
 I'm going to come hack into your computer now.
+You'll regret that.
 
 key marryme
 test 'marry' in text and 'me' in text or text.startswith('marryme')
@@ -538,7 +670,7 @@ Oh yeah buddy
 Can I have some please???? {Emoji.sad}(1,2)
 
 key fart
-test 'fart' in text
+test 'fart' in text or 'toot' in text
 Toot
 That really smells
 Could you not...? We're inside bruh.
@@ -560,3 +692,8 @@ test 'tired' in text and ('im' in text or "i'm" in text)
 I understand.
 You got this! I'm your biggest cheerleader! 
 Keep it up {Emoji.cool}(1,5)
+
+key sambot
+test 'sambot' in text or 'samthenerdbot' in text
+Yep, that's me! {Emoji.happy}(2)
+What can I do for you?

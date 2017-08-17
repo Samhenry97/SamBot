@@ -1,9 +1,7 @@
 import os
 import util, glob
 import telepot, pymysql
-
 from reply import getReply
-from emoji import Emoji
 
 bot = None  # asyncio bot
 bbot = None # blocking bot
@@ -33,14 +31,14 @@ async def onMessage(msg):
 		response = getReply(chatId, origText, userInfo)
 		if response.strip():
 			await bot.sendMessage(chatId, response)
-	except (ConnectionAbortedError, pymysql.err.OperationalError):
+	except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
 		await bot.sendMessage(chatId, 'Connection lost to the database. Connecting...')
 		db.close()
 		db.open()
 		await bot.sendMessage(chatId, 'Connected!')
 	except Exception as e:
 		print('Uncaught Error:', e)
-		await bot.sendMessage(chatId, 'Sorry, something went wrong... ' + Emoji.sad())
+		await bot.sendMessage(chatId, 'Sorry, something went wrong... ')
 
 ##################################################################################################
 ##################################################################################################
