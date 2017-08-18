@@ -1,6 +1,6 @@
+import os
 import pymysql.cursors
 import pymysql
-import os
 
 class Database:
 	def __init__(self):
@@ -10,50 +10,53 @@ class Database:
 	#######################################################################################################
 	# SELECT
 	
-	def getUser(self, id, type):
+	def selectOne(self, sql, args=None):
 		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM users WHERE userId = %s AND type = %s'
-			cursor.execute(sql, (id, type))
-		return cursor.fetchone()
+			cursor.execute(sql, args)
+			return cursor.fetchone()
+		
+	def selectMany(self, sql, args=None):
+		with self.conn.cursor() as cursor:
+			cursor.execute(sql, args)
+			return [row for row in cursor]
+			
+	def selectAll(self, sql, args=None):
+		with self.conn.cursor() as cursor:
+			cursor.execute(sql, args)
+			return cursor.fetchall()
+				
+	def getUser(self, id, type):
+		return self.selectOne('SELECT * FROM users WHERE userId = %s AND type = %s', (id, type))
 		
 	def getUserById(self, id):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM users WHERE id = %s'
-			cursor.execute(sql, (id))
-		return cursor.fetchone()
+		return self.selectOne('SELECT * FROM users WHERE id = %s', (id,))
 
 	def getUsersByName(self, name):
-		ans = []
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM users WHERE firstName LIKE %s'
-			cursor.execute(sql, ('%' + name + '%',))
-			for row in cursor:
-				ans.append(row)
-		return ans
+		return self.selectMany('SELECT * FROM users WHERE firstName LIKE %s', ('%' + name + '%',))
 		
 	def getChat(self, chatId, type):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM chats WHERE chatId = %s AND type = %s'
-			cursor.execute(sql, (chatId, type))
-			return cursor.fetchone()
+		return self.selectOne('SELECT * FROM chats WHERE chatId = %s AND type = %s', (chatId, type))
 			
 	def getChatById(self, chatId):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM chats WHERE id = %s'
-			cursor.execute(sql, (chatId))
-		return cursor.fetchone()
+		return self.selectOne('SELECT * FROM chats WHERE id = %s', (chatId,))
 
 	def getPrivateChatForUser(self, userId):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM chats INNER JOIN chatusers ON chats.id = chatusers.chatId INNER JOIN users ON users.id = chatusers.userId WHERE users.id = %s'
-			cursor.execute(sql, (userId,))
-			return cursor.fetchone()
+		return self.selectOne('SELECT * FROM chats INNER JOIN chatusers ON chats.id = chatusers.chatId INNER JOIN users ON users.id = chatusers.userId WHERE users.id = %s', (userId,))
 			
 	def getUserForPrivateChat(self, chatId):
+		return self.selectOne('SELECT * FROM users INNER JOIN chatusers ON users.id = chatusers.userId INNER JOIN chats ON chats.id = chatusers.chatId WHERE chats.id = %s AND chats.public = 0', (chatId,))
+
+	def getAlerts(self):
+		return self.selectAll('SELECT * FROM alarms')
+
+	def getLikes(self, userId):
+		ans = []
 		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM users INNER JOIN chatusers ON users.id = chatusers.userId INNER JOIN chats ON chats.id = chatusers.chatId WHERE chats.id = %s AND chats.public = 0'
-			cursor.execute(sql, (chatId,))
-			return cursor.fetchone()
+			sql = 'SELECT name FROM likes WHERE userId = %s'
+			cursor.execute(sql, (userId,))
+			for row in cursor:
+				ans.append(row['name'])
+		return ans
 
 	def loadUsers(self, dict):
 		with self.conn.cursor() as cursor:
@@ -68,21 +71,6 @@ class Database:
 			cursor.execute(sql)
 			for row in cursor:
 				dict[(row['chatId'], row['type'])] = True
-				
-	def getLikes(self, userId):
-		ans = []
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT name FROM likes WHERE userId = %s'
-			cursor.execute(sql, (userId,))
-			for row in cursor:
-				ans.append(row['name'])
-		return ans
-			
-	def getAlerts(self):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT * FROM alarms'
-			cursor.execute(sql)
-			return cursor.fetchall()
 			
 	def getAlarms(self, userId=-1, chatId=-1):
 		with self.conn.cursor() as cursor:
@@ -117,36 +105,26 @@ class Database:
 	#######################################################################################################
 	#######################################################################################################
 	# INSERT
+	
+	def insert(self, sql, args):
+		with self.conn.cursor() as cursor:
+			cursor.execute(sql, args)
+		self.conn.commit()
 
 	def addUser(self, id, first, last, userName, type):
-		with self.conn.cursor() as cursor:
-			sql = 'INSERT INTO users (userId, firstName, lastName, userName, nickName, type) VALUES (%s, %s, %s, %s, %s, %s)'
-			cursor.execute(sql, (id, first, last, userName, '', type))
-		self.conn.commit()
+		self.insert('INSERT INTO users (userId, firstName, lastName, userName, nickName, type) VALUES (%s, %s, %s, %s, %s, %s)', (id, first, last, userName, '', type))
 		
 	def addLike(self, userId, like):
-		with self.conn.cursor() as cursor:
-			sql = 'INSERT INTO likes (name, userId) VALUES (%s, %s)'
-			cursor.execute(sql, (like, userId))
-		self.conn.commit()
+		self.insert('INSERT INTO likes (name, userId) VALUES (%s, %s)', (like, userId))
 		
 	def addChat(self, chatId, type, public):
-		with self.conn.cursor() as cursor:
-			sql = 'INSERT INTO chats (chatId, type, public) VALUES (%s, %s, %s)'
-			cursor.execute(sql, (chatId, type, 1 if public else 0))
-		self.conn.commit()
+		self.insert('INSERT INTO chats (chatId, type, public) VALUES (%s, %s, %s)', (chatId, type, 1 if public else 0))
 
 	def addChatUser(self, chatId, userId):
-		with self.conn.cursor() as cursor:
-			sql = 'INSERT INTO chatusers (chatId, userId) VALUES (%s, %s)'
-			cursor.execute(sql, (chatId, userId))
-		self.conn.commit()
+		self.insert('INSERT INTO chatusers (chatId, userId) VALUES (%s, %s)', (chatId, userId))
 		
 	def addReminder(self, userId, chatId, message, time):
-		with self.conn.cursor() as cursor:
-			sql = 'INSERT INTO alarms (userId, chatId, message, time) VALUES (%s, %s, %s, %s)'
-			cursor.execute(sql, (userId, chatId, message, time))
-		self.conn.commit()
+		self.insert('INSERT INTO alarms (userId, chatId, message, time) VALUES (%s, %s, %s, %s)', (userId, chatId, message, time))
 
 	def addAlarm(self, userId, chatId, time):
 		self.addReminder(userId, chatId, None, time)
@@ -154,36 +132,26 @@ class Database:
 	#######################################################################################################
 	#######################################################################################################
 	# UPDATE
+	
+	def update(self, sql, args):
+		with self.conn.cursor() as cursor:
+			cursor.execute(sql, args)
+		self.conn.commit()
 
 	def setNickname(self, id, nickName):
-		with self.conn.cursor() as cursor:
-			sql = 'UPDATE users SET nickName = %s WHERE id = %s'
-			cursor.execute(sql, (nickName, id))
-		self.conn.commit()
+		self.update('UPDATE users SET nickName = %s WHERE id = %s', (nickName, id))
 		
 	def setFirstName(self, id, firstName):
-		with self.conn.cursor() as cursor:
-			sql = 'UPDATE users SET firstName = %s WHERE id = %s'
-			cursor.execute(sql, (firstName, id))
-		self.conn.commit()
+		self.update('UPDATE users SET firstName = %s WHERE id = %s', (firstName, id))
 		
 	def setLastName(self, id, lastName):
-		with self.conn.cursor() as cursor:
-			sql = 'UPDATE users SET lastName = %s WHERE id = %s'
-			cursor.execute(sql, (lastName, id))
-		self.conn.commit()
+		self.update('UPDATE users SET lastName = %s WHERE id = %s', (lastName, id))
 		
 	def setWaitingFor(self, userId, waitingFor):
-		with self.conn.cursor() as cursor:
-			sql = 'UPDATE users SET waitingFor = %s WHERE id = %s'
-			cursor.execute(sql, (waitingFor, userId))
-		self.conn.commit()
+		self.update('UPDATE users SET waitingFor = %s WHERE id = %s', (waitingFor, userId))
 		
 	def setChatUUID(self, chatId, uuid):
-		with self.conn.cursor() as cursor:
-			sql = 'UPDATE chats SET uuid = %s WHERE id = %s'
-			cursor.execute(sql, (uuid, chatId))
-		self.conn.commit()
+		self.update('UPDATE chats SET uuid = %s WHERE id = %s', (uuid, chatId))
 
 	#######################################################################################################
 	#######################################################################################################

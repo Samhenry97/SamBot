@@ -1,5 +1,5 @@
-import util, glob
 import re
+import util, glob
 from datetime import datetime, timedelta
 
 remindStart = re.compile('((remind( *me)?)|(set a reminder))(?P<command>.+)')

@@ -1,7 +1,6 @@
 import os, logging, random
-import util, glob
 import pymysql
-from reply import getReply
+import util, glob, reply
 from fbchat import log, Client
 from fbchat.models import *
 
@@ -10,10 +9,8 @@ colors = ['BILOBA_FLOWER', 'BRILLIANT_ROSE', 'CAMEO', 'DEEP_SKY_BLUE', 'FERN',
 		  'FREE_SPEECH_GREEN', 'GOLDEN_POPPY', 'LIGHT_CORAL', 'MEDIUM_SLATE_BLUE', 
 		  'MESSENGER_BLUE', 'PICTON_BLUE', 'PUMPKIN', 'RADICAL_RED', 'SHOCKING', 'VIKING']
 
-##################################################################################################
-##################################################################################################
 
-class FacebookSamBot(Client):
+class MessengerSamBot(Client):
 	def onMessage(self, author_id, message, thread_id, thread_type, **kwargs):
 		try:
 			db = glob.db
@@ -44,7 +41,7 @@ class FacebookSamBot(Client):
 				self.changeThreadColor(eval('ThreadColor.' + random.choice(colors)), thread_id=thread_id)
 				return
 			
-			response = getReply(chatId, message, userInfo, chat)
+			response = reply.getReply(chatId, message, userInfo, chat)
 			if response.strip():
 				self.sendMessage(response, thread_id=thread_id, thread_type=thread_type)
 		except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
@@ -55,11 +52,14 @@ class FacebookSamBot(Client):
 		except Exception as e:
 			glob.messageAdmins('Uncaught Error: {}'.format(e))
 			self.sendMessage('Sorry, something went wrong... ', thread_id=thread_id, thread_type=thread_type)
+			
+def sendMessage(text, chatId, chatType):
+	client.sendMessage(text, thread_id=chatId, thread_type=chatType)
 
 def init():
 	global client
 	log.setLevel(logging.ERROR)
-	client = FacebookSamBot(os.environ['BOT_EMAIL'], os.environ['BOT_PASS'])
+	client = MessengerSamBot(os.environ['BOT_EMAIL'], os.environ['BOT_PASS'])
 
 def listen():
 	global client

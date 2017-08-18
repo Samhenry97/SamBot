@@ -1,32 +1,28 @@
-import sys, asyncio, threading, concurrent.futures
-import processes, glob, telegram, hotword, facebook, telegram, sms
+import sys, asyncio, threading, concurrent.futures, logging
+import processes, glob, hotword, server, bots.messenger, bots.telegram
+
 
 async def main(executor):
 	glob.init()
 	
-	if len(sys.argv) >= 2:
-		try:
-			await glob.m(glob.db.getChatById(int(sys.argv[1])), 'Back and Running!')
-		except:
-			pass
+	if len(sys.argv) >= 2 and sys.argv[1] != 'DEBUG':
+		await glob.m(glob.db.getChatById(int(sys.argv[1])), 'Back and Running!')
+	elif len(sys.argv) < 2 or sys.argv[1] != 'DEBUG':
+		logging.basicConfig(level=logging.ERROR)
+		logging.getLogger().setLevel(logging.ERROR)
 
 	loop = asyncio.get_event_loop()
 	tasks = [
 		loop.run_in_executor(executor, processes.speechEngine, glob.speech),
 		loop.run_in_executor(executor, processes.techWritingKeepAlive),
 		loop.run_in_executor(executor, hotword.listen),
-		loop.run_in_executor(executor, facebook.listen),
-		loop.run_in_executor(executor, glob.server.run),
-		loop.create_task(processes.alarmCheck(telegram.bot)),
-		loop.create_task(telegram.bot.message_loop({
-			'chat': telegram.onMessage,
-			'callback_query': telegram.onCallbackQuery,
-			'inline_query': telegram.onInlineQuery,
-			'chosen_inline_result': telegram.onInlineResult
-		})),
+		loop.run_in_executor(executor, bots.messenger.listen),
+		loop.run_in_executor(executor, server.listen),
+		loop.create_task(bots.telegram.listen()),
+		loop.create_task(processes.alarmCheck()),
 		loop.create_task(processes.manual()),
 	]
-	print('Listening...')
+	print('Ready to Go!')
 	await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
 
 

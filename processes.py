@@ -1,33 +1,33 @@
-import pymysql
 import threading, asyncio, requests, time, subprocess
+import pymysql, reply
 import glob
 from aioconsole import ainput
 from util import getDate
 from database import Database
 
-async def alarmCheck(bot):
-	alarmDB = Database()
+async def alarmCheck():
+	db = Database()
 	while True:
 		try:
-			alarmDB.open()
-			alarms = alarmDB.getAlerts()
+			db.open()
+			alarms = db.getAlerts()
 			for a in alarms:
 				if a['time'] < getDate():
 					message = 'Alarm'
-					user = alarmDB.getUserById(a['userId'])
+					user = db.getUserById(a['userId'])
 					if a['message'] == None:
 						print('[Sending Alarm to ' + user['firstName'] + '.]\n')
-						await glob.m(alarmDB.getChatById(a['chatId']), 'Alarm for ' + (user['nickName'] or user['firstName']) + '!')
+						await glob.m(db.getChatById(a['chatId']), 'Alarm for ' + (user['nickName'] or user['firstName']) + '!')
 					else:
 						message = a['message']
 						print('[Sending Reminder to ' + user['firstName'] + ': ' + message, ']\n')
-						await glob.m(alarmDB.getChatById(a['chatId']), 'Reminder for ' + (user['nickName'] or user['firstName']) + ': ' + message)
-					alarmDB.deleteAlarm(a['id'])
-			alarmDB.close()
+						await glob.m(db.getChatById(a['chatId']), 'Reminder for ' + (user['nickName'] or user['firstName']) + ': ' + message)
+					db.deleteAlarm(a['id'])
+			db.close()
 			await asyncio.sleep(1)
 		except pymysql.err.OperationalError:
-			alarmDB.close()
-			alarmDB.open()
+			db.close()
+			db.open()
 
 def techWritingKeepAlive():
 	while True:
@@ -45,11 +45,15 @@ def speechEngine(engine):
 			time.sleep(1)
 			
 async def manual():
+	db = glob.db
 	while True:
 		try:
 			s = await ainput()
+			userInfo = db.getUserById(glob.ADMIN_IDS[0])
+			chat = db.getChat(131453030, userInfo['type'])
+			
 			if s.startswith('message'):
-				u = glob.db.getUsersByName(s.split()[1])
+				u = db.getUsersByName(s.split()[1])
 				msg = bytes(' '.join(s.split()[2:]), "utf-8").decode("unicode_escape")
 				if len(u) == 1:
 					await glob.m(glob.db.getPrivateChatForUser(u[0]['id']), msg)
@@ -62,9 +66,22 @@ async def manual():
 						print('(%d) %s %s [%s]' % (i, u[i]['firstName'], u[i]['lastName'], glob.PLATFORMS[u[i]['type']]))
 					ans = int(await ainput())
 					if ans >= 0 and ans < len(u):
-						await glob.m(glob.db.getPrivateChatForUser(u[ans]['id']), msg)
+						await glob.m(db.getPrivateChatForUser(u[ans]['id']), msg)
 						print('Sent Message.')
 					else:
 						print('Please enter a correct user.')
+			else:
+				response = reply.getReply(131453030, s, userInfo, chat)
+				if response.strip():
+					glob.say(response)
+					print(response)
+				else:
+					glob.say('Sorry, I didn\'t get that.')
+					print('Sorry, I didn\'t get that.')
+		except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
+			print('Connection lost to the database. Connecting...')
+			db.close()
+			db.open()
+			print('Connected!')	
 		except Exception as e:
-			print('Could not send message: ' + str(e))
+			print('Could not send message:', e)

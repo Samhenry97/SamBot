@@ -2,6 +2,16 @@ import sys
 import glob
 from datetime import datetime, timedelta
 
+class Loader:
+	def __init__(self, message):
+		self.message = message
+	
+	def __enter__(self):
+		print('Loading {}...'.format(self.message))
+	
+	def __exit__(self, type, value, traceback):
+		print('Done!\n')
+
 words = {}
 
 units = [

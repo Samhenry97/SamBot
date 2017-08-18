@@ -1,15 +1,14 @@
 import os, math
-import glob, util
 import pymysql
-from reply import getReply
+import glob, util, reply
 from flask import request, Response
 from kik import KikApi, Configuration
 from kik.messages import messages_from_json, TextMessage
 
-bot = None
+client = None
 
 def onMessage():
-    if not bot.verify_signature(request.headers.get('X-Kik-Signature'), request.get_data()):
+    if not client.verify_signature(request.headers.get('X-Kik-Signature'), request.get_data()):
         return Response(status=403)
         
     messages = messages_from_json(request.json['messages'])
@@ -25,7 +24,7 @@ def onMessage():
             chatId = int(math.sqrt(math.sqrt(math.sqrt(int(chatUUID, 16)))))
             message = kikMessage.body
             
-            user = bot.get_user(userName)
+            user = client.get_user(userName)
             info = { 'id': userId, 'first_name': user.first_name, 'last_name': user.last_name, 'username': userName }
             
             userInfo, chat = util.checkDatabase(info, chatId, kikMessage.chat_type != 'direct', 'k')
@@ -36,7 +35,7 @@ def onMessage():
             print('\tChat ID:', chatId, '(Public)' if kikMessage.chat_type == 'direct' else '(Private)')
             print('\tMessage:', message, '\n')
             
-            response = getReply(chatId, message, userInfo, chat)
+            response = reply.getReply(chatId, message, userInfo, chat)
      
             if response:
                 sendMessage(userName, chatUUID, response)
@@ -52,9 +51,9 @@ def onMessage():
     return Response(status=200)
 
 def sendMessage(recipient, chatId, message):
-    bot.send_messages([TextMessage(to=recipient, chat_id=chatId, body=message)])
+    client.send_messages([TextMessage(to=recipient, chat_id=chatId, body=message)])
 
 def init():
-    global bot
-    bot = KikApi(os.environ['KIK_USER'], os.environ['KIK_API_KEY'])
-    bot.set_configuration(Configuration(webhook=os.environ['WEBHOOK'] + 'kik'))
+    global client
+    client = KikApi(os.environ['KIK_USER'], os.environ['KIK_API_KEY'])
+    client.set_configuration(Configuration(webhook=os.environ['WEBHOOK'] + 'kik'))

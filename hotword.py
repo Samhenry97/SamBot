@@ -1,6 +1,5 @@
-import snowboy.snowboydecoder as snowboydecoder
-import speech_recognition as sr
 import signal, time, subprocess
+import snowboy.snowboydecoder as snowboydecoder, speech_recognition as sr
 import glob, reply
 
 detector = None
@@ -55,12 +54,6 @@ def voiceRecognition():
             except: pass
     return ''
 
-def listen():
-    global detector
-    print('Listening for hotword...')
-    detector = snowboydecoder.HotwordDetector('snowboy/resources/sambot.pmdl', sensitivity=0.6)
-    detector.start(detected_callback=hotwordDetected, sleep_time=0.03)
-
 def init():
     global micIndex
     while True:
@@ -69,3 +62,9 @@ def init():
             break
         except:
             time.sleep(1)
+
+def listen():
+    global detector
+    print('Listening for hotword...\n')
+    detector = snowboydecoder.HotwordDetector('snowboy/resources/sambot.pmdl', sensitivity=0.6)
+    detector.start(detected_callback=hotwordDetected, sleep_time=0.03)

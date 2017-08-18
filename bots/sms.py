@@ -1,10 +1,9 @@
-import util, glob
 import os
-import pymysql
+import pymysql, reply
+import glob, util
 from flask import Flask, request
 from twilio.twiml.messaging_response import Message, MessagingResponse
 from twilio.rest import Client
-from reply import getReply
 
 client = None
 number = os.environ['TWILIO_NUMBER']
@@ -29,20 +28,20 @@ def onMessage():
         
         if not userInfo['firstName'] and not userInfo['lastName'] and userInfo['waitingFor'] == 'nothing': # New User
             db.setWaitingFor(userInfo['id'], 'firstName')
-            return sendMessage('Hello! I\'m SamBot! What\'s your first name?')
+            return generateMessage('Hello! I\'m SamBot! What\'s your first name?')
         elif userInfo['waitingFor'] == 'firstName':
             db.setFirstName(userInfo['id'], message)
             db.setWaitingFor(userInfo['id'], 'lastName')
-            return sendMessage('Sweet! And what\'s your last name?')
+            return generateMessage('Sweet! And what\'s your last name?')
         elif userInfo['waitingFor'] == 'lastName':
             db.setLastName(userInfo['id'], message)
             db.setWaitingFor(userInfo['id'], 'nothing')
-            return sendMessage('Sounds good! I\'ll remember that.')
+            return generateMessage('Sounds good! I\'ll remember that.')
      
-        response = getReply(chatId, message, userInfo, chat)
+        response = reply.getReply(chatId, message, userInfo, chat)
      
         if response:
-            return sendMessage(response)
+            return generateMessage(response)
     except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
         message(number, 'Connection lost to the database. Connecting...')
         db.close()
@@ -53,12 +52,12 @@ def onMessage():
         message(number, 'Sorry, something went wrong...')
     return ''
 
-def sendMessage(text):
+def generateMessage(text):
     response = MessagingResponse()
     response.message(text)
     return str(response)
 
-def message(recipient, message):
+def sendMessage(recipient, message):
     client.messages.create(to='+' + str(recipient), from_=number, body=message)
 
 def init():
