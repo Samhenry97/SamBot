@@ -1,0 +1,21 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block body %}
+<form method='post'>
+  <div class='registration'>
+    <h3>Register for a SamBot account!</h3>
+    <p>Once you've registered, you can start talking with your new virtual assistant!</p>
+    <hr>
+    {{ render_field(form.firstName) }}
+    {{ render_field(form.lastName) }}
+    {{ render_field(form.userName) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+    {{ render_field(form.confirm) }}
+    <input type='submit' value='Register' class='button'><a class='button secondary' href="{{url_for('login')}}">Login</a>
+  </div>
+</form>
+{% endblock %}
+
+

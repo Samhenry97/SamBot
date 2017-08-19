@@ -41,7 +41,7 @@ class MessengerSamBot(Client):
 				self.changeThreadColor(eval('ThreadColor.' + random.choice(colors)), thread_id=thread_id)
 				return
 			
-			response = reply.getReply(chatId, message, userInfo, chat)
+			response = reply.getReply(message, userInfo, chat)
 			if response.strip():
 				self.sendMessage(response, thread_id=thread_id, thread_type=thread_type)
 		except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
@@ -62,5 +62,4 @@ def init():
 	client = MessengerSamBot(os.environ['BOT_EMAIL'], os.environ['BOT_PASS'])
 
 def listen():
-	global client
 	client.listen()

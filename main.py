@@ -1,5 +1,5 @@
 import sys, asyncio, threading, concurrent.futures, logging
-import processes, glob, hotword, server, bots.messenger, bots.telegram
+import processes, glob, hotword, server, bots.messenger, bots.telegram, bots.whatsapp
 
 
 async def main(executor):
@@ -10,6 +10,9 @@ async def main(executor):
 	elif len(sys.argv) < 2 or sys.argv[1] != 'DEBUG':
 		logging.basicConfig(level=logging.ERROR)
 		logging.getLogger().setLevel(logging.ERROR)
+	else:
+		logging.basicConfig(level=logging.DEBUG)
+		logging.getLogger().setLevel(logging.DEBUG)
 
 	loop = asyncio.get_event_loop()
 	tasks = [
@@ -17,6 +20,7 @@ async def main(executor):
 		loop.run_in_executor(executor, processes.techWritingKeepAlive),
 		loop.run_in_executor(executor, hotword.listen),
 		loop.run_in_executor(executor, bots.messenger.listen),
+		loop.run_in_executor(executor, bots.whatsapp.listen),
 		loop.run_in_executor(executor, server.listen),
 		loop.create_task(bots.telegram.listen()),
 		loop.create_task(processes.alarmCheck()),
@@ -27,7 +31,7 @@ async def main(executor):
 
 
 if __name__ == '__main__':
-	executor = concurrent.futures.ThreadPoolExecutor(8)
+	executor = concurrent.futures.ThreadPoolExecutor(9)
 	loop = asyncio.get_event_loop()
 
 	try:

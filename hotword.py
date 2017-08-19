@@ -16,9 +16,9 @@ def hotwordDetected():
     del detector
     
     text = voiceRecognition()
-    userInfo = glob.db.getUserById(glob.ADMIN_IDS[0])
-    chat = glob.db.getChat(131453030, userInfo['type'])
-    response = reply.getReply(131453030, text, userInfo, chat)
+    userInfo = glob.db.getAdmins[0]
+    chat = glob.db.getPrivateChatForUser(userInfo['id'])
+    response = reply.getReply(text, userInfo, chat)
     print('\tMessage: ', text)
     print('\tResponse: ', response)
     if response.strip():

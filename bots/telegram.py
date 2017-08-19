@@ -24,7 +24,7 @@ async def onMessage(msg):
 		origText = msg['text'].replace('@SamTheNerdBot', '')
 		origText = origText[1:] if origText[0] == '/' else origText
 		
-		response = reply.getReply(chatId, origText, userInfo, chat)
+		response = reply.getReply(origText, userInfo, chat)
 		if response.strip():
 			await client.sendMessage(chatId, response)
 	except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):

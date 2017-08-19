@@ -3,7 +3,7 @@ import pymysql
 import glob, util, reply
 from flask import request, Response
 from kik import KikApi, Configuration
-from kik.messages import messages_from_json, TextMessage
+from kik.messages import messages_from_json, TextMessage, PictureMessage
 
 client = None
 
@@ -18,6 +18,8 @@ def onMessage():
             continue
             
         try:
+            db = glob.db
+            
             userName = kikMessage.from_user
             userId = util.hash(userName)
             chatUUID = kikMessage.chat_id
@@ -29,13 +31,13 @@ def onMessage():
             
             userInfo, chat = util.checkDatabase(info, chatId, kikMessage.chat_type != 'direct', 'k')
             if chat['uuid'] is None: # Needed for kik messages
-                glob.db.setChatUUID(chat['id'], chatUUID)
+                db.setChatUUID(chat['id'], chatUUID)
             
             print('Kik message from', userInfo['firstName'], userInfo['lastName'])
             print('\tChat ID:', chatId, '(Public)' if kikMessage.chat_type == 'direct' else '(Private)')
             print('\tMessage:', message, '\n')
             
-            response = reply.getReply(chatId, message, userInfo, chat)
+            response = reply.getReply(message, userInfo, chat)
      
             if response:
                 sendMessage(userName, chatUUID, response)
@@ -50,10 +52,13 @@ def onMessage():
 
     return Response(status=200)
 
+def sendPhoto(recipient, chatId, url):
+    client.send_messages([PictureMessage(to=recipient, chat_id=chatId, pic_url=url)])
+
 def sendMessage(recipient, chatId, message):
     client.send_messages([TextMessage(to=recipient, chat_id=chatId, body=message)])
 
 def init():
     global client
     client = KikApi(os.environ['KIK_USER'], os.environ['KIK_API_KEY'])
-    client.set_configuration(Configuration(webhook=os.environ['WEBHOOK'] + 'kik'))
+    client.set_configuration(Configuration(webhook=glob.WEBHOOK + 'kik'))

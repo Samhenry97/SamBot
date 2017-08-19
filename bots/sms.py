@@ -2,6 +2,7 @@ import os
 import pymysql, reply
 import glob, util
 from flask import Flask, request
+from twilio.twiml.voice_response import VoiceResponse
 from twilio.twiml.messaging_response import Message, MessagingResponse
 from twilio.rest import Client
 
@@ -38,7 +39,7 @@ def onMessage():
             db.setWaitingFor(userInfo['id'], 'nothing')
             return generateMessage('Sounds good! I\'ll remember that.')
      
-        response = reply.getReply(chatId, message, userInfo, chat)
+        response = reply.getReply(message, userInfo, chat)
      
         if response:
             return generateMessage(response)
@@ -51,11 +52,20 @@ def onMessage():
         glob.messageAdmins('Uncaught Error: {}'.format(e))
         message(number, 'Sorry, something went wrong...')
     return ''
+    
+def onVoice():
+    response = VoiceResponse()
+    response.record()
+    response.hangup()
+    return str(response)
 
 def generateMessage(text):
     response = MessagingResponse()
     response.message(text)
     return str(response)
+    
+def sendPhoto(recipient, url):
+    client.messages.create(to='+' + str(recipient), from_=number, media_url=url)
 
 def sendMessage(recipient, message):
     client.messages.create(to='+' + str(recipient), from_=number, body=message)

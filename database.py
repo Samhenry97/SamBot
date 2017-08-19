@@ -33,6 +33,21 @@ class Database:
 
 	def getUsersByName(self, name):
 		return self.selectMany('SELECT * FROM users WHERE firstName LIKE %s', ('%' + name + '%',))
+	
+	def getUserByEmail(self, email):
+		return self.selectOne('SELECT * FROM users WHERE email = %s', (email,))
+		
+	def getUserByUserName(self, userName):
+		return self.selectOne('SELECT * FROM users WHERE userName = %s', (userName,))
+		
+	def getUserByEmailOrUserName(self, email):
+		return self.selectOne('SELECT * FROM users WHERE email = %s OR userName = %s', (email, email))
+		
+	def getUserByCreds(self, creds):
+		return self.selectOne('SELECT * FROM users WHERE email = %s OR userName = %s', (creds,))
+		
+	def getAdmins(self):
+		return self.selectMany('SELECT * FROM users WHERE admin = TRUE')
 		
 	def getChat(self, chatId, type):
 		return self.selectOne('SELECT * FROM chats WHERE chatId = %s AND type = %s', (chatId, type))
@@ -101,6 +116,11 @@ class Database:
 				sql = 'SELECT * FROM alarms WHERE userId = %s AND chatId = %s AND message IS NOT NULL ORDER BY time'
 				cursor.execute(sql, (userId, chatId))
 				return cursor.fetchall()
+				
+	def getMessagesForUser(self, userId, per=40, page=1):
+		total = self.selectOne('SELECT COUNT(*) AS total FROM messages WHERE userId = %s', (userId,))['total']
+		results = max(per - abs(total - (per * page)), 0) if total - (per * page) < 0 else per
+		return self.selectMany('SELECT * FROM messages WHERE userId = %s ORDER BY created ASC LIMIT {},{}'.format(max(total - (per*page), 0), results), (userId,))
 	
 	#######################################################################################################
 	#######################################################################################################
@@ -111,8 +131,8 @@ class Database:
 			cursor.execute(sql, args)
 		self.conn.commit()
 
-	def addUser(self, id, first, last, userName, type):
-		self.insert('INSERT INTO users (userId, firstName, lastName, userName, nickName, type) VALUES (%s, %s, %s, %s, %s, %s)', (id, first, last, userName, '', type))
+	def addUser(self, id, first, last, userName, type, email=None, password=None):
+		self.insert('INSERT INTO users (userId, firstName, lastName, userName, nickName, type, email, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (id, first, last, userName, '', type, email, password))
 		
 	def addLike(self, userId, like):
 		self.insert('INSERT INTO likes (name, userId) VALUES (%s, %s)', (like, userId))
@@ -128,6 +148,10 @@ class Database:
 
 	def addAlarm(self, userId, chatId, time):
 		self.addReminder(userId, chatId, None, time)
+		
+	def addMessage(self, userId, text, fromUser):
+		if text.strip():
+			self.insert('INSERT INTO messages (userId, text, fromUser) VALUES (%s, %s, %s)', (userId, text, fromUser))
 
 	#######################################################################################################
 	#######################################################################################################
@@ -156,6 +180,12 @@ class Database:
 	#######################################################################################################
 	#######################################################################################################
 	# DELETE
+	
+	def deleteUser(self, userId):
+		with self.conn.cursor() as cursor:
+			sql = 'DELETE FROM users WHERE id = %s'
+			cursor.execute(sql, (userId,))
+		self.conn.commit()
 	
 	def removeLike(self, userId, like):
 		with self.conn.cursor() as cursor:
@@ -213,5 +243,5 @@ class Database:
 			user='root',
 			password='password',
 			db='sambot',
-			charset='utf8',
+			charset='utf8mb4',
 			cursorclass=pymysql.cursors.DictCursor)

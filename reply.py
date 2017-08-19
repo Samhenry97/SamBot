@@ -88,7 +88,7 @@ def genReply(replyType, info, *args):
 	
 	
 	
-def getReply(chatId, origText, userInfo, chat):
+def getReply(origText, userInfo, chat):
 	db = glob.db
 	text = origText.lower().strip()
 	
@@ -109,7 +109,7 @@ def getReply(chatId, origText, userInfo, chat):
 		
 		
 	# Admin Commands
-	if userInfo['id'] in glob.ADMIN_IDS:
+	if userInfo['admin']:
 		if text == 'reboot':
 			if len(sys.argv) >= 2:
 				sys.argv = sys.argv[:1]
@@ -196,10 +196,10 @@ def getReply(chatId, origText, userInfo, chat):
 		email = text[8:].strip()
 		md5 = hashlib.md5()
 		md5.update(email.encode('utf-8'))
-		glob.sendPhoto(chat, 'https://www.gravatar.com/avatar/' + md5.hexdigest() + '.jpg', True)
+		glob.sendPhoto(chat, 'https://www.gravatar.com/avatar/' + md5.hexdigest() + '.jpg')
 		return ''
 	elif text.startswith('meme'):
-		glob.sendPhoto(chat, 'res/tim.png', False)
+		glob.sendPhoto(chat, glob.WEBHOOK + 'image/tim.png')
 		return ''
 	elif text.startswith('rand'):
 		data = text.split()

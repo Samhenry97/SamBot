@@ -1,0 +1,18 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
+{% block title %}Log In{% endblock %}
+{% block body %}
+<form method='post'>
+  <div class='registration'>
+    <h3>Log in to chat with SamBot!</h3>
+    <hr>
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+    {{ render_field(form.remember) }}
+    <input type='submit' value='Log In' class='button'><a class='button secondary' href="{{url_for('register')}}">Register</a>
+  </div>
+</form>
+{% endblock %}
+
+
+

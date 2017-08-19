@@ -10,5 +10,12 @@ requests
 fbchat
 twilio
 flask
+Flask-WTF
 geopy
 kik
+Image
+py-bcrypt
+flask-login
+Flask-Navigation
+sqlalchemy
+flask_sqlalchemy

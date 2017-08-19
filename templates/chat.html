@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %}Chat{% endblock %}
+{% block body %}
+  <h2>Chat with SamBot!</h2>
+  <div class='messagearea'>
+    <ul class='chatlist'>
+      {% for message in messages %}
+        <li><span class="{{'you' if message.fromUser else 'bot'}}"><div>{{'You' if message.fromUser else 'SamBot'}}</div><pre>{{message.text}}</pre></span></li>
+      {% endfor %}
+    </ul>
+  </div>
+  <textarea class='chatarea'></textarea>
+  <div class='button chatbutton right'>Message!</div>
+{% endblock %}

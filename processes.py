@@ -1,5 +1,5 @@
 import threading, asyncio, requests, time, subprocess
-import pymysql, reply
+import pymysql, reply, bots.sms
 import glob
 from aioconsole import ainput
 from util import getDate
@@ -70,8 +70,13 @@ async def manual():
 						print('Sent Message.')
 					else:
 						print('Please enter a correct user.')
+			elif s.startswith('text'):
+				number = s.split()[1]
+				msg = ' '.join(s.split()[2:])
+				bots.sms.sendMessage('1' + number, msg)
+				print('Sent Text.')
 			else:
-				response = reply.getReply(131453030, s, userInfo, chat)
+				response = reply.getReply(s, userInfo, chat)
 				if response.strip():
 					glob.say(response)
 					print(response)

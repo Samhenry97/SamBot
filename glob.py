@@ -1,13 +1,13 @@
 import os, sys, random, asyncio
 import telepot.aio, pyowm, pyaudio
-import database, reply, hotword, bots.messenger, bots.telegram, bots.sms, bots.kik
+import database, reply, hotword, bots.messenger, bots.telegram, bots.sms, bots.kik, bots.whatsapp
 from fbchat.models import *
 from util import Loader
 
 OWM_TOKEN = os.environ['OWM_TOKEN']
-ADMIN_IDS = [int(x) for x in os.environ['ADMIN_IDS'].split(',')]
+WEBHOOK = os.environ['WEBHOOK']
 ESPEAK_OPTIONS = ['espeak', '-ven-us+f3', '-s170']
-PLATFORMS = { 'm': 'Messenger', 't': 'Telegram', 's': 'SMS', 'k': 'Kik' }
+PLATFORMS = { 'm': 'Messenger', 't': 'Telegram', 's': 'SMS', 'k': 'Kik', 'w': 'WhatsApp', 'o': 'Online' }
 pause = False
 db = owm = speech = None
 users = {}
@@ -29,6 +29,8 @@ def init():
 		bots.kik.init()
 	with Loader('Twilio Bot'):
 		bots.sms.init()
+	with Loader('WhatsApp Bot'):
+		bots.whatsapp.init()
 	with Loader('Database'):
 		db = database.Database()
 		db.loadUsers(users)
@@ -58,13 +60,20 @@ def bm(chat, text): # Block Message
 	elif chat['type'] == 'k':
 		recipient = db.getUserForPrivateChat(chat['id'])
 		bots.kik.sendMessage(recipient['userName'], chat['uuid'], text)
+	elif chat['type'] == 'w':
+		bots.whatsapp.sendMessage(chat['uuid'], text)
 		
-def sendPhoto(chat, name, web):
+def sendPhoto(chat, name, web=True):
 	if web:
 		if chat['type'] == 't':
 			bots.telegram.bclient.sendPhoto(chat['chatId'], name)
 		elif chat['type'] == 'm':
 			bots.messenger.client.sendRemoteImage(name, thread_id=chat['chatId'], thread_type=[ThreadType.USER, ThreadType.GROUP][chat['public']])
+		elif chat['type'] == 'k':
+			recipient = db.getUserForPrivateChat(chat['id'])
+			bots.kik.sendPhoto(recipient['userName'], chat['uuid'], name)
+		elif chat['type'] == 's':
+			bots.sms.sendPhoto(chat['chatId'], name)
 	else:
 		if chat['type'] == 't':
 			bots.telegram.bclient.sendPhoto(chat['chatId'], open(name, 'rb'))
@@ -78,9 +87,9 @@ def changeNickname(newName, chat, userInfo):
 	db.setNickname(userInfo['id'], newName)
 	
 def messageAdmins(text):
-	for id in ADMIN_IDS:
-		if db.getUserById(id)['type'] != 's': # Don't send text because charges
-			chat = db.getPrivateChatForUser(id)
+	for user in db.getAdmins():
+		if user['type'] not in ['s', 'o']: # Don't send text because charges
+			chat = db.getPrivateChatForUser(user['id'])
 			bm(chat, text)
 
 def say(message):
