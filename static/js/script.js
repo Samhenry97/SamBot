@@ -1,6 +1,19 @@
+var totalMessages = 0;
+
 $(document).ready(function() {
     $('.flash').delay(5000).fadeOut();
+    $('input:text').first().focus();
     scrollMessages();
+    
+    $('#settings').hover(function(event) {
+        var settings = $(this);
+        $('#settings-dropdown').css('left', settings.position().left - settings.width() / 2);
+        $('#settings-dropdown').fadeIn(200);
+    });
+    
+    $('body').click(function(event) {
+        $('#settings-dropdown').fadeOut(200);
+    });
     
     $('.chatarea').keydown(function(event) {
         if(event.keyCode == 13) {
@@ -13,19 +26,17 @@ $(document).ready(function() {
         userMessage();
     });
     
-    var page = 1;
     $('.messagearea').scroll(function() {
         if(this.scrollTop == 0) {
-            page++;
             $.ajax({
-                url: '/messages?page=' + page,
+                url: '/messages?offset=' + totalMessages,
                 type: 'POST',
                 success: (data) => {
                     if(data.length) {
                         var oldHeight = this.scrollHeight;
-                        data.forEach((message) => {
-                            prependMessage(message.text, message.fromUser ? 'you' : 'bot');
-                        });
+                        for(var i = data.length - 1; i >=  0; i--) {
+                            prependMessage(data[i].text, data[i].fromUser ? 'you' : 'bot');
+                        }
                         scrollMessages(false, this.scrollHeight - oldHeight);
                     } else if(!$('.messagearea').find('.history').length) {
                         $('.messagearea').prepend('<p class="history">This is the beginning of your chat history with SamBot.</p>');
@@ -37,12 +48,19 @@ $(document).ready(function() {
             });
         }
     });
+    
+    if($('.messagearea').length) { 
+        totalMessages = $('.messagearea').find('li').length;
+        setInterval(checkReminders, 1000);
+    }
 });
 
 function userMessage() {
     var input = $('.chatarea');
     var text = input.val(); input.val('');
     input.focus();
+    if(!$.trim(text)) { return; }
+    
     appendMessage(text, 'you');
     
     $.ajax({
@@ -52,7 +70,7 @@ function userMessage() {
         type: 'POST',
         data: JSON.stringify({text: text}),
         success: (data) => {
-            if(data.response) { appendMessage(data.response, 'bot');  }
+            if(data.response) { appendMessage(data.response, 'bot'); }
         },
         error: (data) => {
             console.log(data);
@@ -63,12 +81,14 @@ function userMessage() {
 }
 
 function appendMessage(text, from) {
+    totalMessages++;
     var fromText = from == 'you' ? 'You' : 'SamBot';
     var message = '<li><span class="' + from + '"><div>' + fromText + '</div><pre>' + text + '</pre></span></li>';
     $('.chatlist').append(message);
 }
 
 function prependMessage(text, from) {
+    totalMessages++;
     var fromText = from == 'you' ? 'You' : 'SamBot';
     var message = '<li><span class="' + from + '"><div>' + fromText + '</div><pre>' + text + '</pre></span></li>';
     $('.chatlist').prepend(message);
@@ -81,4 +101,22 @@ function scrollMessages(smooth=true, scrollTop = null) {
         if(smooth) { messagearea.animate({ scrollTop: scrollTop }, 500); }
         else { messagearea.scrollTop(scrollTop); }
     }
+}
+
+function checkReminders() {
+    $.ajax({
+        url: '/reminders',
+        type: 'POST',
+        success: (data) => {
+            if(data.response.length) {
+                data.response.forEach((message) => {
+                    appendMessage(message, 'bot');
+                });
+                scrollMessages();
+            }
+        },
+        error: (data) => {
+            console.log(data);
+        }
+    });
 }

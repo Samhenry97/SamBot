@@ -1,22 +1,21 @@
 {% from "_formhelpers.html" import render_field %}
 {% extends "layout.html" %}
-{% block title %}Sign Up{% endblock %}
+{% block title %}Edit Profile{% endblock %}
 {% block body %}
 <div class='section'>
   <div class='row'>
     <div class='columns small-12'>
       <form method='post'>
         <div class='registration'>
-          <h3>Register for a SamBot account!</h3>
-          <p>Once you've registered, you can start talking with your new virtual assistant!</p>
+          <h3>Edit Profile</h3>
           <hr>
           {{ render_field(form.firstName) }}
           {{ render_field(form.lastName) }}
           {{ render_field(form.userName) }}
+          {{ render_field(form.nickName) }}
           {{ render_field(form.email) }}
-          {{ render_field(form.password) }}
-          {{ render_field(form.confirm) }}
-          <input type='submit' value='Register' class='button'><a class='button secondary' href="{{url_for('login')}}">Login</a>
+          {{ render_field(form.waitingFor) }}
+          <input type='submit' value='Save Profile' class='button'><a class='button secondary' href="{{url_for('index')}}">Cancel</a><a class='button caution right' href="{{url_for('clearMessages')}}">Delete Chat History</a>
         </div>
       </form>
     </div>

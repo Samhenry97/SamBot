@@ -18,6 +18,7 @@ Large only
 
 
 /* Resets/Global */
+body { background-color: rgb(220, 220, 220); }
 ul { margin: 0; }
 li { list-style: none; }
 ::selection {
@@ -25,19 +26,20 @@ li { list-style: none; }
 	color: white;
 }
 .right { float: right; }
+.center { display: inline-block; margin: auto; }
+.block { display: block; text-align: center; }
 table { box-shadow: 0 0 3px 0 black; }
 
 
 /* Header */
 header {
     padding: 5px 10px;
-    background-color: #334455;
+    background-color: #003300;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     -o-user-select: none;
     user-select: none;
-    margin-bottom: 50px;
 }
 nav span {
     display: inline-block;
@@ -53,8 +55,47 @@ nav span {
     -o-transition: background .4s;
     transition: background .4s;
 }
-nav span:hover { border-bottom: 4px orange solid; background-position: 0 100%; }
-nav .active { border-bottom: 4px orange solid; }
+nav span:hover { 
+    border-bottom: 4px orange solid; 
+    background-position: 0 100%; 
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px; 
+}
+nav img { width: 50px; margin: auto 10px; }
+nav .active { 
+    border-bottom: 4px orange solid; 
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px; 
+}
+#settings {
+    float: right;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+#settings img {
+    width: 50px;
+    height: 50px;
+}
+#settings-dropdown {
+    position: absolute;
+    display: none;
+    box-shadow: 0 0 20px black;
+}
+#settings-dropdown li {
+    padding: 10px;
+    background-color: white;
+    border: 1px solid black;
+}
+#settings-dropdown li:hover {
+    background-color: orange;
+}
+#login {
+    float: right;
+    color: white;
+    margin-right: 10px;
+    margin-top: 14px;
+}
 
 
 
@@ -89,27 +130,51 @@ input[type='text']:focus, input[type='password']:focus {
     background-color: rgb(220, 220, 220);
 }
 .button {
-    background-color: #dd6644;
+    background-color: orange;
     border-radius: 3px;
     margin-right: 5px;
     margin-bottom: 0;
 }
-.button:hover, .button:active, .button:focus { background-color: orange; }
+.button:hover, .button:active, .button:focus { background-color: #dd6644; }
 .caution { background-color: red; }
 .caution:hover { background-color: rgb(200, 0, 0); }
+.signup { padding: 20px; font-size: 2em; margin: auto; }
 
 
 
 /* Pages */
+.section { padding: 30px 0; }
+.section:nth-child(odd) { background-color: rgb(220, 220, 220); }
+.section:nth-child(even) { background-color: white; }
+.section ul.list li { list-style: circle; margin-left: 40px; }
+.platforms p { font-size: 1.5em; margin: 0; }
+.platforms li { 
+    display: inline-block; 
+    margin: 20px; 
+    padding: 20px; 
+    border-radius: 100%;
+    background-color: rgb(0, 0, 0, 0);
+}
+.platforms li:hover { 
+    background-color: rgb(200, 200, 200);
+    transition-duration: .4s;
+    border-radius: 0;
+}
+.platforms li img {
+    width: 200px;
+    height: 200px;
+}
 .registration {
     padding: 10px;
     border: 2px solid grey;
+    background-color: white;
 }
 .messagearea {
     height: 500px;
     overflow-y: scroll;
     border: 2px solid grey;
     margin-bottom: 20px;
+    background-color: rgb(230, 230, 230);
 }
 .history {
     margin: auto;
@@ -127,7 +192,7 @@ input[type='text']:focus, input[type='password']:focus {
     max-width: 90%;
 }
 .you { background-color: #33cc33; float: right; text-align: right; }
-.bot { background-color: rgb(200, 200, 200); float: left; }
+.bot { background-color: orange; float: left; }
 .chatlist span div { font-size: .8em; color: rgb(50, 100, 50); }
 .chatlist span pre {
     font-family: sans-serif;
@@ -136,4 +201,26 @@ input[type='text']:focus, input[type='password']:focus {
     word-wrap: break-word; 
     word-break: break-word; 
     white-space: pre-wrap;
+}
+
+
+
+/* Footer */
+footer {
+	padding: 60px;
+	padding-top: 40px;
+	background-color: #003300;
+}
+.footer-header { color: #FC4A1A; }
+.footer-item a {
+	text-decoration: none;
+	color: white;
+	margin-left: 20px;
+}
+.footer-item a:hover { text-decoration: underline; }
+.copyright {
+	margin-top: 20px;
+	text-align: center;
+	color: white;
+	font-size: 15px;
 }

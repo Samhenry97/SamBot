@@ -1,8 +1,50 @@
 {% extends "layout.html" %}
 {% block title %}Home{% endblock %}
 {% block body %}
-  <h1>Hi, I'm SamBot!</h1>
-  <p>Thanks for visiting! I'm SamBot, your friendly virtual assistant. Whether you need reminders, weather, or just want to talk, I'm here for your every need.</p>
-  <p>Don't feel like messaging me on the web? No problem. I'm also available for the following messaging platforms:</p>
+<div class='section'>
+  <div class='row'>
+    <div class='columns small-12'>
+      {% if current_user.is_authenticated %}
+        <h2>Hi, {{current_user.firstName}} {{current_user.lastName}}!</h2>
+        <p>Thanks for stopping by, {{current_user.userName}}! I'm SamBot, your friendly virtual assistant. Whether you need reminders, weather, or just want to talk, I'm here for your every need. You can talk to me right here on the web! Just click on the button below, and let's get chatting!</p>
+        <div class='block'>
+          <a class='button signup center' href="{{url_for('chat')}}">Let's Chat!</a>
+        </div>
+      {% else %}
+        <h2>Hello, I'm SamBot!</h2>
+        <p>Thanks for stopping by! I'm SamBot, your friendly virtual assistant. Whether you need reminders, weather, or just want to talk, I'm here for your every need. You can talk to me right here on the web! Just sign up for a free account, and get messaging.</p>
+        <p><b>Note: </b>This site is still under steady development. Feel free to report errors or glitches to <a href='mailto:smlhnry@gmail.com'>Sam Henry</a>.</p>
+        <div class='block'>
+          <a class='button signup center' href="{{url_for('register')}}">Sign Up!</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<div class='section'>
+  <div class='row'>
+    <div class='columns small-12'>
+      <h2>What Can I Do?</h2>
+      <ul class='list'>
+        <li>Get the Weather</li>
+        <li>Set Reminders</li>
+        <li>Calculate Mathematical Expressions</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class='section'>
+  <div class='row'>
+    <div class='columns small-12'>
+      <h2>Other Platforms</h2>
+      <p>Don't feel like messaging me on the web? No problem. I'm also available for the following messaging platforms:</p>
+      <center><ul class='platforms'>
+        <li><p>Telegram</p><img src='/image/telegram.png'/></li>
+        <li><p>WhatsApp</p><img src='/image/whatsapp.png'/></li>
+        <li><p>Kik</p></p><img src='/image/kik.png'/></li>
+        <li><p>Messenger</p><img src='/image/messenger.png'/></li>
+      </ul></center>
+    </div>
+  </div>
+</div>
 {% endblock %}
-

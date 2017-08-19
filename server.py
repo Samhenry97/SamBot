@@ -1,6 +1,6 @@
 import os
 import bcrypt, flask_login
-import bots.sms, bots.kik, glob, database, reply
+import bots.sms, bots.kik, glob, database, reply, util
 from flask_login import login_user, logout_user, login_required, current_user
 from flask import Flask, render_template, flash, send_from_directory, abort, request, redirect, url_for, jsonify
 from wtforms import Form, StringField, PasswordField, BooleanField
@@ -103,6 +103,10 @@ def index():
 	
 @server.route('/register', methods=['GET', 'POST'])
 def register():
+	if current_user.is_authenticated:
+		flash('You are already logged in.')
+		return redirect(url_for('index'))
+	
 	form = RegistrationForm(request.form)
 	if request.method == 'POST' and form.validate():
 		if glob.db.getUserByUserName(form.userName.data):
@@ -135,6 +139,34 @@ def login():
 		flash('Incorrect email or password.', 'error')
 	return render_template('login.html', form=form)
 	
+@server.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+	form = UserForm(request.form)
+	if request.method == 'POST' and form.validate():
+		try:
+			user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data)
+		except Exception as e:
+			flash(str(e), 'error')
+			return render_template('profile.html', form=form)
+		flash('Profile saved!')
+		return render_template('profile.html', form=form)
+	form.firstName.data = current_user.firstName
+	form.lastName.data = current_user.lastName
+	form.userName.data = current_user.userName
+	form.nickName.data = current_user.nickName
+	form.email.data = current_user.email
+	form.waitingFor.data = current_user.waitingFor
+	form.admin.data = current_user.admin
+	return render_template('profile.html', form=form)
+	
+@server.route('/clearmessages')
+@login_required
+def clearMessages():
+	glob.db.deleteUserMessages(current_user.id)
+	flash('Your chat history has been cleared.')
+	return redirect(url_for('profile'))
+	
 @server.route('/chat')
 @login_required
 def chat():
@@ -144,9 +176,8 @@ def chat():
 @server.route('/messages', methods=['GET', 'POST'])
 @login_required
 def messages():
-	page = int(request.args.get('page')) if request.args.get('page') else 1
-	per = int(request.args.get('per')) if request.args.get('per') else 40
-	return jsonify(glob.db.getMessagesForUser(current_user.id, per, page))
+	offset = int(request.args['offset']) if request.args.get('offset') else 0
+	return jsonify(glob.db.getMessagesForUser(current_user.id, offset))
 	
 @server.route('/message', methods=['POST'])
 @login_required
@@ -158,6 +189,23 @@ def message():
 	glob.db.addMessage(userInfo['id'], text, True)
 	glob.db.addMessage(userInfo['id'], response, False)
 	return jsonify({'response': response})
+	
+@server.route('/reminders', methods=['POST'])
+@login_required
+def reminders():
+	alerts = glob.db.getAlertsForUser(current_user.id)
+	response = []
+	for alert in alerts:
+		if alert['time'] < util.getDate():
+			if not alert['message']:
+				message = 'Alarm!'
+			else:
+				message = 'Reminder: ' + alert['message']
+			glob.db.addMessage(current_user.id, message, False)
+			glob.db.deleteAlarm(alert['id'])
+			response.append(message)
+	return jsonify({'response': response})
+			
 	
 @server.route('/logout')
 @login_required

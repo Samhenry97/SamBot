@@ -117,10 +117,17 @@ class Database:
 				cursor.execute(sql, (userId, chatId))
 				return cursor.fetchall()
 				
-	def getMessagesForUser(self, userId, per=40, page=1):
-		total = self.selectOne('SELECT COUNT(*) AS total FROM messages WHERE userId = %s', (userId,))['total']
-		results = max(per - abs(total - (per * page)), 0) if total - (per * page) < 0 else per
-		return self.selectMany('SELECT * FROM messages WHERE userId = %s ORDER BY created ASC LIMIT {},{}'.format(max(total - (per*page), 0), results), (userId,))
+	def getAlertsForUser(self, userId):
+		return self.selectMany('SELECT * FROM alarms WHERE userId = %s', (userId,))
+				
+	def getMessagesForUser(self, userId, offset=0, per=40):
+		total = int(self.selectOne('SELECT COUNT(*) AS total FROM messages WHERE userId = %s', (userId,))['total'])
+		if total - per - offset < 0:
+			per = max(per - abs(total - per - offset), 0)
+			offset = 0
+		else:
+			offset = total - per - offset
+		return self.selectMany('SELECT * FROM messages WHERE userId = %s ORDER BY created ASC, fromUser DESC LIMIT {},{}'.format(offset, per), (userId,))
 	
 	#######################################################################################################
 	#######################################################################################################
@@ -182,10 +189,10 @@ class Database:
 	# DELETE
 	
 	def deleteUser(self, userId):
-		with self.conn.cursor() as cursor:
-			sql = 'DELETE FROM users WHERE id = %s'
-			cursor.execute(sql, (userId,))
-		self.conn.commit()
+		self.update('DELETE FROM users WHERE id = %s', (userId,))
+		
+	def deleteUserMessages(self, userId):
+		self.update('DELETE FROM messages WHERE userId = %s', (userId,))
 	
 	def removeLike(self, userId, like):
 		with self.conn.cursor() as cursor:

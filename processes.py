@@ -15,6 +15,8 @@ async def alarmCheck():
 				if a['time'] < getDate():
 					message = 'Alarm'
 					user = db.getUserById(a['userId'])
+					if user['type'] == 'o':
+						continue
 					if a['message'] == None:
 						print('[Sending Alarm to ' + user['firstName'] + '.]\n')
 						await glob.m(db.getChatById(a['chatId']), 'Alarm for ' + (user['nickName'] or user['firstName']) + '!')

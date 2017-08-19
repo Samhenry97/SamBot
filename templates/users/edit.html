@@ -2,20 +2,26 @@
 {% extends "layout.html" %}
 {% block title %}Edit User{% endblock %}
 {% block body %}
-<form method='post'>
-  <div class='registration'>
-    <h3>Edit User</h3>
-    <hr>
-    {{ render_field(form.firstName) }}
-    {{ render_field(form.lastName) }}
-    {{ render_field(form.userName) }}
-    {{ render_field(form.nickName) }}
-    {{ render_field(form.email) }}
-    {{ render_field(form.waitingFor) }}
-    {{ render_field(form.admin) }}
-    <input type='submit' value='Save User' class='button'><a class='button secondary' href="{{url_for('users')}}">Cancel</a><a class='button caution right' href="/users/{{user.id}}/delete">Delete</a>
+<div class='section'>
+  <div class='row'>
+    <div class='columns small-12'>
+      <form method='post'>
+        <div class='registration'>
+          <h3>Edit User</h3>
+          <hr>
+          {{ render_field(form.firstName) }}
+          {{ render_field(form.lastName) }}
+          {{ render_field(form.userName) }}
+          {{ render_field(form.nickName) }}
+          {{ render_field(form.email) }}
+          {{ render_field(form.waitingFor) }}
+          {{ render_field(form.admin) }}
+          <input type='submit' value='Save User' class='button'><a class='button secondary' href="{{url_for('users')}}">Cancel</a><a class='button caution right' href="/users/{{user.id}}/delete">Delete</a>
+        </div>
+      </form>
+    </div>
   </div>
-</form>
+</div>
 {% endblock %}
 
 
