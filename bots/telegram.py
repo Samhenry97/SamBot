@@ -11,6 +11,9 @@ async def onMessage(msg):
 
 		contentType, chatType, chatId = telepot.glance(msg)
 
+		if 'last_name' not in msg['from']: msg['from']['last_name'] = ''
+		if 'first_name' not in msg['from']: msg['from']['first_name'] = ''
+		if 'username' not in msg['from']: msg['from']['username'] = ''
 		userInfo, chat = util.checkDatabase(msg['from'], chatId, chatId < 0, 't')
 		
 		if contentType == 'text':

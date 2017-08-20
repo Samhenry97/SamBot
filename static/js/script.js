@@ -71,13 +71,12 @@ function userMessage() {
         data: JSON.stringify({text: text}),
         success: (data) => {
             if(data.response) { appendMessage(data.response, 'bot'); }
+            scrollMessages();
         },
         error: (data) => {
             console.log(data);
         }
     });
-    
-    scrollMessages();
 }
 
 function appendMessage(text, from) {

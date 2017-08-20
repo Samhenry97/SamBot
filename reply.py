@@ -106,6 +106,12 @@ def getReply(origText, userInfo, chat):
 		db.setWaitingFor(userInfo['id'], 'nothing')
 		db.removeLike(userInfo['id'], origText)
 		return genReply('idontlike', userInfo, origText)
+	elif waitingFor == 'infix':
+		pass
+	elif waitingFor == 'postfix':
+		pass
+	elif waitingFor == 'calc':
+		pass
 		
 		
 	# Admin Commands

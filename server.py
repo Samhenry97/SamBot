@@ -24,12 +24,13 @@ class UserForm(Form):
 	lastName = StringField('Last Name', [Length(max=45)])
 	userName = StringField('Username', [Length(max=45)])
 	nickName = StringField('Nickname', [Length(max=45)])
+	phone = StringField('Phone Number', [Length(max=20)])
 	email = StringField('Email Address')
 	waitingFor = StringField('Waiting For')
 	admin = BooleanField('Admin?')
 	
 class User(flask_login.UserMixin):
-	def __init__(self, id, firstName, lastName, userName, nickName, waitingFor, email, password, admin):
+	def __init__(self, id, firstName, lastName, userName, nickName, waitingFor, email, password, admin, userId, type):
 		self.id = id
 		self.firstName = firstName
 		self.lastName = lastName
@@ -39,10 +40,12 @@ class User(flask_login.UserMixin):
 		self.waitingFor = waitingFor
 		self.password = password
 		self.admin = admin
+		self.userId = userId
+		self.type = type
 		
-	def update(self, firstName, lastName, userName, nickName, waitingFor, email, admin):
-		glob.db.update('UPDATE users SET firstName = %s, lastName = %s, userName = %s, waitingFor = %s, nickName = %s, email = %s, admin = %s WHERE id = %s',
-			(firstName, lastName, userName, waitingFor, nickName, email, admin, self.id))
+	def update(self, firstName, lastName, userName, nickName, waitingFor, email, admin, userId):
+		glob.db.update('UPDATE users SET firstName = %s, lastName = %s, userName = %s, waitingFor = %s, nickName = %s, email = %s, admin = %s, userId = %s WHERE id = %s',
+			(firstName, lastName, userName, waitingFor, nickName, email, admin, userId, self.id))
 		self.firstName = firstName
 		self.lastName = lastName
 		self.userName = userName
@@ -50,6 +53,7 @@ class User(flask_login.UserMixin):
 		self.nickName = nickName
 		self.email = email
 		self.admin = admin
+		self.userId = userId
 		
 	def delete(self):
 		glob.db.deleteUser(self.id)
@@ -57,13 +61,11 @@ class User(flask_login.UserMixin):
 	def get(id):
 		info = glob.db.getUserById(id)
 		if info:
-			del info['userId'], info['type']
 			return User(**info) if info else None
 		
 	def getByEmailOrUserName(email):
 		info = glob.db.getUserByEmailOrUserName(email)
 		if info:
-			del info['userId'], info['type']
 			return User(**info) if info else None
 			
 	def all():
@@ -117,7 +119,7 @@ def register():
 			return render_template('register.html', form=form)
 		hashed = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
 		glob.db.addUser(-1, form.firstName.data, form.lastName.data, form.userName.data, 'o', form.email.data, hashed)
-		user = User.getByEmail(form.email.data)
+		user = User.getByEmailOrUserName(form.email.data)
 		login_user(user)
 		flash('Thanks for signing up!')
 		return redirect(url_for('index'))
@@ -152,7 +154,7 @@ def profile():
 			return render_template('profile.html', form=form)
 		try:
 			form.admin.data = current_user.admin
-			current_user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data)
+			current_user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data, form.phone.data)
 		except Exception as e:
 			flash(str(e), 'error')
 			return render_template('profile.html', form=form)
@@ -162,6 +164,7 @@ def profile():
 	form.lastName.data = current_user.lastName
 	form.userName.data = current_user.userName
 	form.nickName.data = current_user.nickName
+	form.phone.data = current_user.userId if current_user.userId != -1 else 0
 	form.email.data = current_user.email
 	form.waitingFor.data = current_user.waitingFor
 	form.admin.data = current_user.admin
@@ -237,6 +240,7 @@ def users():
 def editUser(id):
 	if not current_user.admin:
 		return adminOnly()
+	form = UserForm(request.form)
 	user = User.get(id)
 	if not user:
 		abort(404)
@@ -246,10 +250,9 @@ def editUser(id):
 	if user.email != form.email.data and glob.db.getUserByEmail(form.email.data):
 		flash('Email already taken.', 'error')
 		return render_template('users/edit.html', form=form, user=user)
-	form = UserForm(request.form)
 	if request.method == 'POST' and form.validate():
 		try:
-			user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data)
+			user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data, form.phone.data)
 		except Exception as e:
 			flash(str(e), 'error')
 			return render_template('users/edit.html', form=form, user=user)
@@ -262,6 +265,7 @@ def editUser(id):
 	form.email.data = user.email
 	form.waitingFor.data = user.waitingFor
 	form.admin.data = user.admin
+	form.phone.data = user.userId if user.userId != -1 else 0
 	return render_template('users/edit.html', form=form, user=user)
 	
 @server.route('/users/<int:id>/delete')
@@ -300,17 +304,17 @@ def nocache(r):
 	r.headers['Cache-Control'] = 'public, max-age=0'
 	return r
 
-def listen():
+def listen(debug):
 	loginManager.init_app(server)
 	server.config.update(
 		SECRET_KEY=os.environ['FLASK_SECRET'],
 		SESSION_TYPE='filesystem',
-		TEMPLATES_AUTO_RELOAD=True,
-		DEBUG=True
+		TEMPLATES_AUTO_RELOAD=debug,
+		DEBUG=debug
 	)
 	server.run(port=8080)
 
 if __name__ == '__main__':
 	glob.db = database.Database()
 	print('Listening...')
-	listen()
+	listen(True)

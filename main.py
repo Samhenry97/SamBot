@@ -5,12 +5,14 @@ import processes, glob, hotword, server, bots.messenger, bots.telegram, bots.wha
 async def main(executor):
 	glob.init()
 	
+	debug = False
 	if len(sys.argv) >= 2 and sys.argv[1] != 'DEBUG':
 		await glob.m(glob.db.getChatById(int(sys.argv[1])), 'Back and Running!')
 	elif len(sys.argv) < 2 or sys.argv[1] != 'DEBUG':
 		logging.basicConfig(level=logging.ERROR)
 		logging.getLogger().setLevel(logging.ERROR)
 	else:
+		debug = True
 		logging.basicConfig(level=logging.DEBUG)
 		logging.getLogger().setLevel(logging.DEBUG)
 
@@ -21,7 +23,7 @@ async def main(executor):
 		loop.run_in_executor(executor, hotword.listen),
 		loop.run_in_executor(executor, bots.messenger.listen),
 		loop.run_in_executor(executor, bots.whatsapp.listen),
-		loop.run_in_executor(executor, server.listen),
+		loop.run_in_executor(executor, server.listen, debug),
 		loop.create_task(bots.telegram.listen()),
 		loop.create_task(processes.alarmCheck()),
 		loop.create_task(processes.manual()),

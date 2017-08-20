@@ -51,8 +51,8 @@ async def manual():
 	while True:
 		try:
 			s = await ainput()
-			userInfo = db.getUserById(glob.ADMIN_IDS[0])
-			chat = db.getChat(131453030, userInfo['type'])
+			userInfo = glob.db.getAdmins()[0]
+			chat = glob.db.getPrivateChatForUser(userInfo['id'])
 			
 			if s.startswith('message'):
 				u = db.getUsersByName(s.split()[1])
