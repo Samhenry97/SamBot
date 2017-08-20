@@ -1,4 +1,4 @@
-{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_field, render_checkbox %}
 {% extends "layout.html" %}
 {% block title %}Log In{% endblock %}
 {% block body %}
@@ -11,7 +11,7 @@
           <hr>
           {{ render_field(form.email) }}
           {{ render_field(form.password) }}
-          {{ render_field(form.remember) }}
+          {{ render_checkbox(form.remember) }}
           <input type='submit' value='Log In' class='button'><a class='button secondary' href="{{url_for('register')}}">Register</a>
         </div>
       </form>

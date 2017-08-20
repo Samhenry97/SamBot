@@ -118,7 +118,7 @@ def register():
 			flash('Looks like you\'ve already registered!')
 			return render_template('register.html', form=form)
 		hashed = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
-		glob.db.addUser(-1, form.firstName.data, form.lastName.data, form.userName.data, 'o', form.email.data, hashed)
+		glob.db.addUser(0, form.firstName.data, form.lastName.data, form.userName.data, 'o', form.email.data, hashed)
 		user = User.getByEmailOrUserName(form.email.data)
 		login_user(user)
 		flash('Thanks for signing up!')
@@ -154,17 +154,16 @@ def profile():
 			return render_template('profile.html', form=form)
 		try:
 			form.admin.data = current_user.admin
-			current_user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data, form.phone.data)
+			current_user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data, int(form.phone.data))
 		except Exception as e:
 			flash(str(e), 'error')
 			return render_template('profile.html', form=form)
 		flash('Profile saved!')
-		return render_template('profile.html', form=form)
 	form.firstName.data = current_user.firstName
 	form.lastName.data = current_user.lastName
 	form.userName.data = current_user.userName
 	form.nickName.data = current_user.nickName
-	form.phone.data = current_user.userId if current_user.userId != -1 else 0
+	form.phone.data = current_user.userId
 	form.email.data = current_user.email
 	form.waitingFor.data = current_user.waitingFor
 	form.admin.data = current_user.admin
@@ -208,9 +207,11 @@ def reminders():
 	for alert in alerts:
 		if alert['time'] < util.getDate():
 			if not alert['message']:
-				message = 'Alarm!'
+				message = 'Alarm for {}!'.format(current_user.nickName or current_user.firstName)
 			else:
-				message = 'Reminder: ' + alert['message']
+				message = 'Reminder for {}: {}'.format(current_user.nickName or current_user.firstName, alert['message'])
+			if current_user.userId:
+				bots.sms.sendMessage(current_user.userId, message)
 			glob.db.addMessage(current_user.id, message, False)
 			glob.db.deleteAlarm(alert['id'])
 			response.append(message)
@@ -252,7 +253,7 @@ def editUser(id):
 		return render_template('users/edit.html', form=form, user=user)
 	if request.method == 'POST' and form.validate():
 		try:
-			user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data, form.phone.data)
+			user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data, int(form.phone.data))
 		except Exception as e:
 			flash(str(e), 'error')
 			return render_template('users/edit.html', form=form, user=user)
@@ -265,7 +266,7 @@ def editUser(id):
 	form.email.data = user.email
 	form.waitingFor.data = user.waitingFor
 	form.admin.data = user.admin
-	form.phone.data = user.userId if user.userId != -1 else 0
+	form.phone.data = user.userId
 	return render_template('users/edit.html', form=form, user=user)
 	
 @server.route('/users/<int:id>/delete')

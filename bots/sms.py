@@ -12,6 +12,7 @@ number = os.environ['TWILIO_NUMBER']
 def onMessage():
     try:
         db = glob.db
+        db.testConnection()
         
         number = request.form['From']
         message = request.form['Body']

@@ -19,6 +19,7 @@ def onMessage():
             
         try:
             db = glob.db
+            db.testConnection()
             
             userName = kikMessage.from_user
             userId = util.hash(userName)

@@ -6,30 +6,32 @@ from util import getDate
 from database import Database
 
 async def alarmCheck():
-	db = Database()
 	while True:
 		try:
-			db.open()
+			db = glob.db
 			alarms = db.getAlerts()
 			for a in alarms:
 				if a['time'] < getDate():
-					message = 'Alarm'
 					user = db.getUserById(a['userId'])
-					if user['type'] == 'o':
-						continue
 					if a['message'] == None:
-						print('[Sending Alarm to ' + user['firstName'] + '.]\n')
-						await glob.m(db.getChatById(a['chatId']), 'Alarm for ' + (user['nickName'] or user['firstName']) + '!')
+						print('[Sending Alarm to {}]\n'.format(user['firstName']))
+						message = 'Alarm for {}!'.format(user['nickName'] or user['firstName'])
 					else:
-						message = a['message']
-						print('[Sending Reminder to ' + user['firstName'] + ': ' + message, ']\n')
-						await glob.m(db.getChatById(a['chatId']), 'Reminder for ' + (user['nickName'] or user['firstName']) + ': ' + message)
+						print('[Sending Reminder to {}: {}]\n'.format(user['firstName'], a['message']))
+						message = 'Reminder for {}: {}'.format(user['nickName'] or user['firstName'], a['message'])
+					if user['type'] == 'o':
+						db.addMessage(user['id'], message, False)
+						if user['userId']:
+							bots.sms.sendMessage(user['userId'], message)
+					else:
+						await glob.m(db.getChatById(a['chatId']), message)
 					db.deleteAlarm(a['id'])
-			db.close()
 			await asyncio.sleep(1)
-		except pymysql.err.OperationalError:
+		except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
 			db.close()
 			db.open()
+		except Exception as e:
+			glob.messageAdmins('Uncaught Error in Alarm Check: {}'.format(e))
 
 def techWritingKeepAlive():
 	while True:

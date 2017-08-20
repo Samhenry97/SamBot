@@ -21,6 +21,7 @@ Large only
 body { background-color: rgb(220, 220, 220); }
 ul { margin: 0; }
 li { list-style: none; }
+h2 { color: #333399; }
 ::selection {
 	background-color: orange;
 	color: white;

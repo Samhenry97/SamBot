@@ -24,6 +24,7 @@ class WhatsAppSamBot(YowInterfaceLayer):
             
         try:
             db = glob.db
+            db.testConnection()
             
             userName = waMessage.getAuthor()
             userId = int(userName.replace('@s.whatsapp.net', ''))

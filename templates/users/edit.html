@@ -1,4 +1,4 @@
-{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_field, render_checkbox %}
 {% extends "layout.html" %}
 {% block title %}Edit User{% endblock %}
 {% block body %}
@@ -16,7 +16,7 @@
           {{ render_field(form.phone) }}
           {{ render_field(form.email) }}
           {{ render_field(form.waitingFor) }}
-          {{ render_field(form.admin) }}
+          {{ render_checkbox(form.admin) }}
           <input type='submit' value='Save User' class='button'><a class='button secondary' href="{{url_for('users')}}">Cancel</a><a class='button caution right' href="/users/{{user.id}}/delete">Delete</a>
         </div>
       </form>
