@@ -144,8 +144,15 @@ def login():
 def profile():
 	form = UserForm(request.form)
 	if request.method == 'POST' and form.validate():
+		if current_user.userName != form.userName.data and glob.db.getUserByUserName(form.userName.data):
+			flash('Username already taken.', 'error')
+			return render_template('profile.html', form=form)
+		if current_user.email != form.email.data and glob.db.getUserByEmail(form.email.data):
+			flash('Email already taken.', 'error')
+			return render_template('profile.html', form=form)
 		try:
-			user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data)
+			form.admin.data = current_user.admin
+			current_user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data)
 		except Exception as e:
 			flash(str(e), 'error')
 			return render_template('profile.html', form=form)
@@ -233,6 +240,12 @@ def editUser(id):
 	user = User.get(id)
 	if not user:
 		abort(404)
+	if user.userName != form.userName.data and glob.db.getUserByUserName(form.userName.data):
+		flash('Username already taken.', 'error')
+		return render_template('users/edit.html', form=form, user=user)
+	if user.email != form.email.data and glob.db.getUserByEmail(form.email.data):
+		flash('Email already taken.', 'error')
+		return render_template('users/edit.html', form=form, user=user)
 	form = UserForm(request.form)
 	if request.method == 'POST' and form.validate():
 		try:
