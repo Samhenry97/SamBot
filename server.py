@@ -193,7 +193,7 @@ def messages():
 def message():
 	text = request.get_json()['text']
 	userInfo = glob.db.getUserById(current_user.id)
-	chat = { 'id': -1, 'chatId': -1, 'chatUUID': '' }
+	chat = { 'id': -1, 'chatId': -1, 'chatUUID': '', 'type': 'o' }
 	response = reply.getReply(text, userInfo, chat)
 	glob.db.addMessage(userInfo['id'], text, True)
 	glob.db.addMessage(userInfo['id'], response, False)
@@ -234,7 +234,8 @@ def about():
 def users():
 	if not current_user.admin:
 		return adminOnly()
-	return render_template('users/index.html', users=User.all(), page='users')
+	count = glob.db.selectOne('SELECT COUNT(*) AS count FROM users')['count']
+	return render_template('users/index.html', users=User.all(), count=count, page='users')
 	
 @server.route('/users/<int:id>', methods=['GET', 'POST'])
 @login_required

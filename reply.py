@@ -250,11 +250,12 @@ def getReply(origText, userInfo, chat):
 			return 'You like ' + str(', '.join(likes))
 	elif 'weather' in text:
 		try:
-			glob.bm(chat, 'Calculating...')
-			if 'in' in text:
-				target = origText[text.rindex('in')+2:].strip()
-			elif 'at' in text:
-				target = origText[text.rindex('at')+2:].strip()
+			if userInfo['type'] != 'k':
+				glob.bm(chat, 'Calculating...')
+			if ' in ' in text:
+				target = origText[text.rindex(' in ')+4:].strip()
+			elif ' at ' in text:
+				target = origText[text.rindex(' at ')+4:].strip()
 			else:
 				target = 'McDonough, GA'
 			geolocator = geopy.geocoders.Nominatim()

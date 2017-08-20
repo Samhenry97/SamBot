@@ -60,6 +60,9 @@ class Database:
 			
 	def getUserForPrivateChat(self, chatId):
 		return self.selectOne('SELECT * FROM users INNER JOIN chatusers ON users.id = chatusers.userId INNER JOIN chats ON chats.id = chatusers.chatId WHERE chats.id = %s AND chats.public = 0', (chatId,))
+		
+	def getUserForChat(self, chatId):
+		return self.selectOne('SELECT * FROM users INNER JOIN chatusers ON users.id = chatusers.userId INNER JOIN chats ON chats.id = chatusers.chatId WHERE chats.id = %s', (chatId,))
 
 	def getAlerts(self):
 		return self.selectAll('SELECT * FROM alarms')

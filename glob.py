@@ -58,7 +58,7 @@ def bm(chat, text): # Block Message
 	elif chat['type'] == 's':
 		bots.sms.sendMessage(chat['chatId'], text)
 	elif chat['type'] == 'k':
-		recipient = db.getUserForPrivateChat(chat['id'])
+		recipient = db.getUserForChat(chat['id'])
 		bots.kik.sendMessage(recipient['userName'], chat['uuid'], text)
 	elif chat['type'] == 'w':
 		bots.whatsapp.sendMessage(chat['uuid'], text)

@@ -31,7 +31,7 @@ def onMessage():
             info = { 'id': userId, 'first_name': user.first_name, 'last_name': user.last_name, 'username': userName }
             
             userInfo, chat = util.checkDatabase(info, chatId, kikMessage.chat_type != 'direct', 'k')
-            if chat['uuid'] is None: # Needed for kik messages
+            if 'uuid' not in chat or  chat['uuid'] is None: # Needed for kik messages
                 db.setChatUUID(chat['id'], chatUUID)
             
             print('Kik message from', userInfo['firstName'], userInfo['lastName'])
