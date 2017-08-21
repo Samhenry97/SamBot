@@ -66,5 +66,5 @@ def init():
 def listen():
     global detector
     print('Listening for hotword...\n')
-    detector = snowboydecoder.HotwordDetector('snowboy/resources/sambot.pmdl', sensitivity=0.6)
+    detector = snowboydecoder.HotwordDetector('snowboy/resources/sambot.pmdl', sensitivity=0.5)
     detector.start(detected_callback=hotwordDetected, sleep_time=0.03)

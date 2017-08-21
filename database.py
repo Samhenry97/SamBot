@@ -1,6 +1,8 @@
-import os
+import os, threading
 import pymysql.cursors
 import pymysql
+
+lock = threading.Lock()
 
 class Database:
 	def __init__(self):
@@ -11,19 +13,22 @@ class Database:
 	# SELECT
 	
 	def selectOne(self, sql, args=None):
-		with self.conn.cursor() as cursor:
-			cursor.execute(sql, args)
-			return cursor.fetchone()
+		with lock:
+			with self.conn.cursor() as cursor:
+				cursor.execute(sql, args)
+				return cursor.fetchone()
 		
 	def selectMany(self, sql, args=None):
-		with self.conn.cursor() as cursor:
-			cursor.execute(sql, args)
-			return [row for row in cursor]
+		with lock:
+			with self.conn.cursor() as cursor:
+				cursor.execute(sql, args)
+				return [row for row in cursor]
 			
 	def selectAll(self, sql, args=None):
-		with self.conn.cursor() as cursor:
-			cursor.execute(sql, args)
-			return cursor.fetchall()
+		with locK:
+			with self.conn.cursor() as cursor:
+				cursor.execute(sql, args)
+				return cursor.fetchall()
 				
 	def getUser(self, id, type):
 		return self.selectOne('SELECT * FROM users WHERE userId = %s AND type = %s', (id, type))
@@ -68,57 +73,48 @@ class Database:
 		return self.selectAll('SELECT * FROM alarms')
 
 	def getLikes(self, userId):
-		ans = []
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT name FROM likes WHERE userId = %s'
-			cursor.execute(sql, (userId,))
-			for row in cursor:
-				ans.append(row['name'])
-		return ans
+		with lock:
+			ans = []
+			with self.conn.cursor() as cursor:
+				sql = 'SELECT name FROM likes WHERE userId = %s'
+				cursor.execute(sql, (userId,))
+				for row in cursor:
+					ans.append(row['name'])
+			return ans
 
 	def loadUsers(self, dict):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT userId, type FROM users'
-			cursor.execute(sql)
-			for row in cursor:
-				dict[(row['userId'], row['type'])] = True
+		with lock:
+			with self.conn.cursor() as cursor:
+				sql = 'SELECT userId, type FROM users'
+				cursor.execute(sql)
+				for row in cursor:
+					dict[(row['userId'], row['type'])] = True
 
 	def loadChats(self, dict):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT chatId, type FROM chats'
-			cursor.execute(sql)
-			for row in cursor:
-				dict[(row['chatId'], row['type'])] = True
+		with lock:
+			with self.conn.cursor() as cursor:
+				sql = 'SELECT chatId, type FROM chats'
+				cursor.execute(sql)
+				for row in cursor:
+					dict[(row['chatId'], row['type'])] = True
 			
 	def getAlarms(self, userId=-1, chatId=-1):
 		with self.conn.cursor() as cursor:
 			if chatId == -1:
-				sql = 'SELECT * FROM alarms WHERE userId = %s AND message IS NULL ORDER BY time'
-				cursor.execute(sql, (userId,))
-				return cursor.fetchall()
+				return self.selectAll('SELECT * FROM alarms WHERE userId = %s AND message IS NULL ORDER BY time', (userId,))
 			elif userId == -1:
-				sql = 'SELECT * FROM alarms WHERE chatId = %s AND message IS NULL ORDER BY time'
-				cursor.execute(sql, (chatId,))
-				return cursor.fetchall()
+				return self.selectAll('SELECT * FROM alarms WHERE chatId = %s AND message IS NULL ORDER BY time', (chatId,))
 			else:
-				sql = 'SELECT * FROM alarms WHERE userId = %s AND chatId = %s AND message IS NULL ORDER BY time'
-				cursor.execute(sql, (userId, chatId))
-				return cursor.fetchall()
+				return self.selectAll('SELECT * FROM alarms WHERE userId = %s AND chatId = %s AND message IS NULL ORDER BY time', (userId, chatId))
 
 	def getReminders(self, userId=-1, chatId=-1):
 		with self.conn.cursor() as cursor:
 			if chatId == -1:
-				sql = 'SELECT * FROM alarms WHERE userId = %s AND message IS NOT NULL ORDER BY time'
-				cursor.execute(sql, (userId,))
-				return cursor.fetchall()
+				return self.selectAll('SELECT * FROM alarms WHERE userId = %s AND message IS NOT NULL ORDER BY time', (userId,))
 			elif userId == -1:
-				sql = 'SELECT * FROM alarms WHERE chatId = %s AND message IS NOT NULL ORDER BY time'
-				cursor.execute(sql, (chatId,))
-				return cursor.fetchall()
+				return self.selectAll('SELECT * FROM alarms WHERE chatId = %s AND message IS NOT NULL ORDER BY time', (chatId,))
 			else:
-				sql = 'SELECT * FROM alarms WHERE userId = %s AND chatId = %s AND message IS NOT NULL ORDER BY time'
-				cursor.execute(sql, (userId, chatId))
-				return cursor.fetchall()
+				return self.selectAll('SELECT * FROM alarms WHERE userId = %s AND chatId = %s AND message IS NOT NULL ORDER BY time', (userId, chatId))
 				
 	def getAlertsForUser(self, userId):
 		return self.selectMany('SELECT * FROM alarms WHERE userId = %s', (userId,))
@@ -137,9 +133,10 @@ class Database:
 	# INSERT
 	
 	def insert(self, sql, args):
-		with self.conn.cursor() as cursor:
-			cursor.execute(sql, args)
-		self.conn.commit()
+		with lock:
+			with self.conn.cursor() as cursor:
+				cursor.execute(sql, args)
+			self.conn.commit()
 
 	def addUser(self, id, first, last, userName, type, email=None, password=None):
 		self.insert('INSERT INTO users (userId, firstName, lastName, userName, nickName, type, email, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (id, first, last, userName, '', type, email, password))
@@ -168,9 +165,10 @@ class Database:
 	# UPDATE
 	
 	def update(self, sql, args):
-		with self.conn.cursor() as cursor:
-			cursor.execute(sql, args)
-		self.conn.commit()
+		with lock:
+			with self.conn.cursor() as cursor:
+				cursor.execute(sql, args)
+			self.conn.commit()
 
 	def setNickname(self, id, nickName):
 		self.update('UPDATE users SET nickName = %s WHERE id = %s', (nickName, id))
@@ -198,40 +196,40 @@ class Database:
 		self.update('DELETE FROM messages WHERE userId = %s', (userId,))
 	
 	def removeLike(self, userId, like):
-		with self.conn.cursor() as cursor:
-			sql = 'SELECT id FROM likes WHERE name = %s AND userId = %s'
-			cursor.execute(sql, (like, userId))
-			row = cursor.fetchone()
-			if row is not None:
-				sql = 'DELETE FROM likes WHERE id = %s'
-				cursor.execute(sql, (row['id']))
-		self.conn.commit()
+		with lock:
+			with self.conn.cursor() as cursor:
+				sql = 'SELECT id FROM likes WHERE name = %s AND userId = %s'
+				cursor.execute(sql, (like, userId))
+				row = cursor.fetchone()
+				if row is not None:
+					sql = 'DELETE FROM likes WHERE id = %s'
+					cursor.execute(sql, (row['id']))
+			self.conn.commit()
 		
 	def deleteAlarm(self, id):
-		with self.conn.cursor() as cursor:
-			sql = 'DELETE FROM alarms WHERE id = %s'
-			cursor.execute(sql, (id,))
-		self.conn.commit()
+		self.update('DELETE FROM alarms WHERE id = %s', (id,))
 		
 	def clearAlarms(self, userId, chatId=-1):
-		with self.conn.cursor() as cursor:
-			if chatId == -1:
-				sql = 'DELETE FROM alarms WHERE userId = %s AND message IS NULL'
-				cursor.execute(sql, (userId,))
-			else:
-				sql = 'DELETE FROM alarms WHERE userId = %s AND chatId = %s AND message IS NULL'
-				cursor.execute(sql, (userId, chatId))
-		self.conn.commit()
+		with lock:
+			with self.conn.cursor() as cursor:
+				if chatId == -1:
+					sql = 'DELETE FROM alarms WHERE userId = %s AND message IS NULL'
+					cursor.execute(sql, (userId,))
+				else:
+					sql = 'DELETE FROM alarms WHERE userId = %s AND chatId = %s AND message IS NULL'
+					cursor.execute(sql, (userId, chatId))
+			self.conn.commit()
 
 	def clearReminders(self, userId, chatId=-1):
-		with self.conn.cursor() as cursor:
-			if chatId == -1:
-				sql = 'DELETE FROM alarms WHERE userId = %s AND message IS NOT NULL'
-				cursor.execute(sql, (userId,))
-			else:
-				sql = 'DELETE FROM alarms WHERE userId = %s AND chatId = %s AND message IS NOT NULL'
-				cursor.execute(sql, (userId, chatId))
-		self.conn.commit()
+		with lock:
+			with self.conn.cursor() as cursor:
+				if chatId == -1:
+					sql = 'DELETE FROM alarms WHERE userId = %s AND message IS NOT NULL'
+					cursor.execute(sql, (userId,))
+				else:
+					sql = 'DELETE FROM alarms WHERE userId = %s AND chatId = %s AND message IS NOT NULL'
+					cursor.execute(sql, (userId, chatId))
+			self.conn.commit()
 	
 	#######################################################################################################
 	#######################################################################################################
@@ -239,19 +237,22 @@ class Database:
 	
 	def testConnection(self):
 		try:
-			self.conn.cursor().execute('SELECT 1')
+			with lock:
+				self.conn.cursor().execute('SELECT 1')
 		except pymysql.err.OperationalError:
 			self.close()
 			self.open()
 
 	def close(self):
-		self.conn.close()
+		with lock:
+			self.conn.close()
 
 	def open(self):
-		self.conn = pymysql.connect(
-			host='localhost',
-			user='root',
-			password='password',
-			db='sambot',
-			charset='utf8mb4',
-			cursorclass=pymysql.cursors.DictCursor)
+		with lock:
+			self.conn = pymysql.connect(
+				host='localhost',
+				user='root',
+				password='password',
+				db='sambot',
+				charset='utf8mb4',
+				cursorclass=pymysql.cursors.DictCursor)
