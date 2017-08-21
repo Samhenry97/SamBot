@@ -139,7 +139,7 @@ def login():
 			flash('You\'ve successfully logged in!')
 			return redirect(url_for('index'))
 		flash('Incorrect email or password.', 'error')
-	return render_template('login.html', form=form)
+	return render_template('login.html', form=form, page='login')
 	
 @server.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -148,16 +148,16 @@ def profile():
 	if request.method == 'POST' and form.validate():
 		if current_user.userName != form.userName.data and glob.db.getUserByUserName(form.userName.data):
 			flash('Username already taken.', 'error')
-			return render_template('profile.html', form=form)
+			return render_template('profile.html', form=form, page='profile')
 		if current_user.email != form.email.data and glob.db.getUserByEmail(form.email.data):
 			flash('Email already taken.', 'error')
-			return render_template('profile.html', form=form)
+			return render_template('profile.html', form=form, page='profile')
 		try:
 			form.admin.data = current_user.admin
 			current_user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data, int(form.phone.data))
 		except Exception as e:
 			flash(str(e), 'error')
-			return render_template('profile.html', form=form)
+			return render_template('profile.html', form=form, page='profile')
 		flash('Profile saved!')
 	form.firstName.data = current_user.firstName
 	form.lastName.data = current_user.lastName
@@ -167,7 +167,7 @@ def profile():
 	form.email.data = current_user.email
 	form.waitingFor.data = current_user.waitingFor
 	form.admin.data = current_user.admin
-	return render_template('profile.html', form=form)
+	return render_template('profile.html', form=form, page='profile')
 	
 @server.route('/clearmessages')
 @login_required

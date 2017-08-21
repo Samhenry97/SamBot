@@ -1,10 +1,17 @@
 var totalMessages = 0;
 
 $(document).ready(function() {
+    /* Global */
+    $('a[href="#"]').click(function() { $('html, body').animate({ scrollTop: 0 }, 'slow');	});
     $('.flash').delay(5000).fadeOut();
-    $('input:text').first().focus();
-    scrollMessages(false);
     
+    /* Header */
+    $('.navTrigger').click(function() {
+		$(this).toggleClass('active');
+		$('.navContent').toggleClass('show');
+	});
+    
+    /* Settings */
     $('#settings').hover(function(event) {
         var settings = $(this);
         $('#settings-dropdown').css('left', settings.position().left - settings.width() / 2);
@@ -12,14 +19,7 @@ $(document).ready(function() {
     });
     $('body').click(function(event) { $('#settings-dropdown').fadeOut(200); });
     
-    $('.chatarea').keydown(function(event) {
-        if(event.keyCode == 13) {
-            event.preventDefault();
-            userMessage();
-        }
-    });
-    $('.chatbutton').click(function() { userMessage(); });
-    
+    /* User Profile */
     $('#phone-reminders').click(function() {
         if(this.checked) {
             $('#phone').show();
@@ -28,6 +28,18 @@ $(document).ready(function() {
             $('#phone').find('input').val('0');
         }
     });
+    
+    /* Chat Messages */
+    $('input:text').first().focus();
+    scrollMessages(false);
+    
+    $('.chatarea').keydown(function(event) {
+        if(event.keyCode == 13) {
+            event.preventDefault();
+            userMessage();
+        }
+    });
+    $('.chatbutton').click(function() { userMessage(); });
     
     $('.messagearea').scroll(function() {
         if(this.scrollTop == 0) {
