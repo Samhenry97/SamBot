@@ -11,21 +11,20 @@ async def alarmCheck():
 			db = glob.db
 			alarms = db.getAlerts()
 			for a in alarms:
-				if a['time'] < getDate():
-					user = db.getUserById(a['userId'])
-					if a['message'] == None:
-						print('[Sending Alarm to {}]\n'.format(user['firstName']))
-						message = 'Alarm for {}!'.format(user['nickName'] or user['firstName'])
-					else:
-						print('[Sending Reminder to {}: {}]\n'.format(user['firstName'], a['message']))
-						message = 'Reminder for {}: {}'.format(user['nickName'] or user['firstName'], a['message'])
-					if user['type'] == 'o':
-						db.addMessage(user['id'], message, False)
-						if user['userId']:
-							bots.sms.sendMessage(user['userId'], message)
-					else:
-						await glob.m(db.getChatById(a['chatId']), message)
-					db.deleteAlarm(a['id'])
+				user = db.getUserById(a['userId'])
+				if a['message'] == None:
+					print('[Sending Alarm to {}]\n'.format(user['firstName']))
+					message = 'Alarm for {}!'.format(user['nickName'] or user['firstName'])
+				else:
+					print('[Sending Reminder to {}: {}]\n'.format(user['firstName'], a['message']))
+					message = 'Reminder for {}: {}'.format(user['nickName'] or user['firstName'], a['message'])
+				if user['type'] == 'o':
+					db.addMessage(user['id'], message, False)
+					if user['userId']:
+						bots.sms.sendMessage(user['userId'], message)
+				else:
+					await glob.m(db.getChatById(a['chatId']), message)
+				db.deleteAlarm(a['id'])
 			await asyncio.sleep(1)
 		except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
 			db.close()

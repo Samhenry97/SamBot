@@ -205,16 +205,15 @@ def reminders():
 	alerts = glob.db.getAlertsForUser(current_user.id)
 	response = []
 	for alert in alerts:
-		if alert['time'] < util.getDate():
-			if not alert['message']:
-				message = 'Alarm for {}!'.format(current_user.nickName or current_user.firstName)
-			else:
-				message = 'Reminder for {}: {}'.format(current_user.nickName or current_user.firstName, alert['message'])
-			if current_user.userId:
-				bots.sms.sendMessage(current_user.userId, message)
-			glob.db.addMessage(current_user.id, message, False)
-			glob.db.deleteAlarm(alert['id'])
-			response.append(message)
+		if not alert['message']:
+			message = 'Alarm for {}!'.format(current_user.nickName or current_user.firstName)
+		else:
+			message = 'Reminder for {}: {}'.format(current_user.nickName or current_user.firstName, alert['message'])
+		if current_user.userId:
+			bots.sms.sendMessage(current_user.userId, message)
+		glob.db.addMessage(current_user.id, message, False)
+		glob.db.deleteAlarm(alert['id'])
+		response.append(message)
 	return jsonify({'response': response})
 			
 	

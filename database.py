@@ -15,7 +15,7 @@ class Database:
 	def selectOne(self, sql, args=None):
 		with lock:
 			with self.conn.cursor() as cursor:
-				cursor.execute(sql, args)
+				cursor.execute('{} LIMIT 1'.format(sql), args)
 				return cursor.fetchone()
 		
 	def selectMany(self, sql, args=None):
@@ -25,7 +25,7 @@ class Database:
 				return [row for row in cursor]
 			
 	def selectAll(self, sql, args=None):
-		with locK:
+		with lock:
 			with self.conn.cursor() as cursor:
 				cursor.execute(sql, args)
 				return cursor.fetchall()
@@ -69,9 +69,6 @@ class Database:
 	def getUserForChat(self, chatId):
 		return self.selectOne('SELECT * FROM users INNER JOIN chatusers ON users.id = chatusers.userId INNER JOIN chats ON chats.id = chatusers.chatId WHERE chats.id = %s', (chatId,))
 
-	def getAlerts(self):
-		return self.selectAll('SELECT * FROM alarms')
-
 	def getLikes(self, userId):
 		with lock:
 			ans = []
@@ -98,6 +95,12 @@ class Database:
 				for row in cursor:
 					dict[(row['chatId'], row['type'])] = True
 			
+	def getAlerts(self):
+		return self.selectAll('SELECT * FROM alarms WHERE time <= CURRENT_TIMESTAMP ORDER BY time')
+		
+	def getAlertsForUser(self, userId):
+		return self.selectMany('SELECT * FROM alarms WHERE userId = %s AND time <= CURRENT_TIMESTAMP', (userId,))
+			
 	def getAlarms(self, userId=-1, chatId=-1):
 		with self.conn.cursor() as cursor:
 			if chatId == -1:
@@ -115,9 +118,6 @@ class Database:
 				return self.selectAll('SELECT * FROM alarms WHERE chatId = %s AND message IS NOT NULL ORDER BY time', (chatId,))
 			else:
 				return self.selectAll('SELECT * FROM alarms WHERE userId = %s AND chatId = %s AND message IS NOT NULL ORDER BY time', (userId, chatId))
-				
-	def getAlertsForUser(self, userId):
-		return self.selectMany('SELECT * FROM alarms WHERE userId = %s', (userId,))
 				
 	def getMessagesForUser(self, userId, offset=0, per=40):
 		total = int(self.selectOne('SELECT COUNT(*) AS total FROM messages WHERE userId = %s', (userId,))['total'])

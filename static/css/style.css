@@ -21,7 +21,7 @@ Large only
 body { background-color: rgb(220, 220, 220); }
 ul { margin: 0; }
 li { list-style: none; }
-h2 { color: #333399; }
+h2 { color: #996633; }
 ::selection {
 	background-color: orange;
 	color: white;
@@ -29,6 +29,7 @@ h2 { color: #333399; }
 .right { float: right; }
 .center { display: inline-block; margin: auto; }
 .block { display: block; text-align: center; }
+.fa { color: #996633; }
 table { box-shadow: 0 0 3px 0 black; }
 
 
@@ -212,7 +213,7 @@ footer {
 	padding-top: 40px;
 	background-color: #003300;
 }
-.footer-header { color: #FC4A1A; }
+.footer-header { color: #996633; }
 .footer-item a {
 	text-decoration: none;
 	color: white;
