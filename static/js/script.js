@@ -15,20 +15,22 @@ $(document).ready(function() {
     var platform = $('.platforms-holder');
     var left = $('.scroll-left');
     var right = $('.scroll-right');
-    left.css('top', platform.offset().top + platform.height() / 2 - 10);
-    right.css('top', platform.offset().top + platform.height() / 2 - 10);
-    platform.scroll(function(event) {
-        if(platform.scrollLeft() == 0) {
-            left.fadeOut(200);
-        } else {
-            left.fadeIn(200);
-        }
-        if(platform.scrollLeft() + platform.width() >= $('.platforms').width()) {
-            right.fadeOut(200);
-        } else {
-            right.fadeIn(200);
-        }
-    });
+	if(left.length && platform.length && right.length) {
+		left.css('top', platform.offset().top + platform.height() / 2 - 10);
+		right.css('top', platform.offset().top + platform.height() / 2 - 10);
+		platform.scroll(function(event) {
+			if(platform.scrollLeft() == 0) {
+				left.fadeOut(200);
+			} else {
+				left.fadeIn(200);
+			}
+			if(platform.scrollLeft() + platform.width() >= $('.platforms').width()) {
+				right.fadeOut(200);
+			} else {
+				right.fadeIn(200);
+			}
+		});
+	}
     
     /* Settings */
     $('#settings').hover(function(event) {

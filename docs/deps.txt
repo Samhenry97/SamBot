@@ -16,6 +16,5 @@ kik
 Image
 py-bcrypt
 flask-login
-Flask-Navigation
-sqlalchemy
-flask_sqlalchemy
+SpeechRecognition
+yowsup2
