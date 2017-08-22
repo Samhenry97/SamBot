@@ -17,7 +17,7 @@
           {{ render_field(form.email) }}
           {{ render_field(form.waitingFor) }}
           {{ render_checkbox(form.admin) }}
-          <input type='submit' value='Save User' class='button'><a class='button secondary' href="{{url_for('users')}}">Cancel</a><a class='button caution right' href="/users/{{user.id}}/delete">Delete</a>
+          <input type='submit' value='Save User' class='button'><a class='button secondary' href="{{url_for('users')}}">Cancel</a><a class='button caution right-if-large' href="/users/{{user.id}}/delete">Delete</a>
         </div>
       </form>
     </div>

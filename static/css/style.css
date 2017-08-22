@@ -263,7 +263,13 @@ input[type='text']:focus, input[type='password']:focus {
 .caution { background-color: red; }
 .caution:hover { background-color: rgb(200, 0, 0); }
 .signup { padding: 20px; font-size: 2em; margin: auto; }
-
+@media screen and (min-width: 40em) {
+    .right-if-large { float: right; }
+}
+@media screen and (max-width: 39.9375em) {
+    .button { width: 100%; margin-bottom: 10px; }
+    .button:last-child { margin-bottom: 0; }
+}
 
 
 /* Pages */
@@ -331,6 +337,23 @@ input[type='text']:focus, input[type='password']:focus {
     .section h2 { text-align: center; }
     .section p { text-align: center; }
     .messagearea { height: 300px; }
+    .platforms-holder {
+        width: 100%; 
+        overflow-x: scroll;
+    }
+    .platforms { width: 1230px; height: 1px; }
+    .platforms li { float: left; }
+    .platforms li:first-child { margin-left: 6%; }
+    .platforms li:last-child { margin-right: 6%; }
+    .scroll-left {
+        position: absolute;
+        left: 10px;
+        display: none;
+    }
+    .scroll-right {
+        position: absolute;
+        right: 10px;
+    }
 }
 
 

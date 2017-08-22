@@ -16,7 +16,7 @@
           {{ render_field(form.email) }}
           <input {{'checked' if form.phone.data != 0}} id='phone-reminders' type='checkbox'><label for='phone-reminders'>Send Text Reminders</label><br>
           <span id='phone' style="{{'display: none;' if form.phone.data == 0 else ''}}">{{ render_field(form.phone) }}</span>
-          <input type='submit' value='Save Profile' class='button'><a class='button secondary' href="{{url_for('index')}}">Cancel</a><a class='button caution right' href="{{url_for('clearMessages')}}">Delete Chat History</a>
+          <input type='submit' value='Save Profile' class='button'><a class='button secondary' href="{{url_for('index')}}">Cancel</a><a class='button caution right-if-large' href="{{url_for('clearMessages')}}">Delete Chat History</a>
         </div>
       </form>
     </div>
