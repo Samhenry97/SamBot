@@ -5,6 +5,7 @@ from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
 
 replies = {}
 tests = {}
+replymap = {}
 
 def loadReplies():
 	inline = False
@@ -25,8 +26,14 @@ def loadReplies():
 			elif line.startswith('key'):
 				key = line.split()[1]
 				replies[key] = []
-			elif line.startswith('test'):
-				tests[key] = line[5:]
+			elif line.startswith('test') and line.split()[1] != 'manual':
+				words = line.split()[1:]
+				tests[key] = { x: True for x in words }
+				for x in words:
+					if x not in replymap:
+						replymap[x] = { key: True }
+					else:
+						replymap[x][key] = True
 			elif line == '{start}':
 				inline = True
 			else:
@@ -281,9 +288,20 @@ def getReply(origText, userInfo, chat):
 		if remindText.strip():
 			return remindText
 		
-		for k, v in tests.items():
-			if v != 'manual' and eval(v):
-				return genReply(k, userInfo)
+		data = ''.join(c for c in text if c.isalnum() or c == ' ').split()
+		possible = {}
+		for word in data:
+			if word in replymap:
+				for k in replymap[word].keys():
+					possible[k] = possible[k] + 1 if k in possible else 1
+		response, percent = '', 0
+		for k, v in possible.items():
+			p = v / len(tests[k])
+			if p >= percent:
+				percent = p
+				response = k
+		if response:
+			return genReply(response, userInfo)
 	if text.startswith('calc') or text.startswith('calculate') or text.startswith('what\'s') or text.startswith('whats'):
 		exp = text.replace('calculate', '').replace('calc', '').replace('what\'s', '').replace('whats', '').strip()
 		exp = exp.replace('times', '*').replace('minus', '-').replace('to the', '^').replace('power', '').replace('divided by', '/').replace('plus', '+').replace('th', '')
