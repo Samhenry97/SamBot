@@ -1,6 +1,13 @@
 Install MySQL: https://www.stewright.me/2014/06/tutorial-install-mysql-server-on-raspberry-pi/
-Install Dependencies: sudo apt install espeak libportaudio-dev portaudio19-dev
+Install Dependencies: 
+	sudo apt install espeak libportaudio-dev
+	sudo apt install portaudio19-dev
+	sudo apt install pulseaudio
+	sudo apt install libxml2-dev libxslt-dev
+	sudo apt install libatlas-base-dev
+	sudo apt install mysql-server
 
+Install Python3 Dependencies (pip3 install):
 telepot
 pyowm
 pymysql
@@ -18,3 +25,10 @@ py-bcrypt
 flask-login
 SpeechRecognition
 yowsup2
+
+Set up MySQL:
+sudo su -
+mysql
+CREATE DATABASE sambot;
+GRANT ALL ON sambot.* TO 'root'@'localhost' IDENTIFIED BY 'xxxxxx';
+exit
