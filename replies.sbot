@@ -53,7 +53,6 @@ What's so tasty?
 Can I have some please{?}(1,5)
 
 key callme
-test manual
 What should I call you, {fName}?
 What do you want to be called, {fName}?
 And what shall your name be, {fName}?
@@ -107,7 +106,6 @@ Yep, I'm running on a Raspberry Pi!
 Raspberry Pi is such a cool thing... {Emoji.cool}
 
 key arereal
-test manual
 I don't know... ARE {arg} real?
 {arg} might be real...
 Affirmative. {arg} are real.
@@ -115,14 +113,12 @@ Yep! {arg} are real.
 NO! Of course not! {arg} are a figment of your imagination.
 
 key isreal
-test manual
 I don't know... IS {arg} real?
 {arg} might be real...
 Absolutely! I've seen {arg} around here and there...
 Ummm no? How could you think {arg} is real?
 
 key callmesuccess
-test manual
 Okay, from now on I'll call you {arg}{!}(2,5)
 Sweet, I'll remember that, {arg}{!}(2,5)
 
@@ -165,7 +161,7 @@ Hehehehehehehe
 Fave word. {Emoji.happy}(1,20)
 
 key valid
-test manual
+test valid
 Nintendo Switch
 Tim Tim Tim
 You know it!
@@ -232,7 +228,6 @@ How's it going, {fName}? {Emoji.cool}(2,3)
 {end}
 
 key 42
-test manual
 42!!! You found the answer to the universe! {Emoji.happy}(1,5)
 Wow nice. You just found the answer to the universe...
 {fName}, You just found the answer to the universe... I'm impressed.
@@ -277,31 +272,26 @@ You don't think I have emotions?!?!
 Excuse me... I do have emotions.
 
 key ilike
-test manual
 I like {arg} too!! 
 Dude, I love {arg}!!! {Emoji.happy}
 {arg}... pretty cool stuff!
 I'm recording that you like {arg}! {Emoji.happy}
 
 key idontlike
-test manual
 I don't think I like {arg} either. {Emoji.sad}
 You're weird! I love {arg}!!
 I do not care for {arg1} either... {arg1} is weird.
 
 key alarm
-test manual
 Okay, I'll set an alarm for {arg}
 You got it! Alarm set for {arg} {Emoji.happy}
 I'll alert you at {arg}
 
 key noalarm
-test manual
 Sorry, {fName}, I don't understand when you want your alarm... {Emoji.sad}(1,3)
 I don't understand - when do you want an alarm?
 
 key reminderhelp
-test manual
 {start}
 Commands for reminders (or alarms)
 "list reminders": list your reminders in the current chat
@@ -310,14 +300,12 @@ Commands for reminders (or alarms)
 {end}
 
 key reminder
-test manual
 Alrighty, there will be a reminder for you at {arg}
 Okay, I'll remind you at {arg}
 Sounds good! Reminder set for {arg}
 I've added your reminder for {arg}
 
 key noreminder
-test manual
 Sorry, {fName}, I don't know when you want your reminder... {Emoji.sad}(1,3)
 I don't understand - when do you want a reminder?
 
@@ -373,7 +361,6 @@ Does that really matter?
 Okay... I'm a robot. Who cares?
 
 key areyoua
-test manual
 Ummmm no, do I look like a {arg}?
 {arg}{?}(2,3){!}(2,4) No.
 
@@ -399,7 +386,6 @@ Get some rest! {Emoji.tired}(1,5)
 Rest well!
 
 key hello
-test manual
 Why hello there, {nName}!
 How goes it, {nName}? {Emoji.happy}(2)
 Good to see you, {nName}! {Emoji.happy}
@@ -407,7 +393,6 @@ How's life, {nName}? {Emoji.happy}
 Hola! Como estas, {nName}? {Emoji.cool}
 
 key annoying
-test manual
 # '\U0001f611' in text
 I'm not annoying, am I? {Emoji.sad}
 Don't be like that.
@@ -420,7 +405,7 @@ test dying
 {Emoji.funny}(1,5)
 
 key tim
-test manual
+test tim
 Tim is so weird.
 What do you think of Tim?
 Tim Tim Tim....
@@ -499,28 +484,24 @@ Yeah?
 # {arg5} Location
 
 key freezing
-test manual
 {start}
 It's freezing in {arg5}! A jacket and scarf would be nice today! {Emoji.happy}
 {arg1} today, and it's currently {arg2}° with cloud coverage at {arg3}% and humidity at {arg4}%.
 {end}
 
 key cool
-test manual
 {start}
 It's cool, but nice out. Get a jacket and stay warm while in {arg5}! {Emoji.cool}
 {arg1} today, and it's currently {arg2}° with cloud coverage at {arg3}% and humidity at {arg4}%.
 {end}
 
 key warm
-test manual
 {start}
 It's very pretty in {arg5}! Great weather for a run {Emoji.cool}
 {arg1} today, and it's currently {arg2}° with cloud coverage at {arg3}% and humidity at {arg4}%.
 {end}
 
 key hot
-test manual
 {start}
 It's quite hot out in {arg5}... {Emoji.tired} Keep cool and drink lots of water!
 {arg1} today, and it's currently {arg2}° with cloud coverage at {arg3}% and humidity at {arg4}%.
@@ -580,7 +561,6 @@ Dobby loves you! {Emoji.happy}
 Master, could you give me a sock?
 
 key bae
-test manual
 Let's go hang out!!
 Heyyyyyyy there {Emoji.cool}
 How's it going, bae??? {Emoji.happy}
@@ -676,7 +656,6 @@ I love minecraft! It's my favorite game {!}(1,10)
 Isn't mineraft the best game {e}(2,5)ve{r}(2,5){?}(2,5)
 
 key doyoulike
-test manual
 Oh my word, I LOVE {arg}!
 Yeah buddy, {arg} are the best thing ever!
 U{m}(1,5), not really dude. {arg} are kinda weird.

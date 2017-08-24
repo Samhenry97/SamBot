@@ -1,0 +1,1 @@
+As a workaround, you can use the --fe_nocertcheck option to disable certificate checking (add the word fe_nocertcheck to your config file), or you can use --ca_certs=/path/to/pagekite.py to only use the certificates distributed iwth pagekite itself.

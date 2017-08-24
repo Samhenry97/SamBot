@@ -1,7 +1,6 @@
 import re, random, requests, json, sys, os, subprocess, hashlib, time, geopy
-import glob, reminders, util
+import glob, reminders, util, bots.messenger
 from emoji import Emoji
-from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
 
 replies = {}
 tests = {}
@@ -26,9 +25,9 @@ def loadReplies():
 			elif line.startswith('key'):
 				key = line.split()[1]
 				replies[key] = []
-			elif line.startswith('test') and line.split()[1] != 'manual':
+			elif line.startswith('test'):
 				words = line.split()[1:]
-				tests[key] = { x: True for x in words }
+				tests[key] = len(words)
 				for x in words:
 					if x not in replymap:
 						replymap[x] = { key: True }
@@ -114,11 +113,29 @@ def getReply(origText, userInfo, chat):
 		db.removeLike(userInfo['id'], origText)
 		return genReply('idontlike', userInfo, origText)
 	elif waitingFor == 'infix':
-		pass
+		db.setWaitingFor(userInfo['id'], 'nothing')
+		ans = util.getInfix(text)
+		if ans:
+			return 'Answer: {}'.format(ans)
+		else:
+			return 'Sorry, I couldn\'t parse that infix expression.'
 	elif waitingFor == 'postfix':
-		pass
+		db.setWaitingFor(userInfo['id'], 'nothing')
+		ans = util.getPostfix(text)
+		if ans:
+			return 'Answer: {}'.format(ans)
+		else:
+			return 'Sorry, I couldn\'t parse that postfix expression.'
 	elif waitingFor == 'calc':
-		pass
+		db.setWaitingFor(userInfo['id'], 'nothing')
+		exp = text.replace('calculate', '').replace('calc', '').replace('what\'s', '').replace('whats', '').strip()
+		ans = util.calculate(exp)
+		if ans and ans == 42:
+			return genReply('42', userInfo)
+		elif ans:
+			return 'Answer: {}'.format(ans)
+		else:
+			return 'Sorry, I can\'t solve that!'
 		
 		
 	# Admin Commands
@@ -129,7 +146,7 @@ def getReply(origText, userInfo, chat):
 			else:
 				glob.bm(chat, 'Rebooting...')
 				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chat['id'])])
-		elif text.startswith('git '):
+		elif text.startswith('git ') or text.startswith('cat ') or text.startswith('ls'):
 			return processOutput(text)
 		elif text == 'update' or text == 'refresh' or text == 'reload':
 			loadReplies()
@@ -158,32 +175,25 @@ def getReply(origText, userInfo, chat):
 		glob.say(userInfo['firstName'] + ' ' + userInfo['lastName'] + ' says: ' + text[3:])
 		return 'Delivered ' + Emoji.happy()
 	elif text.startswith('infix'):
-		i = InfixToPostfix(text[5:].strip())
-		try:
-			return 'Postfix: ' + i.genPostfix()
-		except:
-			return 'Error parsing infix expression.'
+		exp = text[5:].strip()
+		if not exp:
+			db.setWaitingFor(userInfo['id'], 'infix')
+			return 'Enter an expression:'
+		ans = util.getInfix(exp)
+		if ans:
+			return 'Answer: {}'.format(ans)
+		else:
+			return 'Sorry, I couldn\'t parse that infix expression.'
 	elif text.startswith('postfix'):
-		try:
-			e = ExpressionTree(text[7:].strip())
-			return 'Answer: ' + str(e.eval())
-		except:
-			return 'Error parsing postfix expression.'
-	elif 'valid' in text:
-		return genReply('valid', userInfo)
-	elif text.startswith('ls'):
-		ans = ['Files in current directory: ', '']
-		for file in os.listdir('.'):
-			ans.append(file)
-		return '\n'.join(ans)
-	elif text.startswith('cat '):
-		fileName = origText[4:]
-		try:
-			with open(fileName) as file:
-				contents = file.read().replace(TOKEN, '{{HIDDEN INFORMATION}}')
-				return contents
-		except FileNotFoundError:
-			return 'Could not find "{}"'.format(fileName)
+		exp = text[7:]
+		if not exp:
+			db.setWaitingFor(userInfo['id'], 'postfix')
+			return 'Enter an expression:'
+		ans = util.getPostfix(exp)
+		if ans:
+			return 'Answer: {}'.format(ans)
+		else:
+			return 'Sorry, I couldn\'t parse that postfix expression.'
 	elif text.startswith('echo ') or text.startswith('repeat '):
 		return text.replace('echo ', '').replace('repeat ', '')
 	elif text.startswith('call me') or text.startswith('callme'):
@@ -195,16 +205,17 @@ def getReply(origText, userInfo, chat):
 			db.setWaitingFor(userInfo['id'], 'call')
 			return genReply('callme', userInfo)
 	elif text.startswith('time'):
-		return str(util.convertDate(util.getDate()))
-	elif text.startswith('tim'):
-		return genReply('tim', userInfo)
+		return util.convertDate(util.getDate())
 	elif text.startswith('hi') or text.startswith('hey') or text.startswith('hello'):
 		if userInfo['nickName'].lower() == 'bae':
 			return genReply('bae', userInfo)
 		else:
 			return genReply('hello', userInfo)
 	elif text.startswith('emoji'):
-		return chr(random.randint(0x1F601, 0x1F650))
+		emoji = chr(random.randint(0x1F601, 0x1F650))
+		if userInfo['type'] == 'm':
+			bots.messenger.client.changeThreadEmoji(emoji, thread_id=chat['chatId'])
+		return emoji
 	elif text.startswith('gravatar'):
 		email = text[8:].strip()
 		md5 = hashlib.md5()
@@ -296,7 +307,7 @@ def getReply(origText, userInfo, chat):
 					possible[k] = possible[k] + 1 if k in possible else 1
 		response, percent = '', 0
 		for k, v in possible.items():
-			p = v / len(tests[k])
+			p = v / tests[k]
 			if p >= percent:
 				percent = p
 				response = k
@@ -304,17 +315,17 @@ def getReply(origText, userInfo, chat):
 			return genReply(response, userInfo)
 	if text.startswith('calc') or text.startswith('calculate') or text.startswith('what\'s') or text.startswith('whats'):
 		exp = text.replace('calculate', '').replace('calc', '').replace('what\'s', '').replace('whats', '').strip()
-		exp = exp.replace('times', '*').replace('minus', '-').replace('to the', '^').replace('power', '').replace('divided by', '/').replace('plus', '+').replace('th', '')
-		try:
-			e = ExpressionSolver(exp)
-			ans = e.solve()
-		except:
-			return 'Sorry, I can\'t solve that!'
+		if not exp:
+			db.setWaitingFor(userInfo['id'], 'calc')
+			return 'Enter an expression:'
+		ans = util.calculate(exp)
+		if ans and ans == 42:
+			return genReply('42', userInfo)
+		elif ans:
+			return 'Answer: {}'.format(ans)
 		else:
-			if ans == 42:
-				return genReply('42', userInfo)
-			else:
-				return 'Answer: ' + str(ans)
+			return 'Sorry, I can\'t solve that!'
+			
 	return ''
 	
 

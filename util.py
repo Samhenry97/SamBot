@@ -1,6 +1,7 @@
 import sys
 import glob
 from datetime import datetime, timedelta
+from expressions import ExpressionSolver, ExpressionTree, InfixToPostfix
 
 class Loader:
 	def __init__(self, message):
@@ -102,3 +103,25 @@ def hash(s):
 	for c in s:
 		ans = ans * 31 + ord(c)
 	return (ans & 0xFFFFFFFFFFFFFFF) ^ ((ans & (0xFFFFFFFFFFFFFFF << 32)) >> 32)
+	
+def getInfix(exp):
+	i = InfixToPostfix(exp)
+	try:
+		return i.genPostfix()
+	except:
+		return None
+		
+def getPostfix(exp):
+	try:
+		e = ExpressionTree(exp)
+		return e.eval()
+	except:
+		return None
+	
+def calculate(exp):
+	exp = exp.replace('times', '*').replace('minus', '-').replace('to the', '^').replace('power', '').replace('divided by', '/').replace('plus', '+').replace('th', '')
+	try:
+		e = ExpressionSolver(exp)
+		return e.solve()
+	except:
+		return None
