@@ -166,6 +166,13 @@ def getReply(origText, userInfo, chat):
 			except Exception as e:
 				print('Volume Error: ', e)
 				return 'Couldn\'t set the volume... Sorry!'
+		elif text.startswith('text'):
+			number = text.split()[1]
+			msg = ' '.join(text.split()[2:])
+			if len(number) <= 10:
+				number = '1' + number
+			bots.sms.sendMessage(number, msg)
+			return 'Sent Text.'
 		
 		
 	if text.startswith('do you like'):

@@ -73,11 +73,6 @@ async def manual():
 						print('Sent Message.')
 					else:
 						print('Please enter a correct user.')
-			elif s.startswith('text'):
-				number = s.split()[1]
-				msg = ' '.join(s.split()[2:])
-				bots.sms.sendMessage('1' + number, msg)
-				print('Sent Text.')
 			else:
 				response = reply.getReply(s, userInfo, chat)
 				if response.strip():
