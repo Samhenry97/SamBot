@@ -6,7 +6,7 @@ from util import Loader
 
 OWM_TOKEN = os.environ['OWM_TOKEN']
 WEBHOOK = os.environ['WEBHOOK']
-ESPEAK_OPTIONS = ['espeak', '-ven-us+f3', '-s170']
+ESPEAK_OPTIONS = ['espeak', '-ven-us+m3', '-s170']
 PLATFORMS = { 'm': 'Messenger', 't': 'Telegram', 's': 'SMS', 'k': 'Kik', 'w': 'WhatsApp', 'o': 'Online' }
 pause = False
 db = owm = speech = None

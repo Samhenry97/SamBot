@@ -135,6 +135,19 @@ Orange all the way! {Emoji.happy}
 Orange Orange Orange...
 Orange you glad it's... orange? {Emoji.funny}
 
+key supper
+test can do supper
+Oh, I'd love that! It's a date. {Emoji.happy}(1,2)
+YES! I can't wait! I'll be ready {Emoji.happy}
+You know it! {Emoji.cool}
+Is that a rhetorical question? Of course {Emoji.happy}
+
+key meal
+test can do meal with
+Definitely! How does lunch tomorrow sound to you? {Emoji.happy}
+Let's do it! When works for you?
+I'd love to! Sometime soon? {Emoji.happy}
+
 key thanks
 test thanks thank you
 Absolutely{!}(1,20) {Emoji.happy}(2,5)
@@ -670,3 +683,10 @@ key sambot
 test sambot samthenerdbot
 Yep, that's me! {Emoji.happy}(2)
 What can I do for you?
+
+key age
+test how old are you
+I've been in the making since December of 2016.
+Is that relevant?
+Why do you want to know?
+Not too old for you {Emoji.cool}

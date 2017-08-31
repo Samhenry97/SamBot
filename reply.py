@@ -161,7 +161,7 @@ def getReply(origText, userInfo, chat):
 			text = text.replace('volume', '').replace('set', '').replace('to', '').replace('percent', '').replace('%', '').strip()
 			try:
 				percent = int(text)
-				processOutput('amixer -D pulse sset Master ' + str(percent) + '%')
+				processOutput('amixer sset Master ' + str(percent) + '%')
 				return 'Successfully set volume to ' + text + ' percent!'
 			except Exception as e:
 				print('Volume Error: ', e)
