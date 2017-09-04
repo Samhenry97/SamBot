@@ -276,6 +276,7 @@ I like {arg} too!!
 Dude, I love {arg}!!! {Emoji.happy}
 {arg}... pretty cool stuff!
 I'm recording that you like {arg}! {Emoji.happy}
+{arg}... that's interesting, but I can't relate. {Emoji.mad}
 
 key idontlike
 I don't think I like {arg} either. {Emoji.sad}
