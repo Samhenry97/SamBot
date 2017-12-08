@@ -17,6 +17,9 @@
           <a href="{{ url_for('index') }}"><img src='/image/sambot.jpg'/></a>
           <a href="{{ url_for('index') }}"><span class="{{ 'active' if page == 'index' else '' }}">Home</span></a>
           <a href="{{ url_for('chat') }}"><span class="{{ 'active' if page == 'chat' else '' }}">Chat</span></a>
+          {% if current_user.is_authenticated %}
+          <a href="/likes/{{current_user.id}}"><span class="{{ 'active' if page == 'likes' else '' }}">Likes</span></a>
+          {% endif %}
           <a href="{{ url_for('about') }}"><span class="{{ 'active' if page == 'about' else '' }}">About</span></a>
           {% if current_user.is_authenticated and current_user.admin %}
             <a href="{{ url_for('users') }}"><span class="{{ 'active' if page == 'users' else '' }}">Users</span></a>
@@ -45,6 +48,9 @@
           <div class='navContent'>
             <a href="{{ url_for('index') }}"><div class="{{ 'active' if page == 'index' else '' }}">Home</div></a>
             <a href="{{ url_for('chat') }}"><div class="{{ 'active' if page == 'chat' else '' }}">Chat</div></a>
+            {% if current_user.is_authenticated %}
+			  <a href="/likes/{{current_user.id}}"><div class="{{ 'active' if page == 'likes' else '' }}">Likes</div></a>
+            {% endif %}
             <a href="{{ url_for('about') }}"><div class="{{ 'active' if page == 'about' else '' }}">About</div></a>
             {% if current_user.is_authenticated and current_user.admin %}
               <a href="{{ url_for('users') }}"><div class="{{ 'active' if page == 'users' else '' }}">Users</div></a>

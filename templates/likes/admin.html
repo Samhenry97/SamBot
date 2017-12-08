@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Likes{% endblock %}
+{% block body %}
+<div class='section'>
+  <div class='row'>
+    <div class='columns small-12'>
+      <h2>Manage Likes ({{count}} Total)</h2>
+      <table>
+		 <tr>
+		  <th>ID</th>
+          <th>Content</th>
+          <th>User ID</th>
+          <th>Actions</th>
+        </tr>
+        {% for like in likes %}
+        <tr>
+		  <td>{{like.id}}</td>
+          <td>{{like.name}}</td>
+          <td><a href="/likes/{{like.userId}}">{{like.userId}}</a></td>
+          <td>
+			<a title='Delete' href="/likes/{{like.id}}/delete"><i class='fa fa-trash'></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+

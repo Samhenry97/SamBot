@@ -194,6 +194,9 @@ class Database:
 		
 	def deleteUserMessages(self, userId):
 		self.update('DELETE FROM messages WHERE userId = %s', (userId,))
+		
+	def deleteLike(self, id):
+		self.update('DELETE FROM likes WHERE id = %s', (id,))
 	
 	def removeLike(self, userId, like):
 		with lock:

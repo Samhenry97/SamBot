@@ -236,6 +236,38 @@ def users():
 	count = glob.db.selectOne('SELECT COUNT(*) AS count FROM users')['count']
 	return render_template('users/index.html', users=User.all(), count=count, page='users')
 	
+@server.route('/likes')
+@login_required
+def manageLikes():
+	if not current_user.admin:
+		return adminOnly()
+	count = glob.db.selectOne('SELECT COUNT(*) AS count FROM likes')['count']
+	return render_template('likes/admin.html',
+		likes=glob.db.selectMany('SELECT * FROM likes'),
+		count=count, page='manageLikes')
+
+@server.route('/likes/<int:id>')
+@login_required
+def likes(id):
+	if current_user.admin or current_user.id == id:
+		count = glob.db.selectOne('SELECT COUNT(*) AS count FROM likes WHERE userId = %s', id)['count']
+		user = glob.db.selectOne('SELECT * FROM users WHERE id = %s', id)
+		return render_template('likes/index.html',
+			likes=glob.db.selectMany('SELECT * FROM likes WHERE userId = %s', id),
+			count=count, page='likes', user=user)
+	else:
+		return adminOnly()
+		
+@server.route('/likes/<int:id>/delete')
+@login_required
+def deleteLike(id):
+	like = glob.db.selectOne('SELECT * FROM likes WHERE id = %s', id)
+	if not current_user.admin and like['userId'] != current_user.id:
+		return adminOnly()
+	glob.db.deleteLike(id)
+	flash('Like deleted.')
+	return redirect('/likes/{}'.format(like['userId']))
+	
 @server.route('/users/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editUser(id):
@@ -296,7 +328,8 @@ def notFound(e):
 @server.errorhandler(500)
 def serverError(e):
 	return render_template('errors/500.html'), 500
-	
+
+'''
 @server.after_request
 def nocache(r):
 	r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -304,6 +337,7 @@ def nocache(r):
 	r.headers["Expires"] = "0"
 	r.headers['Cache-Control'] = 'public, max-age=0'
 	return r
+'''
 
 def listen(debug):
 	loginManager.init_app(server)

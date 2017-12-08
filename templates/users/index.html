@@ -22,8 +22,9 @@
           <td>{{user.userName}}</td>
           <td>{{user.email}}</td>
           <td>
-        <a title='Edit' href="/users/{{user.id}}"><i class='fa fa-cog'></i></a>
-        <a title='Delete' href="/users/{{user.id}}/delete"><i class='fa fa-trash'></i></a>
+			<a title='Edit' href="/users/{{user.id}}"><i class='fa fa-cog'></i></a>
+			<a title='Likes' href="/likes/{{user.id}}"><i class='fa fa-heart'></i></a>
+			<a title='Delete' href="/users/{{user.id}}/delete"><i class='fa fa-trash'></i></a>
           </td>
         </tr>
         {% endfor %}
