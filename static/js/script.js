@@ -15,6 +15,12 @@ $(document).ready(function() {
     var platform = $('.platforms-holder');
     var left = $('.scroll-left');
     var right = $('.scroll-right');
+    left.click(function(event) {
+		platform.scrollLeft(platform.scrollLeft() - 120);
+	});
+	right.click(function(event) {
+		platform.scrollLeft(platform.scrollLeft() + 120);
+	});
 	if(left.length && platform.length && right.length) {
 		left.css('top', platform.offset().top + platform.height() / 2 - 10);
 		right.css('top', platform.offset().top + platform.height() / 2 - 10);

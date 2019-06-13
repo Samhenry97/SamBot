@@ -57,8 +57,8 @@ async def m(chat, text): # Async Message
 def bm(chat, text): # Block Message
 	if chat['type'] == 't':
 		bots.telegram.bclient.sendMessage(chat['chatId'], text)
-	elif chat['type'] == 'm':
-		bots.messenger.sendMessage(text, str(chat['chatId']), [ThreadType.USER, ThreadType.GROUP][chat['public']])
+	#elif chat['type'] == 'm':
+	#	bots.messenger.sendMessage(text, str(chat['chatId']), [ThreadType.USER, ThreadType.GROUP][chat['public']])
 	elif chat['type'] == 's':
 		bots.sms.sendMessage(chat['chatId'], text)
 	elif chat['type'] == 'k':
@@ -91,6 +91,9 @@ def sendPhoto(chat, name, web=True):
 def changeNickname(newName, chat, userInfo):
 	if userInfo['type'] == 'm':
 		bots.messenger.client.changeNickname(newName, str(userInfo['userId']), thread_id=str(chat['chatId']), thread_type=[ThreadType.USER, ThreadType.GROUP][chat['public']])
+	elif userInfo['type'] == 'd':
+		loop = asyncio.get_event_loop()
+		loop.create_task(bots.disc.changeNickname(newName, chat, userInfo))
 	db.setNickname(userInfo['id'], newName)
 	
 def messageAdmins(text):

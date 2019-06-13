@@ -1,5 +1,5 @@
 from threading import Thread
-import asyncio
+import asyncio, pymysql
 import discord, glob, util, reply
 
 client = None
@@ -7,7 +7,7 @@ client = None
 
 class DiscordBot(discord.Client):
 	async def on_ready(self):
-		pass
+		await self.change_presence(activity=discord.Game(name='Minecraft'))
 	
 	async def on_message(self, message):
 		if message.author == self.user:
@@ -19,6 +19,7 @@ class DiscordBot(discord.Client):
 			
 			author = message.author
 			channel = message.channel
+			content = message.content
 			public = type(channel) != discord.DMChannel
 			userId = int(author.id)
 			chatId = int(channel.id)
@@ -34,7 +35,16 @@ class DiscordBot(discord.Client):
 			print('\tChat ID:', chatId, '(Public)' if public else '(Private)')
 			print('\tMessage:', message.content, '\n')
 			
-			response = reply.getReply(message.content, userInfo, chat)
+			if 'play' in content[:5]:
+				game = content[content.index('play')+4:].strip()
+				if game.strip():
+					await self.change_presence(activity=discord.Game(name=game))
+					await channel.send('I\'m now playing {}!'.format(game))
+				else:
+					await channel.send('You didn\'t tell me what to play!')
+				return
+			
+			response = reply.getReply(content, userInfo, chat)
 			if response.strip():
 				await channel.send(response)
 		except (ConnectionAbortedError, pymysql.err.OperationalError, pymysql.err.InterfaceError):
@@ -45,6 +55,12 @@ class DiscordBot(discord.Client):
 		except Exception as e:
 			glob.messageAdmins('Uncaught Error: {}'.format(e))
 			await channel.send('Sorry, something went wrong... ')
+		
+async def changeNickname(newName, chat, userInfo):
+	channel = client.get_channel(int(chat['chatId']))
+	user = channel.guild.get_member(userInfo['userId'])
+	print(client, user)
+	await user.edit(nick=newName)
 		
 async def sendMessage(chatId, text):
 	channel = client.get_channel(int(chatId))

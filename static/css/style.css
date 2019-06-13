@@ -15,34 +15,37 @@ Large only
 @media screen and (min-width: 64em) and (max-width: 74.9375em) {}
 */
 
+/*
+Green: 22AA22
+#F47042: #F47042 
+*/
+
 
 
 /* Resets/Global */
 body { background-color: rgb(220, 220, 220); }
 ul { margin: 0; }
 li { list-style: none; }
-h2 { color: #996633; }
-hr { border-color: #996633; }
+h2 { color: #F47042; }
+hr { border-color: #22AA22; }
 ::selection {
-    background-color: orange;
+    background-color: #22AA22;
     color: white;
 }
 .right { float: right; }
 .center { display: inline-block; margin: auto; }
 .block { display: block; text-align: center; }
-.fa { color: #996633; }
+.fa { color: #22AA22; }
 table { box-shadow: 0 0 3px 0 black; }
 
 
 /* Header */
 header {
     padding: 5px 10px;
-    background-color: #003300;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
+    background-color: #000600;
+    position: relative;
     user-select: none;
+    box-shadow: 0 0 20px 2px black;
 }
 @media screen and (min-width: 40em) {
     nav span {
@@ -52,24 +55,16 @@ header {
         text-align: center;
         color: white;
         background-size: 100% 200%;
-        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 51%, #FC4A1A 49%);
-        -webkit-transition: background .4s;
-        -moz-transition: background .4s;
-        -ms-transition: background .4s;
-        -o-transition: background .4s;
-        transition: background .4s;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 51%, #005500 49%);
+        transition: background .2s;
     }
     nav span:hover { 
-        border-bottom: 4px orange solid; 
-        background-position: 0 100%; 
-        border-bottom-left-radius: 5px;
-        border-bottom-right-radius: 5px; 
+        border-bottom: 2px #22AA22 solid; 
+        background-position: 0 100%;
     }
     nav img { width: 50px; margin: auto 10px; }
     nav .active { 
-        border-bottom: 4px orange solid; 
-        border-bottom-left-radius: 5px;
-        border-bottom-right-radius: 5px; 
+        border-bottom: 2px #22AA22 solid; 
     }
     #settings {
         float: right;
@@ -84,15 +79,16 @@ header {
     #settings-dropdown {
         position: absolute;
         display: none;
-        box-shadow: 0 0 20px black;
+        box-shadow: 0 0 10px black;
     }
     #settings-dropdown li {
         padding: 10px;
-        background-color: white;
-        border: 1px solid black;
+        background-color: #000600;
+        color: white;
+        transition-duration: 0.2s;
     }
     #settings-dropdown li:hover {
-        background-color: orange;
+        background-color: #005500;
     }
     #login {
         float: right;
@@ -114,18 +110,10 @@ header {
         opacity: 0;
         visibility: hidden;
         top: 50px;
-        width: 200px;
+        width: 100%;
         background-color: #003300;
         overflow-y: auto;
-        -webkit-transform: translateX(-100%);
-        -moz-transform: translateX(-100%);
-        -ms-transform: translateX(-100%);
-        -o-transform: translateX(-100%);
         transform: translateX(-100%);
-        -webkit-transition-duration: 0.5s;
-        -moz-transition-duration: 0.5s;
-        -ms-transition-duration: 0.5s;
-        -o-transition-duration: 0.5s;
         transition-duration: 0.5s;
         box-shadow: 3px 3px 20px 0 black;
     }
@@ -133,17 +121,13 @@ header {
         text-align: center;
         color: white;
         padding: 10px;
-        border-top: 1px solid orange;
-        border-bottom: 1px solid orange;
+        border-top: 1px solid #F47042;
+        border-bottom: 1px solid #F47042;
     }
-    .navContent .active { background-color: orange; color: black; }
+    .navContent .active { background-color: #F47042; color: black; }
     .show {
         visibility: visible;
         opacity: 1;
-        -webkit-transform: translateX(0%);
-        -moz-transform: translateX(0%);
-        -ms-transform: translateX(0%);
-        -o-transform: translateX(0%);
         transform: translateX(0%);
     }
     .navTrigger {
@@ -163,61 +147,25 @@ header {
         height: 4px;
     }
     .navTrigger i:nth-child(1) {
-        -webkit-animation: outT 0.3s backwards;
-        -moz-animation: outT 0.3s backwards;
-        -ms-animation: outT 0.3s backwards;
-        -o-animation: outT 0.3s backwards;
         animation: outT 0.3s backwards;
-        -webkit-animation-direction: reverse;
-        -moz-animation-direction: reverse;
-        -ms-animation-direction: reverse;
-        -o-animation-direction: reverse;
         animation-direction: reverse;
     }
     .navTrigger i:nth-child(2) {
         margin: 5px 0;
-        -webkit-animation:outM 0.3s backwards;
-        -moz-animation:outM 0.3s backwards;
-        -ms-animation:outM 0.3s backwards;
-        -o-animation:outM 0.3s backwards;
         animation:outM 0.3s backwards;
-        -webkit-animation-direction:reverse;
-        -moz-animation-direction:reverse;
-        -ms-animation-direction:reverse;
-        -o-animation-direction:reverse;
         animation-direction:reverse;
     }
     .navTrigger i:nth-child(3) {
-        -webkit-animation:outBtm 0.3s backwards;
-        -moz-animation:outBtm 0.3s backwards;
-        -ms-animation:outBtm 0.3s backwards;
-        -o-animation:outBtm 0.3s backwards;
         animation:outBtm 0.3s backwards;
-        -webkit-animation-direction:reverse;
-        -moz-animation-direction:reverse;
-        -ms-animation-direction:reverse;
-        -o-animation-direction:reverse;
         animation-direction:reverse;
     }
     .active i:nth-child(1) {
-        -webkit-animation:inT 0.3s forwards;
-        -moz-animation:inT 0.3s forwards;
-        -ms-animation:inT 0.3s forwards;
-        -o-animation:inT 0.3s forwards;
         animation:inT 0.3s forwards;
     }
     .active i:nth-child(2) {
-        -webkit-animation:inM 0.3s forwards;
-        -moz-animation:inM 0.3s forwards;
-        -ms-animation:inM 0.3s forwards;
-        -o-animation:inM 0.3s forwards;
         animation:inM 0.3s forwards;
     }
     .active i:nth-child(3) {
-        -webkit-animation:inBtm 0.3s forwards;
-        -moz-animation:inBtm 0.3s forwards;
-        -ms-animation:inBtm 0.3s forwards;
-        -o-animation:inBtm 0.3s forwards;
         animation:inBtm 0.3s forwards;
     }
 }
@@ -254,12 +202,14 @@ input[type='text']:focus, input[type='password']:focus {
     background-color: rgb(220, 220, 220);
 }
 .button {
-    background-color: orange;
-    border-radius: 3px;
+    background-color: #005500;
     margin-right: 5px;
     margin-bottom: 0;
 }
-.button:hover, .button:active, .button:focus { background-color: #dd6644; }
+.button:hover, .button:active, .button:focus { 
+	background-color: #22AA22;
+	box-shadow: 0 0 5px 0 black;
+}
 .caution { background-color: red; }
 .caution:hover { background-color: rgb(200, 0, 0); }
 .signup { padding: 20px; font-size: 2em; margin: auto; }
@@ -274,7 +224,7 @@ input[type='text']:focus, input[type='password']:focus {
 
 /* Pages */
 .section { padding: 30px 0; }
-.section:nth-child(odd) { background-color: rgb(220, 220, 220); }
+.section:nth-child(odd) { background-color: rgb(230, 230, 230); }
 .section:nth-child(even) { background-color: white; }
 .section ul.list li { list-style: circle; margin-left: 40px; }
 .platforms p { font-size: 1.5em; margin: 0; }
@@ -322,7 +272,7 @@ input[type='text']:focus, input[type='password']:focus {
     max-width: 90%;
 }
 .you { background-color: #33cc33; float: right; text-align: right; }
-.bot { background-color: orange; float: left; }
+.bot { background-color: #F47042; float: left; }
 .chatlist span div { font-size: .8em; color: rgb(50, 100, 50); }
 .chatlist span pre {
     font-family: sans-serif;
@@ -341,7 +291,7 @@ input[type='text']:focus, input[type='password']:focus {
         width: 100%; 
         overflow-x: scroll;
     }
-    .platforms { width: 1230px; height: 1px; }
+    .platforms { width: 1560px; height: 1px; }
     .platforms li { float: left; }
     .platforms li:first-child { margin-left: 6%; }
     .platforms li:last-child { margin-right: 6%; }
@@ -363,9 +313,10 @@ input[type='text']:focus, input[type='password']:focus {
 footer {
     padding: 60px;
     padding-top: 40px;
-    background-color: #003300;
+    background-color: #000600;
+    box-shadow: 0 0 20px 2px black;
 }
-.footer-header { color: #996633; }
+.footer-header { color: #22AA22; }
 .footer-item a {
     text-decoration: none;
     color: white;
