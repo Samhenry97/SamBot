@@ -193,7 +193,7 @@ def messages():
 def message():
 	text = request.get_json()['text']
 	userInfo = glob.db.getUserById(current_user.id)
-	chat = { 'id': -1, 'chatId': -1, 'chatUUID': '', 'type': 'o' }
+	chat = { 'id': -1, 'chatId': -1, 'chatUUID': '', 'type': 'o', 'quiet': 0 }
 	response = reply.getReply(text, userInfo, chat)
 	glob.db.addMessage(userInfo['id'], text, True)
 	glob.db.addMessage(userInfo['id'], response, False)
