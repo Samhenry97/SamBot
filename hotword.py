@@ -59,7 +59,7 @@ def init():
 	while True:
 		try:
 			print(sr.Microphone.list_microphone_names())
-			micIndex = sr.Microphone.list_microphone_names().index('USB Audio Device: - (hw:1,0)')
+			micIndex = sr.Microphone.list_microphone_names().index('USB PnP Audio Device: Audio (hw:1,0)')
 			break
 		except:
 			time.sleep(1)

@@ -12,6 +12,7 @@
           <th>Last Name</th>
           <th>Username</th>
           <th>Email</th>
+          <th>Origin</th>
           <th>Actions</th>
         </tr>
         {% for user in users %}
@@ -21,6 +22,7 @@
           <td>{{user.lastName}}</td>
           <td>{{user.userName}}</td>
           <td>{{user.email}}</td>
+          <td>{{platforms[user.type]}}</td>
           <td>
 			<a title='Edit' href="/users/{{user.id}}"><i class='fa fa-cog'></i></a>
 			<a title='Likes' href="/likes/{{user.id}}"><i class='fa fa-heart'></i></a>

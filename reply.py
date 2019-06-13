@@ -1,5 +1,5 @@
 import re, random, requests, json, sys, os, subprocess, hashlib, time, geopy
-import glob, reminders, util, bots.messenger
+import glob, reminders, util, bots.messenger, contest
 from emoji import Emoji
 
 replies = {}
@@ -99,6 +99,32 @@ def getReply(origText, userInfo, chat):
 	text = origText.lower().strip()
 	
 	
+	if text == '!talk':
+		if chat['quiet'] == 0:
+			return 'I\'m already talking'
+		db.setQuiet(chat['id'], 0)
+		return 'Yay! I can talk again!'
+	elif text == '!direct':
+		if chat['quiet'] == 1:
+			return 'I\'m already responding to direct messages'
+		db.setQuiet(chat['id'], 1)
+		return 'I\'ll only respond to messages starting with "!"'
+	elif text == '!quiet':
+		if chat['quiet'] == 2:
+			return 'I\'m already quiet'
+		db.setQuiet(chat['id'], 2)
+		return 'Okay, I\'ll be quiet.'		
+	
+	
+	if chat['quiet'] == 1:
+		if text.startswith('!'):
+			text = text[1:]
+		else:
+			return ''
+	elif chat['quiet'] == 2:
+		return ''
+	
+	
 	waitingFor = userInfo['waitingFor']
 	if waitingFor == 'call':
 		db.setWaitingFor(userInfo['id'], 'nothing')
@@ -175,7 +201,9 @@ def getReply(origText, userInfo, chat):
 			return 'Sent Text.'
 		
 		
-	if text.startswith('do you like'):
+	if text.startswith('contest'):
+		return contest.getUpcomingContests()
+	elif text.startswith('do you like'):
 		arg = text[11:].strip().replace('?', '')
 		return genReply('doyoulike', userInfo, arg)
 	elif text.startswith('say'):

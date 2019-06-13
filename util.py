@@ -8,10 +8,10 @@ class Loader:
 		self.message = message
 	
 	def __enter__(self):
-		print('Loading {}...'.format(self.message))
+		print('Loading {}... '.format(self.message), end='')
 	
 	def __exit__(self, type, value, traceback):
-		print('Done!\n')
+		print('Done!')
 
 words = {}
 

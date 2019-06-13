@@ -184,6 +184,9 @@ class Database:
 		
 	def setChatUUID(self, chatId, uuid):
 		self.update('UPDATE chats SET uuid = %s WHERE id = %s', (uuid, chatId))
+		
+	def setQuiet(self, chatId, value):
+		self.update('UPDATE chats SET quiet = %s WHERE id = %s', (value, chatId))
 
 	#######################################################################################################
 	#######################################################################################################

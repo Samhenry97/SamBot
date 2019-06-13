@@ -25,6 +25,8 @@ py-bcrypt
 flask-login
 SpeechRecognition
 yowsup2
+discord
+pytz
 
 Set up MySQL:
 sudo su -

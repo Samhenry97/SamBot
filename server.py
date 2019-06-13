@@ -234,7 +234,7 @@ def users():
 	if not current_user.admin:
 		return adminOnly()
 	count = glob.db.selectOne('SELECT COUNT(*) AS count FROM users')['count']
-	return render_template('users/index.html', users=User.all(), count=count, page='users')
+	return render_template('users/index.html', platforms=glob.PLATFORMS, users=User.all(), count=count, page='users')
 	
 @server.route('/likes')
 @login_required
@@ -277,12 +277,6 @@ def editUser(id):
 	user = User.get(id)
 	if not user:
 		abort(404)
-	if user.userName != form.userName.data and glob.db.getUserByUserName(form.userName.data):
-		flash('Username already taken.', 'error')
-		return render_template('users/edit.html', form=form, user=user)
-	if user.email != form.email.data and glob.db.getUserByEmail(form.email.data):
-		flash('Email already taken.', 'error')
-		return render_template('users/edit.html', form=form, user=user)
 	if request.method == 'POST' and form.validate():
 		try:
 			user.update(form.firstName.data, form.lastName.data, form.userName.data, form.nickName.data, form.waitingFor.data, form.email.data, form.admin.data, int(form.phone.data))

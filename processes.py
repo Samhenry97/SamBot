@@ -32,10 +32,11 @@ async def alarmCheck():
 		except Exception as e:
 			glob.messageAdmins('Uncaught Error in Alarm Check: {}'.format(e))
 
-def techWritingKeepAlive():
+def keepAlive():
 	while True:
 		requests.get('http://bootableusb.herokuapp.com')
-		time.sleep(20)
+		requests.get('http://unicoders.herokuapp.com')
+		time.sleep(30)
 
 def speechEngine(engine):
 	while True:
