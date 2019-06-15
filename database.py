@@ -68,16 +68,24 @@ class Database:
 		
 	def getUserForChat(self, chatId):
 		return self.selectOne('SELECT * FROM users INNER JOIN chatusers ON users.id = chatusers.userId INNER JOIN chats ON chats.id = chatusers.chatId WHERE chats.id = %s', (chatId,))
+		
+	def getTriggerByWords(self, words):
+		return self.selectOne('SELECT * FROM triggers WHERE words = %s', (words,))
+		
+	def getAllTriggers(self):
+		return self.selectMany('SELECT * FROM triggers')
+		
+	def getTriggerResponses(self):
+		return self.selectMany('SELECT * FROM responses INNER JOIN triggers ON triggers.id = responses.triggerId')
+		
+	def getTriggerResponse(self, triggerId):
+		return self.selectMany('SELECT * FROM responses INNER JOIN triggers ON triggers.id = responses.triggerId WHERE responses.triggerId = %s', (triggerId,))
+		
+	def getResponses(self, triggerId):
+		return self.selectMany('SELECT * FROM responses WHERE triggerId = %s', (triggerId,))
 
 	def getLikes(self, userId):
-		with lock:
-			ans = []
-			with self.conn.cursor() as cursor:
-				sql = 'SELECT name FROM likes WHERE userId = %s'
-				cursor.execute(sql, (userId,))
-				for row in cursor:
-					ans.append(row['name'])
-			return ans
+		return self.selectMany('SELECT name FROM likes WHERE userId = %s')
 
 	def loadUsers(self, dict):
 		with lock:
@@ -159,6 +167,12 @@ class Database:
 	def addMessage(self, userId, text, fromUser):
 		if text.strip():
 			self.insert('INSERT INTO messages (userId, text, fromUser) VALUES (%s, %s, %s)', (userId, text, fromUser))
+			
+	def addTrigger(self, userId, words):
+		self.insert('INSERT INTO triggers (userId, words) VALUES (%s, %s)', (userId, words))
+	
+	def addResponse(self, triggerId, message):
+		self.insert('INSERT INTO responses (triggerId, message) VALUES (%s, %s)', (triggerId, message))
 
 	#######################################################################################################
 	#######################################################################################################
@@ -200,6 +214,12 @@ class Database:
 		
 	def deleteLike(self, id):
 		self.update('DELETE FROM likes WHERE id = %s', (id,))
+		
+	def deleteTrigger(self, id):
+		self.update('DELETE FROM triggers WHERE id = %s', (id,))
+		
+	def deleteResponseByTrigger(self, triggerId):
+		self.update('DELETE FROM responses WHERE triggerId = %s', (triggerId,))
 	
 	def removeLike(self, userId, like):
 		with lock:

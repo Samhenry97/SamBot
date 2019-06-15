@@ -1,5 +1,5 @@
 from threading import Thread
-import asyncio, pymysql
+import asyncio, pymysql, aiohttp, io
 import discord, glob, util, reply
 
 client = None
@@ -21,6 +21,8 @@ class DiscordBot(discord.Client):
 			channel = message.channel
 			content = message.content
 			public = type(channel) != discord.DMChannel
+			await channel.trigger_typing()
+			
 			userId = int(author.id)
 			chatId = int(channel.id)
 			user = db.getUser(userId, 'd')
@@ -65,6 +67,16 @@ async def changeNickname(newName, chat, userInfo):
 async def sendMessage(chatId, text):
 	channel = client.get_channel(int(chatId))
 	await channel.send(text)
+	
+async def sendPhoto(chatId, url):
+	pos = url.rfind('/')
+	name = url if pos == -1 else url[pos+1:]
+	async with aiohttp.ClientSession() as session:
+		async with session.get(url) as resp:
+			data = io.BytesIO(await resp.read())
+	
+	channel = client.get_channel(int(chatId))
+	await channel.send(channel, file=discord.File(data, filename=name))
 		
 def init():
 	global client

@@ -1,12 +1,36 @@
 import re, random, requests, json, sys, os, subprocess, hashlib, time, geopy
 import glob, reminders, util, bots.messenger, contest
+from collections import defaultdict
 from emoji import Emoji
 
-replies = {}
+replies = defaultdict(list)
 tests = {}
-replymap = {}
+replymap = defaultdict(set)
+triggers = set()
 
-def loadReplies():
+def loadReplies(triggerId=None):
+	db = glob.db
+	
+	if triggerId == None:
+		responses = db.getTriggerResponses()
+	else:
+		responses = db.getTriggerResponse(triggerId)
+	
+	for resp in responses:
+		key = resp['triggers.id']
+		words = resp['words']
+		replies[key].append(resp['message'])
+		if words not in triggers:
+			triggers.add(words)
+			tests[key] = len(words)
+			for word in words.split():
+				replymap[word].add(key)
+	
+	if triggerId != None:
+		return
+	
+	##### TODOOOOO
+	return	
 	inline = False
 	inlineString = []
 	key = ''
@@ -29,10 +53,7 @@ def loadReplies():
 				words = line.split()[1:]
 				tests[key] = len(words)
 				for x in words:
-					if x not in replymap:
-						replymap[x] = { key: True }
-					else:
-						replymap[x][key] = True
+					replymap[x].add(key)
 			elif line == '{start}':
 				inline = True
 			else:
@@ -94,38 +115,7 @@ def genReply(replyType, info, *args):
 	
 	
 	
-def getReply(origText, userInfo, chat):
-	db = glob.db
-	text = origText.lower().strip()
-	
-	
-	if text == '!talk':
-		if chat['quiet'] == 0:
-			return 'I\'m already talking'
-		db.setQuiet(chat['id'], 0)
-		return 'Yay! I can talk again!'
-	elif text == '!direct':
-		if chat['quiet'] == 1:
-			return 'I\'m already responding to direct messages'
-		db.setQuiet(chat['id'], 1)
-		return 'I\'ll only respond to messages starting with "!"'
-	elif text == '!quiet':
-		if chat['quiet'] == 2:
-			return 'I\'m already quiet'
-		db.setQuiet(chat['id'], 2)
-		return 'Okay, I\'ll be quiet.'		
-	
-	
-	if chat['quiet'] == 1:
-		if text.startswith('!'):
-			text = text[1:]
-		else:
-			return ''
-	elif chat['quiet'] == 2:
-		return ''
-	
-	
-	waitingFor = userInfo['waitingFor']
+def handleWaitingFor(waitingFor, db, origText, text, userInfo, chat):
 	if waitingFor == 'call':
 		db.setWaitingFor(userInfo['id'], 'nothing')
 		glob.changeNickname(origText, chat, userInfo)
@@ -162,46 +152,143 @@ def getReply(origText, userInfo, chat):
 			return 'Answer: {}'.format(ans)
 		else:
 			return 'Sorry, I can\'t solve that!'
+	elif waitingFor.startswith('resp:'):
+		part = waitingFor[5:].strip()
+		
+		if text.startswith('cancel'):
+			if part != 'trigger':
+				db.deleteResponseByTrigger(part)
+				db.deleteTrigger(part)
+			
+			db.setWaitingFor(userInfo['id'], 'nothing')
+			return 'Okay! Feel free to add a response whenever you want!'
+		
+		if part == 'trigger':
+			text = ''.join(c for c in text if c.isalnum() or c == ' ')
+			words = ' '.join(sorted(set(text.split())))
+			if words in triggers:
+				return 'That combination of trigger words is already taken! Please choose a different one:'
+			db.addTrigger(userInfo['id'], words)
+			trigger = db.getTriggerByWords(words)
+			db.setWaitingFor(userInfo['id'], 'resp: {}'.format(trigger['id']))
+			return 'I\'ve added your trigger words! Now enter a response for me to say:'
+		else:
+			responses = db.getResponses(part)
+			if text == 'finish':
+				if len(responses) == 0:
+					return 'You haven\'t added any responses yet! Please add at least one:'
+				else:
+					db.setWaitingFor(userInfo['id'], 'nothing')
+					loadReplies(part)
+					return 'Complete trigger successfully created! Feel free to try it out!'
+			db.addResponse(part, origText)
+			return 'Successfully added response! Enter another or type "finish" to complete!'
+	return ''
+	
+	
+	
+def handleVolume(db, origText, text, userInfo, chat):
+	if text == '!talk':
+		if chat['quiet'] == 0:
+			return 'I\'m already talking'
+		db.setQuiet(chat['id'], 0)
+		return 'Yay! I can talk again!'
+	elif text == '!direct':
+		if chat['quiet'] == 1:
+			return 'I\'m already responding to direct messages'
+		db.setQuiet(chat['id'], 1)
+		return 'I\'ll only respond to messages starting with "!"'
+	elif text == '!quiet':
+		if chat['quiet'] == 2:
+			return 'I\'m already quiet'
+		db.setQuiet(chat['id'], 2)
+		return 'Okay, I\'ll be quiet.'
+	
+	
+	if chat['quiet'] == 1:
+		if text.startswith('!'):
+			text = text[1:]
+		else:
+			return ''
+	elif chat['quiet'] == 2:
+		return ''
+		
+		
+		
+def handleAdmin(db, origText, text, userInfo, chat):
+	if not userInfo['admin']:
+		return
+		
+	if text == 'reboot':
+		if len(sys.argv) >= 2:
+			sys.argv = sys.argv[:1]
+		else:
+			glob.bm(chat, 'Rebooting...')
+			os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chat['id'])])
+	elif text.startswith('git ') or text.startswith('cat ') or text.startswith('ls'):
+		return processOutput(text)
+	elif text.startswith('python'):
+		cmd = text[6:]
+		try:
+			return str(eval(cmd))
+		except:
+			return 'Error parsing Python code.'
+	elif 'volume' in text:
+		text = text.replace('volume', '').replace('set', '').replace('to', '').replace('percent', '').replace('%', '').strip()
+		try:
+			percent = int(text)
+			processOutput('amixer sset Master ' + str(percent) + '%')
+			return 'Successfully set volume to ' + text + ' percent!'
+		except Exception as e:
+			print('Volume Error: ', e)
+			return 'Couldn\'t set the volume... Sorry!'
+	elif text.startswith('text'):
+		number = text.split()[1]
+		msg = ' '.join(text.split()[2:])
+		if len(number) <= 10:
+			number = '1' + number
+		bots.sms.sendMessage(number, msg)
+		return 'Sent Text.'
+	
+	
+	
+def getReply(origText, userInfo, chat):
+	db = glob.db
+	text = origText.lower().strip()
+	
+	
+	# Should we respond or not?
+	volume = handleVolume(db, origText, text, userInfo, chat)
+	if volume != None:
+		return volume
+	
+	
+	# Is the user waiting on a response?
+	waitingFor = userInfo['waitingFor']
+	if waitingFor != 'nothing':
+		return handleWaitingFor(waitingFor, db, origText, text, userInfo, chat)
 		
 		
 	# Admin Commands
-	if userInfo['admin']:
-		if text == 'reboot':
-			if len(sys.argv) >= 2:
-				sys.argv = sys.argv[:1]
-			else:
-				glob.bm(chat, 'Rebooting...')
-				os.execv(sys.executable, ['python3'] + sys.argv[:1] + [str(chat['id'])])
-		elif text.startswith('git ') or text.startswith('cat ') or text.startswith('ls'):
-			return processOutput(text)
-		elif text == 'update' or text == 'refresh' or text == 'reload':
-			loadReplies()
-			return 'Refreshing Response List Done!'
-		elif text.startswith('python'):
-			cmd = text[6:]
-			try:
-				return str(eval(cmd))
-			except:
-				return 'Error parsing Python code.'
-		elif 'volume' in text:
-			text = text.replace('volume', '').replace('set', '').replace('to', '').replace('percent', '').replace('%', '').strip()
-			try:
-				percent = int(text)
-				processOutput('amixer sset Master ' + str(percent) + '%')
-				return 'Successfully set volume to ' + text + ' percent!'
-			except Exception as e:
-				print('Volume Error: ', e)
-				return 'Couldn\'t set the volume... Sorry!'
-		elif text.startswith('text'):
-			number = text.split()[1]
-			msg = ' '.join(text.split()[2:])
-			if len(number) <= 10:
-				number = '1' + number
-			bots.sms.sendMessage(number, msg)
-			return 'Sent Text.'
+	admin = handleAdmin(db, origText, text, userInfo, chat)
+	if admin != None:
+		return admin
 		
 		
-	if text.startswith('contest'):
+	if text.startswith('addresponse') or text.startswith('newresponse'):
+		db.setWaitingFor(userInfo['id'], 'resp: trigger')
+		return '''
+Let's create a new response for me!
+First, please enter a list of space-separated trigger words.
+Trigger words are the ones that I check for in a user's
+message to decide what response I am going to send.
+
+During any point in the creation process,
+type "cancel" to stop creating a new response.
+
+Enter the trigger words, space-separated, now:
+		'''.strip()
+	elif text.startswith('contest'):
 		return contest.getUpcomingContests()
 	elif text.startswith('do you like'):
 		arg = text[11:].strip().replace('?', '')
@@ -331,14 +418,14 @@ def getReply(origText, userInfo, chat):
 			return 'Couldn\'t get the weather... Try Again?'
 	else:
 		remindText = reminders.tryParse(chat, text, origText, userInfo, genReply)
-		if remindText.strip():
+		if remindText and remindText.strip():
 			return remindText
 		
 		data = ''.join(c for c in text if c.isalnum() or c == ' ').split()
 		possible = {}
 		for word in data:
 			if word in replymap:
-				for k in replymap[word].keys():
+				for k in replymap[word]:
 					possible[k] = possible[k] + 1 if k in possible else 1
 		response, percent = '', 0
 		for k, v in possible.items():
@@ -362,6 +449,3 @@ def getReply(origText, userInfo, chat):
 			return 'Sorry, I can\'t solve that!'
 			
 	return ''
-	
-
-loadReplies()

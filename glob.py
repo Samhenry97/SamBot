@@ -1,4 +1,4 @@
-import os, sys, random, asyncio
+import os, sys, random, asyncio, requests, io
 import telepot.aio, pyowm, pyaudio
 import database, reply, hotword, bots.messenger, bots.telegram, bots.sms, bots.kik, bots.whatsapp, bots.disc
 from fbchat.models import *
@@ -39,6 +39,7 @@ def init():
 		db = database.Database()
 		db.loadUsers(users)
 		db.loadChats(chats)
+		reply.loadReplies()
 	with Loader('Microphone'):
 		hotword.init()
 		
@@ -81,6 +82,9 @@ def sendPhoto(chat, name, web=True):
 			bots.kik.sendPhoto(recipient['userName'], chat['uuid'], name)
 		elif chat['type'] == 's':
 			bots.sms.sendPhoto(chat['chatId'], name)
+		elif chat['type'] == 'd':
+			loop = asyncio.get_event_loop()
+			loop.create_task(bots.disc.sendPhoto(chat['chatId'], name))
 	else:
 		if chat['type'] == 't':
 			bots.telegram.bclient.sendPhoto(chat['chatId'], open(name, 'rb'))
