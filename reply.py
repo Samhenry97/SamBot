@@ -30,7 +30,6 @@ def loadReplies(triggerId=None):
 		return
 	
 	##### TODOOOOO
-	return	
 	inline = False
 	inlineString = []
 	key = ''
@@ -76,9 +75,7 @@ emojiRegex = re.compile('\{Emoji\.([^{]+)\}(\(([0-9]+)(,([0-9]+))?\))?')
 argRegex = re.compile('\{arg\}(\(([0-9]+)(,([0-9]+))?\))?')
 argNRegex = re.compile('\{arg([0-9]+)\}(\(([0-9]+)(,([0-9]+))?\))?')
 wordRegex = re.compile('\{([^\{]+)\}(\(([0-9]+)(,([0-9]+))?\))?')
-def genReply(replyType, info, *args):
-	reply = random.choice(replies[replyType])
-
+def parse(reply, info, *args):
 	reply = replaceWithVar(reply, 'fName', info['firstName'])
 	reply = replaceWithVar(reply, 'lName', info['lastName'])
 	reply = replaceWithVar(reply, 'uName', info['userName'])
@@ -110,7 +107,13 @@ def genReply(replyType, info, *args):
 		y = int(m.group(5)) if m.group(5) else x
 		return m.group(1) * random.randint(x, y)
 	reply = wordRegex.sub(word, reply)
+	
+	return reply
 
+
+def genReply(replyType, info, *args):
+	reply = random.choice(replies[replyType])
+	reply = parse(reply, info, *args)
 	return reply
 	
 	

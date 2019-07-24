@@ -17,7 +17,8 @@ async def alarmCheck():
 					message = 'Alarm for {}!'.format(user['nickName'] or user['firstName'])
 				else:
 					print('[Sending Reminder to {}: {}]\n'.format(user['firstName'], a['message']))
-					message = 'Reminder for {}: {}'.format(user['nickName'] or user['firstName'], a['message'])
+					message = a['message']
+				message = reply.parse(message, user)
 				if user['type'] == 'o':
 					db.addMessage(user['id'], message, False)
 					if user['userId']:

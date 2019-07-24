@@ -6,6 +6,8 @@ sad =   [0x1f613, 0x1f614, 0x1f61e, 0x1f622, 0x1f623, 0x1f625]
 mad =   [0x1f620, 0x1f621, 0x1f624]
 tired = [0x1f634, 0x1f4a4]
 cool =  [0x1f60e, 0x1f608]
+heart = [0x1f493, 0x1f495, 0x1f496, 0x1f497, 0x1f498]
+flirt = [0x1f609, 0x1f60b, 0x1f60f]
 
 def choice(list, min=1, max=1):
 	ans = []
@@ -37,6 +39,12 @@ class Emoji:
 		
 	def hot(min=1, max=1):
 		return chr(0x1f525) * random.randint(min, max)
+		
+	def heart(min=1, max=1):
+		return choice(heart, min, max)
+		
+	def flirt(min=1, max=1):
+		return choice(flirt, min, max)
 
 	def get(type, min=1, max=1):
 		if min > max:

@@ -23,8 +23,8 @@ def init():
 	
 	with Loader('Telegram Bot'):
 		bots.telegram.init()
-	#with Loader('Messenger Bot'):
-	#	bots.messenger.init()
+	with Loader('Messenger Bot'):
+		bots.messenger.init()
 	with Loader('Kik Bot'):
 		bots.kik.init()
 	with Loader('Twilio Bot'):
@@ -40,8 +40,8 @@ def init():
 		db.loadUsers(users)
 		db.loadChats(chats)
 		reply.loadReplies()
-	with Loader('Microphone'):
-		hotword.init()
+	#with Loader('Microphone'):
+	#	hotword.init()
 		
 	print('\n' + '-' * 50)
 	print('Initialization Complete!')
@@ -58,8 +58,8 @@ async def m(chat, text): # Async Message
 def bm(chat, text): # Block Message
 	if chat['type'] == 't':
 		bots.telegram.bclient.sendMessage(chat['chatId'], text)
-	#elif chat['type'] == 'm':
-	#	bots.messenger.sendMessage(text, str(chat['chatId']), [ThreadType.USER, ThreadType.GROUP][chat['public']])
+	elif chat['type'] == 'm':
+		bots.messenger.sendMessage(text, str(chat['chatId']), [ThreadType.USER, ThreadType.GROUP][chat['public']])
 	elif chat['type'] == 's':
 		bots.sms.sendMessage(chat['chatId'], text)
 	elif chat['type'] == 'k':

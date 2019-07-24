@@ -21,7 +21,7 @@ async def main(executor):
 		loop.run_in_executor(executor, processes.speechEngine, glob.speech),
 		loop.run_in_executor(executor, processes.keepAlive),
 		#loop.run_in_executor(executor, hotword.listen),
-		#loop.run_in_executor(executor, bots.messenger.listen),
+		loop.run_in_executor(executor, bots.messenger.listen),
 		loop.run_in_executor(executor, bots.whatsapp.listen),
 		loop.run_in_executor(executor, server.listen, debug),
 		loop.create_task(bots.disc.listen()),
